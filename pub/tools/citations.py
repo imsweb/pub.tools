@@ -1,6 +1,6 @@
 from cgi import escape
 from StringIO import StringIO
-from sanitizer import su
+from cooking import su
 
 punc_endings = ('.','?','!')
 
@@ -45,19 +45,28 @@ def semi_colon(text):
 def semi_colon_no_space(text):
   return punctuate(text,u';',u'')
 
+def cookauthor(author):
+  if isinstance(author,dict):
+    suffix = author.get('suffix') and ' '+author['suffix'] or ''
+    initial = author.get('iname') or author.get('fname') and author['fname'][0].upper() or ''
+    if initial:
+      initial = ' ' + initial
+    return (author.get('cname','') or author.get('lname') or '') + initial+suffix
+  return author
+
 @cooked_citation
-def book_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',confname='',confdate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
+def book_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',conferencename='',conferencedate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
   out = StringIO()
   if editors and not authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if authors:
-    print >> out, period(u', '.join([su(a.replace(',',' ')) for a in authors]))
+    print >> out, period(u', '.join([su(cookauthor(a).replace(',',' ')) for a in authors]))
   if title:
     print >> out, period(title)
   if edition:
     print >> out, period(edition)
   if editors and authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if pubplace:
     if publisher:
       print >> out, colon(pubplace)
@@ -77,18 +86,18 @@ def book_citation(authors=[],editors=[],title='',journal='',pubdate='',volume=''
   return out.getvalue()
 
 @cooked_citation
-def chapter_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',confname='',confdate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
+def chapter_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',conferencename='',conferencedate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
   out = StringIO()
   if editors and not authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if authors:
-    print >> out, period(u', '.join([su(a.replace(',',' ')) for a in authors]))
+    print >> out, period(u', '.join([su(cookauthor(a).replace(',',' ')) for a in authors]))
   if title:
     print >> out, period(title)
   if edition or editors or booktitle:
     print >> out, u'In: '
   if editors and authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if booktitle:
     print >> out, period(booktitle)
   if edition:
@@ -112,23 +121,23 @@ def chapter_citation(authors=[],editors=[],title='',journal='',pubdate='',volume
   return out.getvalue()
 
 @cooked_citation
-def conference_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',confname='',confdate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
+def conference_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',conferencename='',conferencedate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
   out = StringIO()
   if editors and not authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if authors:
-    print >> out, period(u', '.join([su(a.replace(',',' ')) for a in authors]))
+    print >> out, period(u', '.join([su(cookauthor(a).replace(',',' ')) for a in authors]))
   if title:
     print >> out, period(title)
   if editors and authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
-  if confname:
-    print >> out, semi_colon(u'<i>Proceedings of %s</i>' % confname)
-  if confdate:
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+  if conferencename:
+    print >> out, semi_colon(u'<i>Proceedings of %s</i>' % conferencename)
+  if conferencedate:
     if place or pubdate or publisher:
-      print >> out, semi_colon(confdate)
+      print >> out, semi_colon(conferencedate)
     else:
-      print >> out, period(confdate)
+      print >> out, period(conferencedate)
   if place:
     print >> out, period(place)
   if pubplace:
@@ -148,11 +157,11 @@ def conference_citation(authors=[],editors=[],title='',journal='',pubdate='',vol
   return out.getvalue()
 
 @cooked_citation
-def journal_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',confname='',confdate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False, **kwargs):
+def journal_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',conferencename='',conferencedate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False, **kwargs):
   out = StringIO()
   if not use_abstract:
     if authors:
-      print >> out, period(u', '.join([su(a.replace(',',' ')) for a in authors if a]))
+      print >> out, period(u', '.join([su(cookauthor(a).replace(',',' ')) for a in authors if a]))
     if title:
       print >> out, period(title)
     if journal:
@@ -201,7 +210,7 @@ def journal_citation(authors=[],editors=[],title='',journal='',pubdate='',volume
           print >> out, 'eCollection %s' + period(pubdate)
 
   else:
-    print >> out, u'<b>Author: </b>%s<br/>' % u', '.join([su(a).replace(u',',u' ') for a in authors])
+    print >> out, u'<b>Author: </b>%s<br/>' % u', '.join([su(cookauthor(a)).replace(u',',u' ') for a in authors])
     print >> out, u'<b>Title: </b>%s<br/>' % title
     print >> out, u'<b>Journal: </b>%s' % journal
     if journal and issue and volume and pagination:
@@ -241,18 +250,18 @@ def journal_citation(authors=[],editors=[],title='',journal='',pubdate='',volume
   return out.getvalue()
 
 @cooked_citation
-def monograph_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',confname='',confdate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
+def monograph_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',conferencename='',conferencedate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
   out = StringIO()
   if serieseditors and not authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in serieseditors]), len(serieseditors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in serieseditors]), len(serieseditors)>1 and 's' or ''))
   if authors:
-    print >> out, semi_colon(u', '.join([su(a.replace(',',' ')) for a in authors]))
+    print >> out, semi_colon(u', '.join([su(cookauthor(a).replace(',',' ')) for a in authors]))
   if title:
     print >> out, period(title)
   if series:
     print >> out, period(series)
   if serieseditors and authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in serieseditors]), len(serieseditors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in serieseditors]), len(serieseditors)>1 and 's' or ''))
   if pubplace:
     if publisher:
       print >> out, colon(pubplace)
@@ -274,18 +283,18 @@ def monograph_citation(authors=[],editors=[],title='',journal='',pubdate='',volu
   return out.getvalue()
 
 @cooked_citation
-def report_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',confname='',confdate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
+def report_citation(authors=[],editors=[],title='',journal='',pubdate='',volume='',issue='',pagination='',edition='',series='',pubplace='',booktitle='',chapternum='',weburl='',place='',conferencename='',conferencedate='',reportnum='',publisher='',abstract='',serieseditors=[],pubmodel='Print',edate='',doi='',pmid='',use_abstract=False,**kwargs):
   out = StringIO()
   if editors and not authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if authors:
-    print >> out, period(u', '.join([su(a.replace(',',' ')) for a in authors]))
+    print >> out, period(u', '.join([su(cookauthor(a).replace(',',' ')) for a in authors]))
   if title:
     print >> out, period(title)
   if series:
     print >> out, period(series)
   if editors and authors:
-    print >> out, period(u'%s, editor%s' % (', '.join([su(e.replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
+    print >> out, period(u'%s, editor%s' % (', '.join([su(cookauthor(e).replace(',',' ')) for e in editors]), len(editors)>1 and 's' or ''))
   if pubplace:
     if publisher:
       print >> out, colon(pubplace)

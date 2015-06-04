@@ -1,4 +1,9 @@
 from datetime import datetime
+from config import NO_VALUE
+
+preferred_date_format = '%Y %b %d'
+preferred_date_format_long = '%Y %b %d %I:%M %p'
+
 mmap={'winter':1,'spring':4,'summer':7,'fall':10,'autumn':10,'win':1,'spr':4,'sum':7,'fal':10,'aut':10,
       'jan':1,'january':1,'feb':2,'february':2,'mar':3,'march':3,'apr':4,'april':4,'may':5,'jun':6,'june':6,
       'jul':7,'july':7,'aug':8,'august':8,'sep':9,'september':9,'oct':10,'october':10,'nov':11,'november':11,
@@ -14,7 +19,16 @@ rmap={'winter':'Winter','spring':'Spring','summer':'Summer','fall':'Fall','autum
 rism={'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06','Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
 monthlist=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-def cookDate(year,month,day,medlinedate='',end=False): # if end is true, use end of range
+def cookDate(year,month,day,medlinedate='',end=False):
+  """ returns a datetime object
+      medlinedate:
+         - string containing the full date
+         - used by PubMed (medline) to represent atypical dates, like Spring 2008
+         - takes precedence over year/month/day values
+      end:
+        - if the result represents a date range we return the start unless this variable is true
+  """
+
   if medlinedate:
     medlinedate=medlinedate.replace(' Quart','Quart')
     if ' ' in medlinedate:
@@ -70,6 +84,8 @@ def cookDate(year,month,day,medlinedate='',end=False): # if end is true, use end
   return cooked
 
 def cookDateStr(value):
+  """ takes a string and reformats it to '%Y %b %-d'. e.g. '8-11-2009' becomes '2009 Aug 11'
+  """
   try:
     if '- ' in value:
       value = value.replace(' - ','-').replace('- ','-')
@@ -112,6 +128,8 @@ def cookDateStr(value):
     return value
 
 def cookDateRIS(value):
+  """ converts a string representing a date into RIS format
+  """
   value=cookDateStr(value)
   vals=value.split(' ')
   year=month=other=day=''
@@ -132,16 +150,49 @@ def cookDateRIS(value):
   day=day.split('-')[0]
   return '/'.join([i for i in (year,month,day,other)])
 
-def cookDateMonths(start,end): 
+def cookDateMonths(start,end):
+  """ returns a list of all months within the date range. Useful for list based searches
+  """
   months = []
-  years = range(start.year(),end.year()+1)
+  years = range(start.year,end.year+1)
   for year in years:
     month_start = 1
     month_end = 13
-    if year == start.year():
-      month_start = start.month()
-    if year == end.year():
-      month_end = end.month()+1
+    if year == start.year:
+      month_start = start.month
+    if year == end.year:
+      month_end = end.month+1
     for month in range(month_start,month_end):
       months.append(monthlist[month-1] + ' ' + str(year))
   return months
+
+def su(value, encoding='utf-8'):
+  """ Converts a value to unicode, even it is already a unicode string.
+  """
+  if isinstance(value, unicode):
+      return value
+  elif isinstance(value, basestring):
+      try:
+          value = unicode(value, encoding)
+      except (UnicodeDecodeError):
+          value = value.decode('utf-8', 'replace')
+  return value
+
+
+punclist = ['.',',',':',';','\'','(',')','{','}','[',']','=','+','$','#','%','@','!','^','&','*']
+
+def sanitize(datastring):
+  import warnings
+  warnings.DeprecationWarning('Use su instead')
+  return su(datastring)
+
+def blankify(datastring=''):
+  """ If the value is blank we'll return a non-blank value meant to represent a null value
+      This allows us to search on that value
+  """
+  return datastring or NO_VALUE
+
+def depunctuate(datastring):
+  """ Remove punctuation
+  """
+  return datastring and ''.join([char for char in datastring if char not in punclist]) or ''

@@ -1,2 +1,2 @@
-recursive-include ims *
+recursive-include pub *
 global-exclude *pyc

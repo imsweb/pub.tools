@@ -3,7 +3,7 @@ import os
 
 version = '1.0'
 
-setup(name='ims.publications',
+setup(name='pub.tools',
       version=version,
       description="Package of tools for formatting publication data and accessing data from Entrez tool",
       # Get more strings from
@@ -14,10 +14,10 @@ setup(name='ims.publications',
       keywords='',
       author='Eric Wohnlich',
       author_email='wohnlice@imsweb.com',
-      url='http://git.imsweb.com/wohnlice/ims.publications',
+      url='http://git.imsweb.com/wohnlice/pub.tools',
       license='GPL',
       packages=find_packages(exclude=['ez_setup']),
-      namespace_packages=['ims'],
+      namespace_packages=['pub'],
       include_package_data=True,
       zip_safe=False,
       install_requires = [

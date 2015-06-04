@@ -5,8 +5,7 @@ from unidecode import unidecode
 from urllib2 import URLError
 
 from config import *
-from date import cookDateStr
-from sanitizer import su
+from cooking import cookDateStr, su
 
 Entrez.email = ENTREZ_EMAIL
 Entrez.tool = ENTREZ_TOOL
@@ -28,7 +27,7 @@ def parse_entrez_record(record):
     return parse_entrez_book_record(record)
 
 def parse_entrez_book_record(record):
-  data = {}
+  data = {'type':'book'}
   document = record.pop('BookDocument')
   book = document.pop('Book')
   # publicationtype = document.pop('PublicationType') - unsure what this is
@@ -73,6 +72,7 @@ def parse_entrez_book_record(record):
 
   locationlabel = document.get('LocationLabel','')
   if locationlabel and locationlabel[0].attributes['Type'] == 'chapter':
+    data['type'] = 'chapter'
     data['title'] = articletitle
     data['booktitle'] = su(book.get('BookTitle',''))
   else:
@@ -116,7 +116,7 @@ def parse_entrez_book_record(record):
   return data
 
 def parse_entrez_journal_record(record):
-  data = {}
+  data = {'type':'journal'}
   medline = record.pop('MedlineCitation')
   medlineinfo = medline.pop('MedlineJournalInfo')
   article = medline.pop('Article')

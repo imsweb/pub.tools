@@ -48,6 +48,7 @@ def cookDate(year,month,day,medlinedate='',end=False):
       else:
         year=year.split('-')[-1]
     elif len(vals)==3: # day / month / year
+     try:
       if not end:
         day=vals[0].split('-')[0]
       else:
@@ -66,6 +67,8 @@ def cookDate(year,month,day,medlinedate='',end=False):
         holder=day
         day=year
         year=holder
+     except:
+      import pdb; pdb.set_trace()
     else:
       if not end:
         year=vals[0].split('-')[0]
@@ -87,6 +90,7 @@ def cookDateStr(value):
   """ takes a string and reformats it to '%Y %b %-d'. e.g. '8-11-2009' becomes '2009 Aug 11'
   """
   try:
+    value=value.replace('th ',' ').replace('nd ',' ').replace('st ',' ')
     if '- ' in value:
       value = value.replace(' - ','-').replace('- ','-')
     if not ' ' in value:

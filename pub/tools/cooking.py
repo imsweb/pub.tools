@@ -19,7 +19,7 @@ rmap={'winter':'Winter','spring':'Spring','summer':'Summer','fall':'Fall','autum
 rism={'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06','Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
 monthlist=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-def cookDate(year,month,day,medlinedate='',end=False):
+def cookDate(year='',month='',day='',medlinedate='',end=False):
   """ returns a datetime object
       medlinedate:
          - string containing the full date

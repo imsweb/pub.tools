@@ -48,4 +48,7 @@ def atodates(abbrv):
   data = json.load(f)['dates']
   return data.get(abbrv.lower())
 
-cache()
+try:
+  cache()
+except urllib2.URLError: # if ncbi is down
+  pass

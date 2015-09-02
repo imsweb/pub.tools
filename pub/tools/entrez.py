@@ -172,7 +172,11 @@ def parse_entrez_journal_record(record):
     data['grants'] = grants
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
-        mesh.append(unicode(meshHeader['DescriptorName']))
+        d = meshHeader['DescriptorName']
+        mesh.append({
+            'name': unicode(d),
+            'id': d.attributes['UI'],
+        })
     data['mesh'] = mesh
     data['pubtypelist'] = [unicode(ptl) for ptl in article.get('PublicationTypeList', [])]
     for adate in articledate:

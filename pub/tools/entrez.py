@@ -207,14 +207,11 @@ def parse_entrez_journal_record(record):
 
 def get_publication(pmid):
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
-    records = Entrez.parse(handle)
-
     try:
-        record = records.next()
-    except StopIteration:
-        return -1
-    data = parse_entrez_record(record)
-    return data
+        for rec in Entrez.parse(handle):
+            return parse_entrez_record(rec)
+    finally:
+        handle.close()
 
 def get_publication_by_doi(doi):
     ids = find_publications(doi=doi)
@@ -222,10 +219,12 @@ def get_publication_by_doi(doi):
         return get_publication(ids['IdList'][0])
 
 def get_publications(pmids):
+    # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
+    if not isinstance(pmids, list):
+        pmids = list(pmids)
     # We don't need to enforce the three-queries rule because biopython does that
     # But we do need to prevent the URL from getting too long
     publen = len(pmids)
-    data = []
     # cap is ~4096 but about 150 other chars
     # an 8-character pmid +3 (comma=%2c) ~= (4096-150)/(8+3) ~= 358
     for counter in range(0, int(ceil(publen / float(config.MAX_PUBS)))):
@@ -237,11 +236,17 @@ def get_publications(pmids):
 
         #try:
         for record in Entrez.parse(handle):
-            data.append(parse_entrez_record(record))
+            yield parse_entrez_record(record)
         #except:
         #  raise Exception('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmids[lowend:topend]))
         handle.close()
-    return data
+
+def find_pmids(query):
+    handle = Entrez.esearch(db='pubmed', term=query, datetype='pdat', retmode='xml', retmax='100000')
+    try:
+        return Entrez.read(handle).get('IdList', [])
+    finally:
+        handle.close()
 
 def get_searched_publications(WebEnv, QueryKey, ids=None):
     """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow down subset of ids """

@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from config import NO_VALUE
 
 preferred_date_format = '%Y %b %d'
@@ -48,7 +49,6 @@ def cookDate(year='',month='',day='',medlinedate='',end=False):
       else:
         year=year.split('-')[-1]
     elif len(vals)==3: # day / month / year
-     try:
       if not end:
         day=vals[0].split('-')[0]
       else:
@@ -67,8 +67,6 @@ def cookDate(year='',month='',day='',medlinedate='',end=False):
         holder=day
         day=year
         year=holder
-     except:
-      import pdb; pdb.set_trace()
     else:
       if not end:
         year=vals[0].split('-')[0]
@@ -170,7 +168,7 @@ def cookDateMonths(start,end):
       months.append(monthlist[month-1] + ' ' + str(year))
   return months
 
-def su(value, encoding='utf-8'):
+def safe_unicode(value, encoding='utf-8'):
   """ Converts a value to unicode, even it is already a unicode string.
   """
   if isinstance(value, unicode):
@@ -181,7 +179,7 @@ def su(value, encoding='utf-8'):
       except (UnicodeDecodeError):
           value = value.decode('utf-8', 'replace')
   return value
-
+su = safe_unicode
 
 punclist = ['.',',',':',';','\'','(',')','{','}','[',']','=','+','$','#','%','@','!','^','&','*']
 
@@ -200,3 +198,9 @@ def depunctuate(datastring):
   """ Remove punctuation
   """
   return datastring and ''.join([char for char in datastring if char not in punclist]) or ''
+
+def alphanum(value):
+  """ Convert to only the alphanumeric characters
+  """
+  pattern = re.compile('[\W_]+', re.UNICODE)
+  return pattern.sub('', value)

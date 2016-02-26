@@ -1,5 +1,5 @@
-from xml.dom import minidom
-import json, urllib2
+from elementtree import ElementTree as et
+import json, re, urllib2
 
 from cooking import alphanum, cookDateStr, su
 
@@ -8,6 +8,7 @@ class IsbnData(object):
   language = u''
   publisher = u''
   authors = []
+  editors = []
   abstract = u''
   pubdate = u''
   google_books_link = u''
@@ -104,10 +105,33 @@ class WorldCatOpener(IsbnOpener):
     data = IsbnData()
     isbn = alphanum(isbn)
     source = self.get_url(isbn)
-    dom = minidom.parse(source)
-    works = dom.getElementsByTagName('work')
-    if works:
-      work = works[0]
-      data['authors'] = work.getAttribute('author').split(' | ')
-      data['title'] = work.getAttribute('title')
+
+    tree = et.parse(source)
+    ns = 'http://classify.oclc.org'
+
+    authors = []
+    editors = []
+    root = tree.getroot()
+    _authors = root.find('{%s}%s' % (ns,'authors'))
+    if _authors:
+      for author in _authors.findall('{%s}%s' % (ns,'author')):
+        author = author.text
+        brkt_pattern = '\[(.*?)\]'
+        brkt = re.search(brkt_pattern, author)
+        if brkt:
+          brkt_value = brkt.group(1)
+          author_name = author.split(brkt.group())[0].strip()
+          # what values are allowed here? Just try for editor for now
+          for role in brkt_value.split(';'):
+            role = role.strip()
+            if role == 'Editor' and author_name not in editors:
+              editors.append(author_name)
+            elif role == 'Author' and author_name not in authors:
+              authors.append(author_name)
+        else:
+          authors.append(author)
+      data['authors'] = authors
+      data['editors'] = editors
+      data['title'] = ''
+      data['title'] = root.find('{%s}%s' % (ns,'work')).attrib['title']
       return data

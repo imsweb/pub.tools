@@ -5,23 +5,24 @@ import re
 preferred_date_format = '%Y %b %d'
 preferred_date_format_long = '%Y %b %d %I:%M %p'
 
-mmap = {'winter':1, 'spring':4, 'summer':7, 'fall':10, 'autumn':10, 'win':1, 'spr':4, 'sum':7, 'fal':10, 'aut':10,
-    'jan':1, 'january':1, 'feb':2, 'february':2, 'mar':3, 'march':3, 'apr':4, 'april':4, 'may':5, 'jun':6, 'june':6,
-    'jul':7, 'july':7, 'aug':8, 'august':8, 'sep':9, 'september':9, 'oct':10, 'october':10, 'nov':11, 'november':11,
-    'dec':12, 'december':12, '1stquart':1, '2ndquart':4, '3rdquart':7, '4thquart':10}
-mmap_end = {'winter':3, 'spring':6, 'summer':9, 'fall':12, 'autumn':12, 'win':3, 'spr':6, 'sum':9, 'fal':12, 'aut':12,
-    'jan':1, 'january':1, 'feb':2, 'february':2, 'mar':3, 'march':3, 'apr':4, 'april':4, 'may':5, 'jun':6, 'june':6,
-    'jul':7, 'july':7, 'aug':8, 'august':8, 'sep':9, 'september':9, 'oct':10, 'october':10, 'nov':11, 'november':11,
-    'dec':12, 'december':12, '1stquart':3, '2ndquart':6, '3rdquart':9, '4thquart':12}
-rmap = {'winter':'Winter', 'spring':'Spring', 'summer':'Summer', 'fall':'Fall', 'autumn':'Autumn', 'win':'Win',
-    'spr':'Spr', 'sum':'Sum', 'fal':'Fal', 'aut':'Aut', 'jan':'Jan', 'january':'Jan', 'feb':'Feb', 'february':'Feb',
-    'mar':'Mar', 'march':'Mar', 'apr':'Apr', 'april':'Apr', 'may':'May', 'jun':'Jun', 'june':'Jun', 'jul':'Jul',
-    'july':'Jul', 'aug':'Aug', 'august':'Aug', 'sep':'Sep', 'september':'Sep', 'oct':'Oct', 'october':'Oct',
-    'nov':'Nov', 'november':'Nov', 'dec':'Dec', 'december':'Dec'}
-rism = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06', 'Jul':'07', 'Aug':'08', 'Sep':'09',
-    'Oct':'10', 'Nov':'11', 'Dec':'12'}
+mmap = {'winter': 1, 'spring': 4, 'summer': 7, 'fall': 10, 'autumn': 10, 'win': 1, 'spr': 4, 'sum': 7, 'fal': 10, 'aut': 10,
+    'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4, 'may': 5, 'jun': 6, 'june': 6,
+    'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9, 'oct': 10, 'october': 10, 'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12, '1stquart': 1, '2ndquart': 4, '3rdquart': 7, '4thquart': 10}
+mmap_end = {'winter': 3, 'spring': 6, 'summer': 9, 'fall': 12, 'autumn': 12, 'win': 3, 'spr': 6, 'sum': 9, 'fal': 12, 'aut': 12,
+    'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4, 'may': 5, 'jun': 6, 'june': 6,
+    'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9, 'oct': 10, 'october': 10, 'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12, '1stquart': 3, '2ndquart': 6, '3rdquart': 9, '4thquart': 12}
+rmap = {'winter': 'Winter', 'spring': 'Spring', 'summer': 'Summer', 'fall': 'Fall', 'autumn': 'Autumn', 'win': 'Win',
+    'spr': 'Spr', 'sum': 'Sum', 'fal': 'Fal', 'aut': 'Aut', 'jan': 'Jan', 'january': 'Jan', 'feb': 'Feb', 'february': 'Feb',
+    'mar': 'Mar', 'march': 'Mar', 'apr': 'Apr', 'april': 'Apr', 'may': 'May', 'jun': 'Jun', 'june': 'Jun', 'jul': 'Jul',
+    'july': 'Jul', 'aug': 'Aug', 'august': 'Aug', 'sep': 'Sep', 'september': 'Sep', 'oct': 'Oct', 'october': 'Oct',
+    'nov': 'Nov', 'november': 'Nov', 'dec': 'Dec', 'december': 'Dec'}
+rism = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 'Sep': '09',
+    'Oct': '10', 'Nov': '11', 'Dec': '12'}
 monthlist = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 punclist = ['.', ',', ':', ';', '\'', '(', ')', '{', '}', '[', ']', '=', '+', '$', '#', '%', '@', '!', '^', '&', '*']
+
 
 def cookDate(year='', month='', day='', medlinedate='', end=False):
     """ returns a datetime object
@@ -40,18 +41,18 @@ def cookDate(year='', month='', day='', medlinedate='', end=False):
         else:
             medlinedate = medlinedate.replace('/', ' ').replace(',', '').strip()
         vals = medlinedate.split(' ')
-        if len(vals) == 2: # year/month or month/year
-            if ord(vals[0][0]) in range(48, 58): # year/month
+        if len(vals) == 2:  # year/month or month/year
+            if ord(vals[0][0]) in range(48, 58):  # year/month
                 year = vals[0]
                 month = vals[1]
-            else: # month/year
+            else:  # month/year
                 year = vals[1]
                 month = vals[0]
             if not end:
                 year = year.split('-')[0]
             else:
                 year = year.split('-')[-1]
-        elif len(vals) == 3: # day / month / year
+        elif len(vals) == 3:  # day / month / year
             if not end:
                 day = vals[0].split('-')[0]
             else:
@@ -87,6 +88,7 @@ def cookDate(year='', month='', day='', medlinedate='', end=False):
     cooked = datetime(int(year), int(month), int(day))
     return cooked
 
+
 def cookDateStr(value):
     """ takes a string and reformats it to '%Y %b %-d'. e.g. '8-11-2009' becomes '2009 Aug 11'
     """
@@ -109,7 +111,7 @@ def cookDateStr(value):
             for val in vals:
                 try:
                     num = int(val)
-                except ValueError: #string, month/season
+                except ValueError:  # string, month/season
                     if month:
                         day = mmap[month.lower()]
                     month = '-'.join([rmap[m.lower()] for m in val.split('-') if m])
@@ -130,6 +132,7 @@ def cookDateStr(value):
         return ' '.join([str(i) for i in (year, month, day) if i])
     except KeyError:
         return value
+
 
 def cookDateRIS(value):
     """ converts a string representing a date into RIS format
@@ -154,6 +157,7 @@ def cookDateRIS(value):
     day = day.split('-')[0]
     return '/'.join([i for i in (year, month, day, other)])
 
+
 def cookDateMonths(start, end):
     """ returns a list of all months within the date range. Useful for list based searches
     """
@@ -170,6 +174,7 @@ def cookDateMonths(start, end):
             months.append(monthlist[month - 1] + ' ' + str(year))
     return months
 
+
 def safe_unicode(value, encoding='utf-8'):
     """ Converts a value to unicode, even it is already a unicode string.
     """
@@ -183,10 +188,12 @@ def safe_unicode(value, encoding='utf-8'):
     return value
 su = safe_unicode
 
+
 def sanitize(datastring):
     import warnings
     warnings.warn("pub.tools.sanitize is deprecated in favor of pub.tools.su", DeprecationWarning)
     return su(datastring)
+
 
 def blankify(datastring=''):
     """ If the value is blank we'll return a non-blank value meant to represent a null value
@@ -194,10 +201,12 @@ def blankify(datastring=''):
     """
     return datastring or config.NO_VALUE
 
+
 def depunctuate(datastring):
     """ Remove punctuation
     """
     return datastring and ''.join([char for char in datastring if char not in punclist]) or ''
+
 
 def alphanum(value):
     """ Convert to only the alphanumeric characters

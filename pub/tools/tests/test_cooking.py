@@ -3,7 +3,9 @@ from pub.tools import cooking
 from pub.tools.citations import journal_citation, book_citation, chapter_citation, conference_citation, monograph_citation, report_citation, punctuate, period
 import unittest
 
+
 class TestCooking(unittest.TestCase):
+
     def test_citation_basics(self):
         start = ''
         expected = ''
@@ -22,14 +24,14 @@ class TestCooking(unittest.TestCase):
         self.assertEquals(period(start), expected)
 
     def testJournalCitation(self):
-        record = {'title':'My title',
-                  'authors':[{'lname':'Wohnlich', 'iname':'E'}, {'lname':'Carter', 'iname':'G'}],
-                  'journal':'Sample Journal',
-                  'pubdate':'Jan 2007',
-                  'volume':'4',
-                  'issue':'5',
-                  'pagination':'345-7',
-                  'pubmodel':'Print', }
+        record = {'title': 'My title',
+                  'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
+                  'journal': 'Sample Journal',
+                  'pubdate': 'Jan 2007',
+                  'volume': '4',
+                  'issue': '5',
+                  'pagination': '345-7',
+                  'pubmodel': 'Print', }
         citation = 'Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.'
         self.assertEqual(citation, journal_citation(**record))
 
@@ -51,29 +53,29 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, journal_citation(**record))
 
     def testJournalAbstractCitation(self):
-        record = {'title':'My title',
-                  'authors':[{'lname':'Wohnlich', 'iname':'E'}, {'lname':'Carter', 'iname':'G'}],
-                  'journal':'Sample Journal',
-                  'pubdate':'Jan 2007',
-                  'volume':'4',
-                  'issue':'5',
-                  'pagination':'345-7',
-                  'pubmodel':'Print',
-                  'abstract':[{'label':'INTRO', 'text':'my findings'}],
-                  'use_abstract':True}
+        record = {'title': 'My title',
+                  'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
+                  'journal': 'Sample Journal',
+                  'pubdate': 'Jan 2007',
+                  'volume': '4',
+                  'issue': '5',
+                  'pagination': '345-7',
+                  'pubmodel': 'Print',
+                  'abstract': [{'label': 'INTRO', 'text': 'my findings'}],
+                  'use_abstract': True}
         citation = '<b>Author: </b>Wohnlich E, Carter G<br/><b>Title: </b>My title<br/><b>Journal: </b>Sample Journal. 4(5):345-7<br/><b>Pubmed link: </b><a href="http://www.ncbi.nlm.nih.gov/pubmed/">http://www.ncbi.nlm.nih.gov/pubmed/</a><br/><b>Citation Date: </b>Jan 2007<br/><b>Abstract: </b>INTRO: my findings<br/>'
         self.assertEqual(citation, journal_citation(**record))
 
     def testBookCitation(self):
-        record = {'title':'My title',
-                  'authors':({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Carter', 'iname':'G'},),
-                  'editors':({'lname':'Van Halen', 'iname':'E'},),
-                  'edition':'First Edition',
-                  'pubdate':'2007 Dec',
-                  'publisher':'Doubleday',
-                  'pubplace':'New York',
-                  'pagination':'243',
-                  'series':'My series', }
+        record = {'title': 'My title',
+                  'authors': ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'},),
+                  'editors': ({'lname': 'Van Halen', 'iname': 'E'},),
+                  'edition': 'First Edition',
+                  'pubdate': '2007 Dec',
+                  'publisher': 'Doubleday',
+                  'pubplace': 'New York',
+                  'pagination': '243',
+                  'series': 'My series', }
         citation = 'Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York: Doubleday; 2007 Dec. p. 243. (My series)'
         self.assertEqual(citation, book_citation(**record))
 
@@ -90,16 +92,16 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, book_citation(**record))
 
     def testChapterCitation(self):
-        record = {'title':'My title',
-                  'booktitle':'My Book',
-                  'authors':({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Carter', 'iname':'G'},),
-                  'editors':({'lname':'Van Halen', 'iname':'E'},),
-                  'edition':'First Edition',
-                  'pubdate':'2007 Dec',
-                  'publisher':'Doubleday',
-                  'pubplace':'New York',
-                  'pagination':'243',
-                  'series':'My series', }
+        record = {'title': 'My title',
+                  'booktitle': 'My Book',
+                  'authors': ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'},),
+                  'editors': ({'lname': 'Van Halen', 'iname': 'E'},),
+                  'edition': 'First Edition',
+                  'pubdate': '2007 Dec',
+                  'publisher': 'Doubleday',
+                  'pubplace': 'New York',
+                  'pagination': '243',
+                  'series': 'My series', }
         citation = 'Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. New York: Doubleday; 2007 Dec. p. 243. (My series)'
         self.assertEqual(citation, chapter_citation(**record))
 
@@ -116,17 +118,17 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, chapter_citation(**record))
 
     def testConferenceCitation(self):
-        record = {'title':'My title',
-                  'booktitle':'My Book',
-                  'authors':({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Battle', 'iname':'J'},),
-                  'editors':({'lname':'Sagan', 'iname':'C'}, {'lname':'Thorne', 'iname':'K'}),
-                  'conferencename':'Conference name',
-                  'conferencedate':'2007 Dec',
-                  'place':'New York',
-                  'pubdate':'2008 Jan',
-                  'publisher':'Doubleday',
-                  'pubplace':'Boston',
-                  'pagination':'345', }
+        record = {'title': 'My title',
+                  'booktitle': 'My Book',
+                  'authors': ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},),
+                  'editors': ({'lname': 'Sagan', 'iname': 'C'}, {'lname': 'Thorne', 'iname': 'K'}),
+                  'conferencename': 'Conference name',
+                  'conferencedate': '2007 Dec',
+                  'place': 'New York',
+                  'pubdate': '2008 Jan',
+                  'publisher': 'Doubleday',
+                  'pubplace': 'Boston',
+                  'pagination': '345', }
         citation = 'Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan. p. 345.'
         self.assertEqual(citation, conference_citation(**record))
 
@@ -134,7 +136,7 @@ class TestCooking(unittest.TestCase):
         citation = 'Sagan C, Thorne K, editors. My title. <i>Proceedings of Conference name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan. p. 345.'
         self.assertEqual(citation, conference_citation(**record))
 
-        record['authors'] = ({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Battle', 'iname':'J'},)
+        record['authors'] = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
         record['pagination'] = ''
         citation = 'Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan.'
         self.assertEqual(citation, conference_citation(**record))
@@ -148,16 +150,16 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, conference_citation(**record))
 
     def testMonographCitation(self):
-        record = {'title':'My title',
-                  'booktitle':'My Book',
-                  'authors':({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Battle', 'iname':'J'},),
-                  'serieseditors':('Hawking S', 'Wheeler J'),
-                  'series':'Series name',
-                  'reportnum':'5',
-                  'weburl':'http://plone.org',
-                  'pubdate':'2010 Feb',
-                  'publisher':'Doubleday',
-                  'pubplace':'Baltimore', }
+        record = {'title': 'My title',
+                  'booktitle': 'My Book',
+                  'authors': ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},),
+                  'serieseditors': ('Hawking S', 'Wheeler J'),
+                  'series': 'Series name',
+                  'reportnum': '5',
+                  'weburl': 'http://plone.org',
+                  'pubdate': '2010 Feb',
+                  'publisher': 'Doubleday',
+                  'pubplace': 'Baltimore', }
         citation = 'Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; 2010 Feb. 5. Available at http://plone.org.'
         self.assertEqual(citation, monograph_citation(**record))
 
@@ -169,7 +171,7 @@ class TestCooking(unittest.TestCase):
         citation = 'Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. 5.'
         self.assertEqual(citation, monograph_citation(**record))
 
-        record['authors'] = ({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Battle', 'iname':'J'},)
+        record['authors'] = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
         record['title'] = ''
         citation = 'Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; 2010 Feb. 5.'
         self.assertEqual(citation, monograph_citation(**record))
@@ -183,16 +185,16 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, monograph_citation(**record))
 
     def testReportCitation(self):
-        record = {'title':'My title',
-                  'booktitle':'My Book',
-                  'authors':({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Battle', 'iname':'J'},),
-                  'editors':({'lname':'Hawking', 'iname':'S'}, {'lname':'Wheeler', 'iname':'J'},),
-                  'series':'Series name',
-                  'reportnum':'5',
-                  'weburl':'http://plone.org',
-                  'pubdate':'2010 Feb',
-                  'publisher':'Doubleday',
-                  'pubplace':'Baltimore', }
+        record = {'title': 'My title',
+                  'booktitle': 'My Book',
+                  'authors': ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},),
+                  'editors': ({'lname': 'Hawking', 'iname': 'S'}, {'lname': 'Wheeler', 'iname': 'J'},),
+                  'series': 'Series name',
+                  'reportnum': '5',
+                  'weburl': 'http://plone.org',
+                  'pubdate': '2010 Feb',
+                  'publisher': 'Doubleday',
+                  'pubplace': 'Baltimore', }
         citation = 'Wohnlich E, Battle J. My title. Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; 2010 Feb. 5. Available at http://plone.org.'
         self.assertEqual(citation, report_citation(**record))
 
@@ -204,7 +206,7 @@ class TestCooking(unittest.TestCase):
         citation = 'Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. 5.'
         self.assertEqual(citation, report_citation(**record))
 
-        record['authors'] = ({'lname':'Wohnlich', 'iname':'E'}, {'lname':'Battle', 'iname':'J'},)
+        record['authors'] = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
         record['title'] = ''
         citation = 'Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; 2010 Feb. 5.'
         self.assertEqual(citation, report_citation(**record))
@@ -413,7 +415,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d, expected)
 
     def testDateRIS4(self):
-        #garbage/unknown. What does that 18 mean?
+        # garbage/unknown. What does that 18 mean?
         pre = '18 1980'
         expected = '1980///18'
         d = cooking.cookDateRIS(pre)
@@ -436,6 +438,7 @@ class TestCooking(unittest.TestCase):
         expected = ['Jul 2010', 'Aug 2010', 'Sep 2010', 'Oct 2010', 'Nov 2010', 'Dec 2010', 'Jan 2011', 'Feb 2011', 'Mar 2011', 'Apr 2011', 'May 2011', 'Jun 2011', 'Jul 2011', 'Aug 2011']
         d = cooking.cookDateMonths(start=cooking.cookDate(None, None, None, pre), end=cooking.cookDate(None, None, None, pre, end=True))
         self.assertEqual(d, expected)
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

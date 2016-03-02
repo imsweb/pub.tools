@@ -8,11 +8,15 @@ import re
 Entrez.email = config.ENTREZ_EMAIL
 Entrez.tool = config.ENTREZ_TOOL
 
+
 class IMSEntrezError(Exception):
+
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return self.value
+
 
 def parse_entrez_record(record):
     """ convert this into our own data structure format
@@ -24,8 +28,9 @@ def parse_entrez_record(record):
     elif 'PubmedBookData' in record:
         return parse_entrez_book_record(record)
 
+
 def parse_entrez_book_record(record):
-    data = {'type':'book'}
+    data = {'type': 'book'}
     document = record.pop('BookDocument')
     book = document.pop('Book')
     # publicationtype = document.pop('PublicationType') - unsure what this is
@@ -36,12 +41,12 @@ def parse_entrez_book_record(record):
         for author in document['AuthorList'][0]:
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
-            authors.append({'lname':author.get('LastName', ''),
-                            'fname':author.get('ForeName', ''),
-                            'iname':author.get('Initials', ''),
-                            'cname':author.get('CollectiveName', ''),
-                            'suffix':author.get('Suffix', ''),
-                            'investigator':False})
+            authors.append({'lname': author.get('LastName', ''),
+                            'fname': author.get('ForeName', ''),
+                            'iname': author.get('Initials', ''),
+                            'cname': author.get('CollectiveName', ''),
+                            'suffix': author.get('Suffix', ''),
+                            'investigator': False})
     data['authors'] = authors
 
     editors = []
@@ -49,23 +54,23 @@ def parse_entrez_book_record(record):
         for author in book['AuthorList'][0]:
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
-            authors.append({'lname':author.get('LastName', ''),
-                            'fname':author.get('ForeName', ''),
-                            'iname':author.get('Initials', ''),
-                            'cname':author.get('CollectiveName', ''),
-                            'suffix':author.get('Suffix', ''),
-                            'investigator':False})
+            authors.append({'lname': author.get('LastName', ''),
+                            'fname': author.get('ForeName', ''),
+                            'iname': author.get('Initials', ''),
+                            'cname': author.get('CollectiveName', ''),
+                            'suffix': author.get('Suffix', ''),
+                            'investigator': False})
     data['editors'] = editors
 
     data['language'] = document.get('Language', '') and document['Language'][0]
 
     articleids = document.pop('ArticleIdList')
     for aid in articleids:
-        data[ aid.attributes['IdType'] ] = unicode(aid)
+        data[aid.attributes['IdType']] = unicode(aid)
 
     data['abstract'] = document.get('Abstract', {}).get('AbstractText', '')
     if isinstance(data['abstract'], list):
-        data['abstract'] = data['abstract'][0] # why does it do this?
+        data['abstract'] = data['abstract'][0]  # why does it do this?
     articletitle = su(document.get('ArticleTitle', ''))
 
     locationlabel = document.get('LocationLabel', '')
@@ -90,7 +95,7 @@ def parse_entrez_book_record(record):
     data['series'] = book.get('CollectionTitle', '')
     data['isbn'] = book.get('Isbn', '')
     if isinstance(data['isbn'], list):
-        data['isbn'] = data['isbn'] and data['isbn'][0] or ''# why does it do this?
+        data['isbn'] = data['isbn'] and data['isbn'][0] or ''  # why does it do this?
     data['elocation'] = book.get('ELocationID', '')
     data['medium'] = book.get('Medium', '')
     data['reportnum'] = book.get('ReportNumber', '')
@@ -113,8 +118,9 @@ def parse_entrez_book_record(record):
 
     return data
 
+
 def parse_entrez_journal_record(record):
-    data = {'type':'journal'}
+    data = {'type': 'journal'}
     medline = record.pop('MedlineCitation')
     medlineinfo = medline.pop('MedlineJournalInfo')
     article = medline.pop('Article')
@@ -144,38 +150,38 @@ def parse_entrez_journal_record(record):
         if author.attributes['ValidYN'] == 'Y':
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
-            authors.append({'lname':author.get('LastName', ''),
-                            'fname':author.get('ForeName', ''),
-                            'iname':author.get('Initials', ''),
-                            'cname':author.get('CollectiveName', ''),
-                            'suffix':author.get('Suffix', ''),
-                            'investigator':False})
+            authors.append({'lname': author.get('LastName', ''),
+                            'fname': author.get('ForeName', ''),
+                            'iname': author.get('Initials', ''),
+                            'cname': author.get('CollectiveName', ''),
+                            'suffix': author.get('Suffix', ''),
+                            'investigator': False})
     for investigator in medline.get('InvestigatorList', []):
         if investigator.attributes['ValidYN'] == 'Y':
-            authors.append({'lname':investigator.get('LastName', ''),
-                            'fname':investigator.get('ForeName', ''),
-                            'iname':investigator.get('Initials', ''),
-                            'cname':investigator.get('CollectiveName', ''),
-                            'suffix':investigator.get('Suffix', ''),
-                            'investigator':True})
+            authors.append({'lname': investigator.get('LastName', ''),
+                            'fname': investigator.get('ForeName', ''),
+                            'iname': investigator.get('Initials', ''),
+                            'cname': investigator.get('CollectiveName', ''),
+                            'suffix': investigator.get('Suffix', ''),
+                            'investigator': True})
     data['authors'] = authors
     data['pmid'] = str(medline['PMID'])
 
     for aid in articleids:
-        data[ aid.attributes['IdType'] ] = unicode(aid)
+        data[aid.attributes['IdType']] = unicode(aid)
 
     grants = []
     for grant in article.get('GrantList', []):
-        grants.append({'grantid':grant.get('GrantID'),
-                       'acronym':grant.get('Acronym'),
-                       'agency':grant.get('Agency', '')})
+        grants.append({'grantid': grant.get('GrantID'),
+                       'acronym': grant.get('Acronym'),
+                       'agency': grant.get('Agency', '')})
     data['grants'] = grants
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
         mesh.append(unicode(meshHeader['DescriptorName']))
         # Might be nice to return name and ID at some point.
         #d = meshHeader['DescriptorName']
-        #mesh.append({
+        # mesh.append({
         #    'name': unicode(d),
         #    'id': d.attributes['UI'],
         #})
@@ -198,7 +204,7 @@ def parse_entrez_journal_record(record):
                 label = abst.attributes.get('Label')
             else:
                 nlmcat = label = ''
-            _abstracts.append({'text':text, 'nlmcategory':nlmcat, 'label':label})
+            _abstracts.append({'text': text, 'nlmcategory': nlmcat, 'label': label})
         data['abstract'] = _abstracts
 
     data['pubstatus'] = record['PubmedData'].get('PublicationStatus', '')
@@ -211,6 +217,7 @@ def parse_entrez_journal_record(record):
 
     return data
 
+
 def get_publication(pmid):
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
     try:
@@ -219,10 +226,12 @@ def get_publication(pmid):
     finally:
         handle.close()
 
+
 def get_publication_by_doi(doi):
     ids = find_publications(doi=doi)
     if int(ids['Count']) == 1:
         return get_publication(ids['IdList'][0])
+
 
 def get_publications(pmids):
     # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
@@ -240,12 +249,13 @@ def get_publications(pmids):
             topend = publen
         handle = Entrez.efetch(db="pubmed", id=pmids[lowend:topend], retmode="xml")
 
-        #try:
+        # try:
         for record in Entrez.parse(handle):
             yield parse_entrez_record(record)
-        #except:
+        # except:
         #  raise Exception('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmids[lowend:topend]))
         handle.close()
+
 
 def find_pmids(query):
     handle = Entrez.esearch(db='pubmed', term=query, datetype='pdat', retmode='xml', retmax='100000')
@@ -253,6 +263,7 @@ def find_pmids(query):
         return Entrez.read(handle).get('IdList', [])
     finally:
         handle.close()
+
 
 def get_searched_publications(WebEnv, QueryKey, ids=None):
     """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow down subset of ids """
@@ -267,9 +278,11 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
             records.append(record)
     return records
 
+
 def esearch_publications(term):
     handle = Entrez.esearch(db="pubmed", term=term, datetype='pdat', retmode="xml", retmax="100000")
     return process_handle(handle)
+
 
 def find_publications(authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None, ir=None, affl=None, doi=False, inclusive=False):
     term = generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
@@ -280,6 +293,7 @@ def find_publications(authors=None, title=None, journal=None, start=None, end=No
     handle = Entrez.esearch(db="pubmed", term=term, datetype='pdat', mindate=start, maxdate=end, retmode="xml", retmax="100000")
     return process_handle(handle)
 
+
 def process_handle(handle):
     record = Entrez.read(handle)
     if record['IdList']:
@@ -288,6 +302,7 @@ def process_handle(handle):
         record['WebEnv'] = search_results['WebEnv']
         record['QueryKey'] = search_results['QueryKey']
     return record
+
 
 def generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive=False):
     """Generate the search string that will be passed to ESearch based on these criteria"""

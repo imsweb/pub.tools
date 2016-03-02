@@ -4,11 +4,13 @@ from cgi import escape
 
 punc_endings = ('.', '?', '!')
 
+
 def safe_escape(text):
     text = escape(text)
     text = text.replace('&lt;i&gt;', '<i>')
     text = text.replace('&lt;/i&gt;', '</i>')
     return text
+
 
 def cooked_citation(func):
     def wrapper(**kwargs):
@@ -18,6 +20,7 @@ def cooked_citation(func):
         else:
             return safe_escape(text.replace('\n', '').strip())
     return wrapper
+
 
 def punctuate(text, punctuation, space=u''):
     text = su(text)
@@ -32,18 +35,30 @@ def punctuate(text, punctuation, space=u''):
     else:
         return text + punctuation + space
 
+
 def period(text):
     return punctuate(text, u'.', u' ')
+
+
 def comma(text):
     return punctuate(text, u',', u' ')
+
+
 def colon(text):
     return punctuate(text, u':', u' ')
+
+
 def colon_no_space(text):
     return punctuate(text, u':', u'')
+
+
 def semi_colon(text):
     return punctuate(text, u';', u' ')
+
+
 def semi_colon_no_space(text):
     return punctuate(text, u';', u'')
+
 
 def cookauthor(author):
     if isinstance(author, dict):
@@ -53,6 +68,7 @@ def cookauthor(author):
             initial = ' ' + initial
         return (author.get('cname', '') or author.get('lname') or '') + initial + suffix
     return author
+
 
 @cooked_citation
 def book_citation(authors=[], editors=[], title='', journal='', pubdate='', volume='', issue='', pagination='', edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='', conferencename='', conferencedate='', reportnum='', publisher='', abstract='', serieseditors=[], pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
@@ -84,6 +100,7 @@ def book_citation(authors=[], editors=[], title='', journal='', pubdate='', volu
     if series:
         print >> out, u'(%s)' % series
     return out.getvalue()
+
 
 @cooked_citation
 def chapter_citation(authors=[], editors=[], title='', journal='', pubdate='', volume='', issue='', pagination='', edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='', conferencename='', conferencedate='', reportnum='', publisher='', abstract='', serieseditors=[], pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
@@ -119,6 +136,7 @@ def chapter_citation(authors=[], editors=[], title='', journal='', pubdate='', v
     if series:
         print >> out, u'(%s)' % series
     return out.getvalue()
+
 
 @cooked_citation
 def conference_citation(authors=[], editors=[], title='', journal='', pubdate='', volume='', issue='', pagination='', edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='', conferencename='', conferencedate='', reportnum='', publisher='', abstract='', serieseditors=[], pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
@@ -156,6 +174,7 @@ def conference_citation(authors=[], editors=[], title='', journal='', pubdate=''
         print >> out, u'p. %s' % period(pagination)
     return out.getvalue()
 
+
 @cooked_citation
 def journal_citation(authors=[], editors=[], title='', journal='', pubdate='', volume='', issue='', pagination='', edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='', conferencename='', conferencedate='', reportnum='', publisher='', abstract='', serieseditors=[], pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
     out = StringIO()
@@ -168,9 +187,9 @@ def journal_citation(authors=[], editors=[], title='', journal='', pubdate='', v
             print >> out, u'<i>%s</i> ' % su(journal).strip()
 
         dat = ''
-        if pubmodel in ('Print', 'Electronic', 'Print-Electronic'): # use the publication date
+        if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
             dat = pubdate
-        elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'): # use the electronic date
+        elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
             dat = edate
         else:
             dat = pubdate or edate
@@ -217,9 +236,9 @@ def journal_citation(authors=[], editors=[], title='', journal='', pubdate='', v
             print >> out, u'. %s(%s):%s' % (volume, issue, pagination)
         print >> out, u'<br/>'
         print >> out, u'<b>Pubmed link: </b><a href="http://www.ncbi.nlm.nih.gov/pubmed/%s">http://www.ncbi.nlm.nih.gov/pubmed/%s</a><br/>' % (pmid, pmid)
-        if pubmodel in ('Print', 'Electronic', 'Print-Electronic'): # use the publication date
+        if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
             dat = pubdate
-        elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'): # use the electronic date
+        elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
             dat = edate
         else:
             dat = pubdate or edate
@@ -248,6 +267,7 @@ def journal_citation(authors=[], editors=[], title='', journal='', pubdate='', v
         abstract = ' '.join(abstracts)
         print >> out, u'<b>Abstract: </b>%s<br/>' % su(abstract)
     return out.getvalue()
+
 
 @cooked_citation
 def monograph_citation(authors=[], editors=[], title='', journal='', pubdate='', volume='', issue='', pagination='', edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='', conferencename='', conferencedate='', reportnum='', publisher='', abstract='', serieseditors=[], pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
@@ -281,6 +301,7 @@ def monograph_citation(authors=[], editors=[], title='', journal='', pubdate='',
     if weburl:
         print >> out, u'Available at %s.' % weburl
     return out.getvalue()
+
 
 @cooked_citation
 def report_citation(authors=[], editors=[], title='', journal='', pubdate='', volume='', issue='', pagination='', edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='', conferencename='', conferencedate='', reportnum='', publisher='', abstract='', serieseditors=[], pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):

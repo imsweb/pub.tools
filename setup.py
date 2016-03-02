@@ -9,8 +9,8 @@ setup(name='pub.tools',
       # Get more strings from
       # http://pypi.python.org/pypi?:action=list_classifiers
       classifiers=[
-        "Programming Language :: Python",
-        ],
+          "Programming Language :: Python",
+      ],
       keywords='',
       author='Eric Wohnlich',
       author_email='wohnlice@imsweb.com',
@@ -20,9 +20,9 @@ setup(name='pub.tools',
       namespace_packages=['pub'],
       include_package_data=True,
       zip_safe=False,
-      install_requires = [
-        'setuptools',
-        'biopython',
-        'unidecode',
+      install_requires=[
+          'setuptools',
+          'biopython',
+          'unidecode',
       ],
       )

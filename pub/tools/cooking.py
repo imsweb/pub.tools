@@ -1,5 +1,6 @@
 from . import config
 from datetime import datetime
+import re
 
 preferred_date_format = '%Y %b %d'
 preferred_date_format_long = '%Y %b %d %I:%M %p'
@@ -51,27 +52,24 @@ def cookDate(year='', month='', day='', medlinedate='', end=False):
             else:
                 year = year.split('-')[-1]
         elif len(vals) == 3: # day / month / year
-            try:
+            if not end:
+                day = vals[0].split('-')[0]
+            else:
+                day = vals[0].split('-')[-1]
+            month = vals[1]
+            year = vals[2].split('-')[0]
+            if len(month.split('-')) > 1 and ord(month.split('-')[1][0]) in range(48, 58):
                 if not end:
-                    day = vals[0].split('-')[0]
+                    vals = medlinedate.split('-')[0]
                 else:
-                    day = vals[0].split('-')[-1]
-                month = vals[1]
-                year = vals[2].split('-')[0]
-                if len(month.split('-')) > 1 and ord(month.split('-')[1][0]) in range(48, 58):
-                    if not end:
-                        vals = medlinedate.split('-')[0]
-                    else:
-                        vals = medlinedate.split('-')[-1]
-                    year = vals.split(' ')[0]
-                    month = vals.split(' ')[1]
-                    day = 1
-                elif int(year) < 32:
-                    holder = day
-                    day = year
-                    year = holder
-            except:
-                import pdb; pdb.set_trace()
+                    vals = medlinedate.split('-')[-1]
+                year = vals.split(' ')[0]
+                month = vals.split(' ')[1]
+                day = 1
+            elif int(year) < 32:
+                holder = day
+                day = year
+                year = holder
         else:
             if not end:
                 year = vals[0].split('-')[0]
@@ -172,7 +170,7 @@ def cookDateMonths(start, end):
             months.append(monthlist[month - 1] + ' ' + str(year))
     return months
 
-def su(value, encoding='utf-8'):
+def safe_unicode(value, encoding='utf-8'):
     """ Converts a value to unicode, even it is already a unicode string.
     """
     if isinstance(value, unicode):
@@ -183,6 +181,7 @@ def su(value, encoding='utf-8'):
         except (UnicodeDecodeError):
             value = value.decode('utf-8', 'replace')
     return value
+su = safe_unicode
 
 def sanitize(datastring):
     import warnings
@@ -199,3 +198,9 @@ def depunctuate(datastring):
     """ Remove punctuation
     """
     return datastring and ''.join([char for char in datastring if char not in punclist]) or ''
+
+def alphanum(value):
+    """ Convert to only the alphanumeric characters
+    """
+    pattern = re.compile('[\W_]+', re.UNICODE)
+    return pattern.sub('', value)

@@ -197,7 +197,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(pub['pubtypelist'], ['Journal Article'])
         self.assertEqual(pub['mesh'], ['Adult', 'Age Distribution', 'Aged', "Agricultural Workers' Diseases", 'Cohort Studies', 'Humans',
                          'Incidence', 'Iowa', 'Male', 'Middle Aged', 'North Carolina', 'Odds Ratio', 'Pesticides', 'Prostatic Neoplasms',
-                         'Questionnaires'])
+                         'Surveys and Questionnaires'])
         self.assertEqual(pub['pagination'], '800-14')
         expected = [{'label':'', 'nlmcategory':'', 'text':'The authors examined the relation between 45 common agricultural pesticides and prostate cancer incidence in a prospective cohort study of 55,332 male pesticide applicators from Iowa and North Carolina with no prior history of prostate cancer. Data were collected by means of self-administered questionnaires completed at enrollment (1993-1997). Cancer incidence was determined through population-based cancer registries from enrollment through December 31, 1999. A prostate cancer standardized incidence ratio was computed for the cohort. Odds ratios were computed for individual pesticides and for pesticide use patterns identified by means of factor analysis. A prostate cancer standardized incidence ratio of 1.14 (95% confidence interval: 1.05, 1.24) was observed for the Agricultural Health Study cohort. Use of chlorinated pesticides among applicators over 50 years of age and methyl bromide use were significantly associated with prostate cancer risk. Several other pesticides showed a significantly increased risk of prostate cancer among study subjects with a family history of prostate cancer but not among those with no family history. Important family history-pesticide interactions were observed.'}]
         for r, e in zip(pub['abstract'], expected):
@@ -275,7 +275,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(result['pubdate'], '2011')
         self.assertEqual(result['pmid'], '22593940')
         self.assertEqual(result['sections'], [])
-        self.assertEqual(result['publisher'], 'CRC Press')
+        self.assertEqual(result['publisher'], 'CRC Press/Taylor & Francis')
         self.assertEqual(result['pubplace'], 'Boca Raton (FL)')
         self.assertEqual(result['title'], 'Herbs and Spices in Cancer Prevention and Treatment')
         self.assertEqual(result['booktitle'], 'Herbal Medicine: Biomolecular and Clinical Aspects')

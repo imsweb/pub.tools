@@ -1,4 +1,4 @@
-from pub.tools.journals import atoj, jtoa, cache
+from pub.tools.journals import atoj, cache, jtoa
 import unittest
 
 

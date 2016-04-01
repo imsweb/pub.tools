@@ -1,6 +1,8 @@
-from datetime import datetime
 from pub.tools import cooking
-from pub.tools.citations import journal_citation, book_citation, chapter_citation, conference_citation, monograph_citation, report_citation, punctuate, period
+from pub.tools.citations import (
+    book_citation, chapter_citation, conference_citation, journal_citation, monograph_citation, period, punctuate,
+    report_citation)
+from datetime import datetime
 import unittest
 
 

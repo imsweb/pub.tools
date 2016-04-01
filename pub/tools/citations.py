@@ -1,6 +1,6 @@
 from .cooking import su
-from StringIO import StringIO
 from cgi import escape
+from StringIO import StringIO
 
 punc_endings = ('.', '?', '!')
 

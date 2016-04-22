@@ -1,9 +1,12 @@
+from Bio import Entrez
+from unidecode import unidecode
 from . import config
 from .cooking import cookDateStr, su
-from Bio import Entrez
+from httplib import IncompleteRead
 from math import ceil
-from unidecode import unidecode
+from StringIO import StringIO
 import re
+import time
 
 Entrez.email = config.ENTREZ_EMAIL
 Entrez.tool = config.ENTREZ_TOOL
@@ -233,28 +236,45 @@ def get_publication_by_doi(doi):
         return get_publication(ids['IdList'][0])
 
 
+def read_response(handle):
+    """
+    Fully reads a urlopen handle, taking into account IncompleteRead exceptions.
+    """
+    data = ''
+    while True:
+        try:
+            data += handle.read()
+            break
+        except IncompleteRead as ir:
+            data += ir.partial
+    return data
+
+
 def get_publications(pmids):
     # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
     if not isinstance(pmids, list):
         pmids = list(pmids)
-    # We don't need to enforce the three-queries rule because biopython does that
-    # But we do need to prevent the URL from getting too long
-    publen = len(pmids)
-    # cap is ~4096 but about 150 other chars
-    # an 8-character pmid +3 (comma=%2c) ~= (4096-150)/(8+3) ~= 358
-    for counter in range(0, int(ceil(publen / float(config.MAX_PUBS)))):
-        lowend = counter * config.MAX_PUBS
-        topend = (counter + 1) * config.MAX_PUBS
-        if topend > publen:
-            topend = publen
-        handle = Entrez.efetch(db="pubmed", id=pmids[lowend:topend], retmode="xml")
-
-        # try:
-        for record in Entrez.parse(handle):
-            yield parse_entrez_record(record)
-        # except:
-        #  raise Exception('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmids[lowend:topend]))
-        handle.close()
+    start = 0
+    attempts = 0
+    while start < len(pmids):
+        pmid_slice = pmids[start:start + config.MAX_PUBS]
+        handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
+        try:
+            # Read in all the data at once, to handle IncompleteRead exceptions (which biopython doesn't).
+            data = read_response(handle)
+            # Consume the Entrez.parse generator early, so we don't return duplicates because of late failures.
+            for record in list(Entrez.parse(StringIO(data))):
+                yield parse_entrez_record(record)
+            # Successfully parsed all the results, move to the next slice and reset the attempt counter.
+            start += config.MAX_PUBS
+            attempts = 0
+        except:
+            attempts += 1
+            if attempts >= config.MAX_RETRIES:
+                raise Exception('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmid_slice))
+            time.sleep(config.RETRY_SLEEP)
+        finally:
+            handle.close()
 
 
 def find_pmids(query):

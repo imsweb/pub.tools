@@ -1,6 +1,6 @@
-from datetime import datetime
 from pub.tools import entrez
 from pub.tools.citations import journal_citation
+from datetime import datetime
 import unittest
 
 

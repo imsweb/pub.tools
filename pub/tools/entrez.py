@@ -226,6 +226,15 @@ def get_publication(pmid):
     try:
         for rec in Entrez.parse(handle):
             return parse_entrez_record(rec)
+    except ValueError:
+        handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
+        data = Entrez.read(handle)
+        rec = None
+        if data['PubmedArticle']:
+            rec = parse_entrez_journal_record(data['PubmedArticle'][0])
+        elif data['PubmedBookArticle']:
+            rec = parse_entrez_book_record(data['PubmedBookArticle'][0])
+        return rec
     finally:
         handle.close()
 
@@ -268,6 +277,13 @@ def get_publications(pmids):
             # Successfully parsed all the results, move to the next slice and reset the attempt counter.
             start += config.MAX_PUBS
             attempts = 0
+        except ValueError: # not a failed attempt, handling new Biopython with Entrez.read
+            handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml") # update stale handle
+            data = Entrez.read(handle)
+            for record in data['PubmedArticle']+data['PubmedBookArticle']:
+                yield parse_entrez_record(record)
+            start += config.MAX_PUBS
+            attempts = 0
         except:
             attempts += 1
             if attempts >= config.MAX_RETRIES:
@@ -288,14 +304,27 @@ def find_pmids(query):
 def get_searched_publications(WebEnv, QueryKey, ids=None):
     """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow down subset of ids """
     records = []
+    query = {
+        'db': 'pubmed',
+        'webenv': WebEnv,
+        'query_key': QueryKey,
+        'retmode': 'xml'
+    }
     if ids:
-        handle = Entrez.efetch(db="pubmed", webenv=WebEnv, query_key=QueryKey, id=ids, retmode="xml")
-    else:
-        handle = Entrez.efetch(db="pubmed", webenv=WebEnv, query_key=QueryKey, retmode="xml")
-    for record in Entrez.parse(handle):
-        record = parse_entrez_record(record)
-        if record:
-            records.append(record)
+        query['ids'] = ids
+    handle = Entrez.efetch(**query)
+    try:
+        for record in Entrez.parse(handle):
+            record = parse_entrez_record(record)
+            if record:
+                records.append(record)
+    except ValueError: # newer Biopython requires this to be Entrez.read
+        handle = Entrez.efetch(**query)
+        data = Entrez.read(handle)
+        for record in data['PubmedArticle']+data['PubmedBookArticle']:
+            record = parse_entrez_record(record)
+            if record:
+                records.append(record)
     return records
 
 

@@ -303,6 +303,8 @@ def find_pmids(query):
 
 def get_searched_publications(WebEnv, QueryKey, ids=None):
     """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow down subset of ids """
+    if isinstance(ids, basestring):
+        ids = [ids]
     records = []
     query = {
         'db': 'pubmed',
@@ -323,7 +325,8 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
         data = Entrez.read(handle)
         for record in data['PubmedArticle']+data['PubmedBookArticle']:
             record = parse_entrez_record(record)
-            if record:
+            # Entrez.read does not use the ids query key so we have to do this ourselves
+            if record and (ids and record['pmid'] in ids or not ids):
                 records.append(record)
     return records
 

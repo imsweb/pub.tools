@@ -169,13 +169,109 @@ class TestCase(unittest.TestCase):
             self.assertEqual(received.get('cname', u''), expected.get('cname', u''))
             self.assertEqual(bool(received.get('investigator')), bool(expected.get('investigator')))
 
-    def checkPubData(self, pub):
-        self.assertEqual(pub['title'], 'Use of agricultural pesticides and prostate cancer risk in the Agricultural Health Study cohort.')
+    def check_pub_data(self, pub):
+        self.assertEqual(pub['title'], 'Use of agricultural pesticides and prostate cancer risk in the '
+                                       'Agricultural Health Study cohort.')
         self.assertEqual(pub['medium'], 'Print')
         self.assertEqual(pub.get('doi') or '', '')
         self.assertEqual(pub.get('nihmsid') or '', '')
         self.assertEqual(pub.get('pmc') or '', '')
-        expected = ({'lname': u'Alavanja', 'cname': u'', 'iname': u'MC', 'fname': u'Michael C R', 'suffix': u'', 'investigator': u''}, {'lname': u'Samanic', 'cname': u'', 'iname': u'C', 'fname': u'Claudine', 'suffix': u'', 'investigator': u''}, {'lname': u'Dosemeci', 'cname': u'', 'iname': u'M', 'fname': u'Mustafa', 'suffix': u'', 'investigator': u''}, {'lname': u'Lubin', 'cname': u'', 'iname': u'J', 'fname': u'Jay', 'suffix': u'', 'investigator': u''}, {'lname': u'Tarone', 'cname': u'', 'iname': u'R', 'fname': u'Robert', 'suffix': u'', 'investigator': u''}, {'lname': u'Lynch', 'cname': u'', 'iname': u'CF', 'fname': u'Charles F', 'suffix': u'', 'investigator': u''}, {'lname': u'Knott', 'cname': u'', 'iname': u'C', 'fname': u'Charles', 'suffix': u'', 'investigator': u''}, {'lname': u'Thomas', 'cname': u'', 'iname': u'K', 'fname': u'Kent', 'suffix': u'', 'investigator': u''}, {'lname': u'Hoppin', 'cname': u'', 'iname': u'JA', 'fname': u'Jane A', 'suffix': u'', 'investigator': u''}, {'lname': u'Barker', 'cname': u'', 'iname': u'J', 'fname': u'Joseph', 'suffix': u'', 'investigator': u''}, {'lname': u'Coble', 'cname': u'', 'iname': u'J', 'fname': u'Joseph', 'suffix': u'', 'investigator': u''}, {'lname': u'Sandler', 'cname': u'', 'iname': u'DP', 'fname': u'Dale P', 'suffix': u'', 'investigator': u''}, {'lname': u'Blair', 'cname': u'', 'iname': u'A', 'fname': u'Aaron', 'suffix': u'', 'investigator': u''})
+        expected = (
+            {
+                'lname': u'Alavanja',
+                'cname': u'',
+                'iname': u'MC',
+                'fname': u'Michael C R',
+                'suffix': u'',
+                'investigator': u''
+            },
+            {
+                'lname': u'Samanic',
+                'cname': u'',
+                'iname': u'C',
+                'fname': u'Claudine',
+                'suffix': u'',
+                'investigator': u''
+            },
+            {
+                'lname': u'Dosemeci',
+                'cname': u'',
+                'iname': u'M',
+                'fname': u'Mustafa',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Lubin',
+                'cname': u'',
+                'iname': u'J',
+                'fname': u'Jay',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Tarone',
+                'cname': u'',
+                'iname': u'R',
+                'fname': u'Robert',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Lynch',
+                'cname': u'',
+                'iname': u'CF',
+                'fname': u'Charles F',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Knott',
+                'cname': u'',
+                'iname': u'C',
+                'fname': u'Charles',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Thomas',
+                'cname': u'',
+                'iname': u'K',
+                'fname': u'Kent',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Hoppin',
+                'cname': u'',
+                'iname': u'JA',
+                'fname': u'Jane A',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Barker',
+                'cname': u'',
+                'iname': u'J',
+                'fname': u'Joseph',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Coble',
+                'cname': u'',
+                'iname': u'J',
+                'fname': u'Joseph',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Sandler',
+                'cname': u'',
+                'iname': u'DP',
+                'fname': u'Dale P',
+                'suffix': u'',
+                'investigator': u''},
+            {
+                'lname': u'Blair',
+                'cname': u'',
+                'iname': u'A',
+                'fname': u'Aaron',
+                'suffix': u'',
+                'investigator': u''
+            }
+        )
         for r, e in zip(pub['authors'], expected):
             self.assertEqual(r.get('lname', ''), e.get('lname', ''))
             self.assertEqual(r.get('fname', ''), e.get('fname', ''))
@@ -193,16 +289,38 @@ class TestCase(unittest.TestCase):
             self.assertEqual(pub['pubdate_date'], datetime(2003, 5, 1))
         self.assertEqual(pub['pubdate'], '2003 May 1')
         self.assertEqual(pub.get('pubplace') or '', '')
-        self.assertEqual(pub['affiliation'], 'Division of Cancer Epidemiology and Genetics, National Cancer Institute, Rockville, MD 20892, USA. alavanjm@mail.nih.gov')
+        self.assertEqual(pub['affiliation'],
+                         'Division of Cancer Epidemiology and Genetics, National Cancer Institute, Rockville, '
+                         'MD 20892, USA. alavanjm@mail.nih.gov')
         self.assertEqual(pub['medlinecountry'], 'United States')
-        self.assertEqual(pub['nlmuniqueid'], '7910653',)
+        self.assertEqual(pub['nlmuniqueid'], '7910653', )
         self.assertEqual(pub['medlinestatus'], 'MEDLINE')
         self.assertEqual(pub['pubtypelist'], ['Journal Article'])
-        self.assertEqual(pub['mesh'], ['Adult', 'Age Distribution', 'Aged', "Agricultural Workers' Diseases", 'Cohort Studies', 'Humans',
-                         'Incidence', 'Iowa', 'Male', 'Middle Aged', 'North Carolina', 'Odds Ratio', 'Pesticides', 'Prostatic Neoplasms',
-                         'Surveys and Questionnaires'])
+        self.assertEqual(pub['mesh'],
+                         ['Adult', 'Age Distribution', 'Aged', "Agricultural Workers' Diseases", 'Cohort Studies',
+                          'Humans',
+                          'Incidence', 'Iowa', 'Male', 'Middle Aged', 'North Carolina', 'Odds Ratio', 'Pesticides',
+                          'Prostatic Neoplasms',
+                          'Surveys and Questionnaires'])
         self.assertEqual(pub['pagination'], '800-14')
-        expected = [{'label': '', 'nlmcategory': '', 'text': 'The authors examined the relation between 45 common agricultural pesticides and prostate cancer incidence in a prospective cohort study of 55,332 male pesticide applicators from Iowa and North Carolina with no prior history of prostate cancer. Data were collected by means of self-administered questionnaires completed at enrollment (1993-1997). Cancer incidence was determined through population-based cancer registries from enrollment through December 31, 1999. A prostate cancer standardized incidence ratio was computed for the cohort. Odds ratios were computed for individual pesticides and for pesticide use patterns identified by means of factor analysis. A prostate cancer standardized incidence ratio of 1.14 (95% confidence interval: 1.05, 1.24) was observed for the Agricultural Health Study cohort. Use of chlorinated pesticides among applicators over 50 years of age and methyl bromide use were significantly associated with prostate cancer risk. Several other pesticides showed a significantly increased risk of prostate cancer among study subjects with a family history of prostate cancer but not among those with no family history. Important family history-pesticide interactions were observed.'}]
+        expected = [{
+            'label': '',
+            'nlmcategory': '',
+            'text': 'The authors examined the relation between 45 common agricultural pesticides and prostate '
+                    'cancer incidence in a prospective cohort study of 55,332 male pesticide applicators from '
+                    'Iowa and North Carolina with no prior history of prostate cancer. Data were collected by '
+                    'means of self-administered questionnaires completed at enrollment (1993-1997). Cancer incidence '
+                    'was determined through population-based cancer registries from enrollment through December 31, '
+                    '1999. A prostate cancer standardized incidence ratio was computed for the cohort. Odds ratios '
+                    'were computed for individual pesticides and for pesticide use patterns identified by means of '
+                    'factor analysis. A prostate cancer standardized incidence ratio of 1.14 (95% confidence '
+                    'interval: 1.05, 1.24) was observed for the Agricultural Health Study cohort. Use of chlorinated '
+                    'pesticides among applicators over 50 years of age and methyl bromide use were significantly '
+                    'associated with prostate cancer risk. Several other pesticides showed a significantly increased '
+                    'risk of prostate cancer among study subjects with a family history of prostate cancer but not '
+                    'among those with no family history. Important family history-pesticide interactions were '
+                    'observed.'
+        }]
         for r, e in zip(pub['abstract'], expected):
             self.assertEqual(r.get('text', ''), e.get('text', ''))
             self.assertEqual(r.get('label', ''), e.get('label', ''))
@@ -213,7 +331,7 @@ class TestCase(unittest.TestCase):
     def test_pubmed_fetch(self):
         """ Take an existing record and use @@pubmed-compare """
         record = entrez.get_publication('12727674')
-        self.checkPubData(record)
+        self.check_pub_data(record)
 
     def test_grants(self):
         """ Tests stripping out some white text """
@@ -223,20 +341,22 @@ class TestCase(unittest.TestCase):
 
     def test_generateSearchString(self):
         """ biopython will not take non-ascii chars """
-        search = entrez.generate_search_string(authors=u'\xe9', title=u'\xe9', journal=u'\xe9', pmid=u'', mesh=u'', gr=u'', ir=u'', affl=u'', doi=u'')
+        search = entrez.generate_search_string(authors=u'\xe9', title=u'\xe9', journal=u'\xe9', pmid=u'', mesh=u'',
+                                               gr=u'', ir=u'', affl=u'', doi=u'')
         self.assertEqual(search, u'e[auth]+e[titl]+"e"[jour]')
 
     def test_validyn(self):
         record = entrez.get_publication('20051087')
-        expected = [{'lname': 'Elder', 'cname': '', 'iname': 'JP', 'fname': 'John P', 'suffix': '', 'investigator': False},
-                    {'lname': 'Arredondo', 'cname': '', 'iname': 'EM', 'fname': 'Elva M', 'suffix': '', 'investigator': False},
-                    {'lname': 'Campbell', 'cname': '', 'iname': 'N', 'fname': 'Nadia', 'suffix': '', 'investigator': False},
-                    {'lname': 'Baquero', 'cname': '', 'iname': 'B', 'fname': 'Barbara', 'suffix': '', 'investigator': False},
-                    {'lname': 'Duerksen', 'cname': '', 'iname': 'S', 'fname': 'Susan', 'suffix': '', 'investigator': False},
-                    {'lname': 'Ayala', 'cname': '', 'iname': 'G', 'fname': 'Guadalupe', 'suffix': '', 'investigator': False},
-                    {'lname': 'Crespo', 'cname': '', 'iname': 'NC', 'fname': 'Noe C', 'suffix': '', 'investigator': False},
-                    {'lname': 'Slymen', 'cname': '', 'iname': 'D', 'fname': 'Donald', 'suffix': '', 'investigator': False},
-                    {'lname': 'McKenzie', 'cname': '', 'iname': 'T', 'fname': 'Thomas', 'suffix': '', 'investigator': False}]
+        expected = [
+            {'lname': 'Elder', 'cname': '', 'iname': 'JP', 'fname': 'John P', 'suffix': '', 'investigator': False},
+            {'lname': 'Arredondo', 'cname': '', 'iname': 'EM', 'fname': 'Elva M', 'suffix': '', 'investigator': False},
+            {'lname': 'Campbell', 'cname': '', 'iname': 'N', 'fname': 'Nadia', 'suffix': '', 'investigator': False},
+            {'lname': 'Baquero', 'cname': '', 'iname': 'B', 'fname': 'Barbara', 'suffix': '', 'investigator': False},
+            {'lname': 'Duerksen', 'cname': '', 'iname': 'S', 'fname': 'Susan', 'suffix': '', 'investigator': False},
+            {'lname': 'Ayala', 'cname': '', 'iname': 'G', 'fname': 'Guadalupe', 'suffix': '', 'investigator': False},
+            {'lname': 'Crespo', 'cname': '', 'iname': 'NC', 'fname': 'Noe C', 'suffix': '', 'investigator': False},
+            {'lname': 'Slymen', 'cname': '', 'iname': 'D', 'fname': 'Donald', 'suffix': '', 'investigator': False},
+            {'lname': 'McKenzie', 'cname': '', 'iname': 'T', 'fname': 'Thomas', 'suffix': '', 'investigator': False}]
         for r, e in zip(record['authors'], expected):
             self.assertEqual(r.get('lname', ''), e.get('lname', ''))
             self.assertEqual(r.get('fname', ''), e.get('fname', ''))
@@ -249,19 +369,25 @@ class TestCase(unittest.TestCase):
         """ Both dates should be stored and the citation reflect it """
         record = entrez.get_publication(pmid='10854512')
         record['journal'] = record['medlineta']
-        self.assertEqual(journal_citation(**record), 'Soon MS, Lin OS. Inflammatory fibroid polyp of the duodenum. <i>Surg Endosc</i> 2000 Jan;14(1):86. Epub 1999 Nov 25.')
+        self.assertEqual(journal_citation(**record),
+                         'Soon MS, Lin OS. Inflammatory fibroid polyp of the duodenum. <i>Surg Endosc</i> 2000 '
+                         'Jan;14(1):86. Epub 1999 Nov 25.')
 
     def test_electronic_print_pubmodel(self):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='14729922')
         record['journal'] = record['medlineta']
-        self.assertEqual(journal_citation(**record), 'Edgar RC. Local homology recognition and distance measures in linear time using compressed amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.')
+        self.assertEqual(journal_citation(**record),
+                         'Edgar RC. Local homology recognition and distance measures in linear time using compressed '
+                         'amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.')
 
     def test_electronic_ecollection_pubmodel(self):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='23372575')
         record['journal'] = record['medlineta']
-        self.assertEqual(journal_citation(**record), 'Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 Jan 25;3:330. doi: 10.3389/fgene.2012.00330. eCollection 2012.')
+        self.assertEqual(journal_citation(**record),
+                         'Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 Jan 25;3:330. doi: '
+                         '10.3389/fgene.2012.00330. eCollection 2012.')
 
     def test_book_parse(self):
         """ Be able to parse a book """
@@ -283,7 +409,20 @@ class TestCase(unittest.TestCase):
         self.assertEqual(result['title'], 'Herbs and Spices in Cancer Prevention and Treatment')
         self.assertEqual(result['booktitle'], 'Herbal Medicine: Biomolecular and Clinical Aspects')
         self.assertEqual(result['type'], 'chapter')
-        self.assertEqual(result['abstract'], 'More than 180 spice-derived compounds have been identified and explored for their health benefits (Aggarwal et al. 2008). It is beyond the scope of this chapter to deal with all herbs and spices that may influence the risk of cancer and tumor behavior. Therefore, a decision was made to review those with some of the more impressive biological responses reported in the literature, and a conscious effort was made to provide information about the amount of spices needed to bring about a response and thus their physiological relevance. When possible, recent reviews are included to provide readers with additional insights into the biological response(s) to specific spices and to prevent duplication of the scientific literature. Because there is a separate chapter devoted to curcumin (a bioactive component in turmeric) in this book and there are also several excellent reviews published about curcumin (Patel and Majumdar 2009; Aggarwal 2010; Bar-Sela, Epelbaum, and Schaffer 2010; Epstein, Sanderson, and Macdonald 2010), turmeric is not discussed in this chapter.')
+        self.assertEqual(result['abstract'],
+                         'More than 180 spice-derived compounds have been identified and explored for their '
+                         'health benefits (Aggarwal et al. 2008). It is beyond the scope of this chapter to '
+                         'deal with all herbs and spices that may influence the risk of cancer and tumor '
+                         'behavior. Therefore, a decision was made to review those with some of the more '
+                         'impressive biological responses reported in the literature, and a conscious effort '
+                         'was made to provide information about the amount of spices needed to bring about a '
+                         'response and thus their physiological relevance. When possible, recent reviews are '
+                         'included to provide readers with additional insights into the biological response(s) '
+                         'to specific spices and to prevent duplication of the scientific literature. Because '
+                         'there is a separate chapter devoted to curcumin (a bioactive component in turmeric) '
+                         'in this book and there are also several excellent reviews published about curcumin '
+                         '(Patel and Majumdar 2009; Aggarwal 2010; Bar-Sela, Epelbaum, and Schaffer 2010; '
+                         'Epstein, Sanderson, and Macdonald 2010), turmeric is not discussed in this chapter.')
         self.assertEqual(result['bookaccession'], 'NBK92774')
         self.assertEqual(result['language'], 'eng')
         authors = [{'lname': 'Kaefer', 'iname': 'CM', 'fname': 'Christine M.', 'investigator': False},
@@ -292,16 +431,18 @@ class TestCase(unittest.TestCase):
                    {'lname': 'Wachtel-Galor', 'iname': 'S', 'fname': 'Sissi', 'investigator': False}]
         for e, r in zip(authors, result['authors']):
             for k in set(e.keys()).union(r.keys()):
-                self.assertEqual(e.get(k) or '', r.get(k) or '', msg='%s :: Expected: %s; Received: %s' % (k, e.get(k) or '', r.get(k) or ''))
+                self.assertEqual(e.get(k) or '', r.get(k) or '',
+                                 msg='%s :: Expected: %s; Received: %s' % (k, e.get(k) or '', r.get(k) or ''))
         for e, r in zip(editors, result['editors']):
             for k in set(e.keys()).union(r.keys()):
-                self.assertEqual(e.get(k) or '', r.get(k) or '', msg='%s :: Expected: %s; Received: %s' % (k, e.get(k) or '', r.get(k) or ''))
+                self.assertEqual(e.get(k) or '', r.get(k) or '',
+                                 msg='%s :: Expected: %s; Received: %s' % (k, e.get(k) or '', r.get(k) or ''))
 
     def test_find_and_fetch(self):
         record = entrez.find_publications(pmid='12727674')
         self.assertEquals(len(record['IdList']), 1)
         record = entrez.get_searched_publications(record['WebEnv'], record['QueryKey'])
-        self.checkPubData(record[0])
+        self.check_pub_data(record[0])
 
 
 def test_suite():

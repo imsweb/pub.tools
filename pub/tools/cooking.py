@@ -2,29 +2,41 @@ from . import config
 from datetime import datetime
 import re
 
+import warnings
+
 preferred_date_format = '%Y %b %d'
 preferred_date_format_long = '%Y %b %d %I:%M %p'
 
-mmap = {'winter': 1, 'spring': 4, 'summer': 7, 'fall': 10, 'autumn': 10, 'win': 1, 'spr': 4, 'sum': 7, 'fal': 10, 'aut': 10,
-    'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4, 'may': 5, 'jun': 6, 'june': 6,
-    'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9, 'oct': 10, 'october': 10, 'nov': 11, 'november': 11,
-    'dec': 12, 'december': 12, '1stquart': 1, '2ndquart': 4, '3rdquart': 7, '4thquart': 10}
-mmap_end = {'winter': 3, 'spring': 6, 'summer': 9, 'fall': 12, 'autumn': 12, 'win': 3, 'spr': 6, 'sum': 9, 'fal': 12, 'aut': 12,
-    'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4, 'may': 5, 'jun': 6, 'june': 6,
-    'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9, 'oct': 10, 'october': 10, 'nov': 11, 'november': 11,
-    'dec': 12, 'december': 12, '1stquart': 3, '2ndquart': 6, '3rdquart': 9, '4thquart': 12}
-rmap = {'winter': 'Winter', 'spring': 'Spring', 'summer': 'Summer', 'fall': 'Fall', 'autumn': 'Autumn', 'win': 'Win',
-    'spr': 'Spr', 'sum': 'Sum', 'fal': 'Fal', 'aut': 'Aut', 'jan': 'Jan', 'january': 'Jan', 'feb': 'Feb', 'february': 'Feb',
-    'mar': 'Mar', 'march': 'Mar', 'apr': 'Apr', 'april': 'Apr', 'may': 'May', 'jun': 'Jun', 'june': 'Jun', 'jul': 'Jul',
-    'july': 'Jul', 'aug': 'Aug', 'august': 'Aug', 'sep': 'Sep', 'september': 'Sep', 'oct': 'Oct', 'october': 'Oct',
-    'nov': 'Nov', 'november': 'Nov', 'dec': 'Dec', 'december': 'Dec'}
-rism = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 'Sep': '09',
-    'Oct': '10', 'Nov': '11', 'Dec': '12'}
+mmap = {
+    'winter': 1, 'spring': 4, 'summer': 7, 'fall': 10, 'autumn': 10, 'win': 1, 'spr': 4, 'sum': 7, 'fal': 10,
+    'aut': 10, 'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4,
+    'may': 5, 'jun': 6, 'june': 6, 'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9,
+    'oct': 10, 'october': 10, 'nov': 11, 'november': 11, 'dec': 12, 'december': 12, '1stquart': 1, '2ndquart': 4,
+    '3rdquart': 7, '4thquart': 10
+}
+mmap_end = {
+    'winter': 3, 'spring': 6, 'summer': 9, 'fall': 12, 'autumn': 12, 'win': 3, 'spr': 6, 'sum': 9, 'fal': 12,
+    'aut': 12, 'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4,
+    'may': 5, 'jun': 6, 'june': 6, 'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9,
+    'oct': 10, 'october': 10, 'nov': 11, 'november': 11, 'dec': 12, 'december': 12, '1stquart': 3,
+    '2ndquart': 6, '3rdquart': 9, '4thquart': 12
+}
+rmap = {
+    'winter': 'Winter', 'spring': 'Spring', 'summer': 'Summer', 'fall': 'Fall', 'autumn': 'Autumn', 'win': 'Win',
+    'spr': 'Spr', 'sum': 'Sum', 'fal': 'Fal', 'aut': 'Aut', 'jan': 'Jan', 'january': 'Jan', 'feb': 'Feb',
+    'february': 'Feb', 'mar': 'Mar', 'march': 'Mar', 'apr': 'Apr', 'april': 'Apr', 'may': 'May', 'jun': 'Jun',
+    'june': 'Jun', 'jul': 'Jul', 'july': 'Jul', 'aug': 'Aug', 'august': 'Aug', 'sep': 'Sep', 'september': 'Sep',
+    'oct': 'Oct', 'october': 'Oct', 'nov': 'Nov', 'november': 'Nov', 'dec': 'Dec', 'december': 'Dec'
+}
+rism = {
+    'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 'Sep': '09',
+    'Oct': '10', 'Nov': '11', 'Dec': '12'
+}
 monthlist = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 punclist = ['.', ',', ':', ';', '\'', '(', ')', '{', '}', '[', ']', '=', '+', '$', '#', '%', '@', '!', '^', '&', '*']
 
 
-def cookDate(year='', month='', day='', medlinedate='', end=False):
+def cook_date(year='', month='', day='', medlinedate='', end=False):
     """ returns a datetime object
         medlinedate:
            - string containing the full date
@@ -89,14 +101,14 @@ def cookDate(year='', month='', day='', medlinedate='', end=False):
     return cooked
 
 
-def cookDateStr(value):
+def cook_date_str(value):
     """ takes a string and reformats it to '%Y %b %-d'. e.g. '8-11-2009' becomes '2009 Aug 11'
     """
     try:
         value = value.replace('th ', ' ').replace('nd ', ' ').replace('st ', ' ')
         if '- ' in value:
             value = value.replace(' - ', '-').replace('- ', '-')
-        if not ' ' in value:
+        if ' ' not in value:
             value = value.replace('-', ' ')
         else:
             value = value.replace('/', '-')
@@ -116,7 +128,7 @@ def cookDateStr(value):
                         day = mmap[month.lower()]
                     month = '-'.join([rmap[m.lower()] for m in val.split('-') if m])
                     continue
-                if num > 12 and num < 32:
+                if 12 < num < 32:
                     if day:
                         month = monthlist[day - 1]
                         day = num
@@ -134,10 +146,10 @@ def cookDateStr(value):
         return value
 
 
-def cookDateRIS(value):
+def cook_date_ris(value):
     """ converts a string representing a date into RIS format
     """
-    value = cookDateStr(value)
+    value = cook_date_str(value)
     vals = value.split(' ')
     year = month = other = day = ''
     if vals:
@@ -158,7 +170,7 @@ def cookDateRIS(value):
     return '/'.join([i for i in (year, month, day, other)])
 
 
-def cookDateMonths(start, end):
+def cook_date_months(start, end):
     """ returns a list of all months within the date range. Useful for list based searches
     """
     months = []
@@ -183,9 +195,11 @@ def safe_unicode(value, encoding='utf-8'):
     elif isinstance(value, basestring):
         try:
             value = unicode(value, encoding)
-        except (UnicodeDecodeError):
+        except UnicodeDecodeError:
             value = value.decode('utf-8', 'replace')
     return value
+
+
 su = safe_unicode
 
 
@@ -213,3 +227,19 @@ def alphanum(value):
     """
     pattern = re.compile('[\W_]+', re.UNICODE)
     return pattern.sub('', value)
+
+
+# legacy
+def cookDate(year='', month='', day='', medlinedate='', end=False):
+    warnings.warn("This function is deprecated in favor of 'cook_date'", category=DeprecationWarning)
+    return cook_date(year=year, month=month, day=day, medlinedate=medlinedate, end=end)
+
+
+def cookDateMonths(start, end):
+    warnings.warn("This function is deprecated in favor of 'cook_date_months'", category=DeprecationWarning)
+    return cook_date_months(start, end)
+
+
+def cookDateRIS(value):
+    warnings.warn("This function is deprecated in favor of 'cook_date_ris'", category=DeprecationWarning)
+    return cook_date_ris(value)

@@ -14,18 +14,18 @@ def cache():
         conn = urllib2.urlopen(url)
         reader = csv.reader(conn)
 
-        atoj = {}
-        jtoa = {}
+        _atoj = {}
+        _jtoa = {}
         dates = {}
         while True:
             try:
                 title, abbr, pissn, eissn, start, end = reader.next()
-                atoj[abbr.lower()] = title
-                jtoa[title.lower()] = abbr
+                _atoj[abbr.lower()] = title
+                _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (start, end)
             except StopIteration:
                 break
-        data = {'atoj': atoj, 'jtoa': jtoa, 'dates': dates}
+        data = {'atoj': _atoj, 'jtoa': _jtoa, 'dates': dates}
 
         f = open(os.path.join(base_path, 'journals.json'), 'w')
         json.dump(data, f)

@@ -1,5 +1,5 @@
-from elementtree import ElementTree as et
-from .cooking import alphanum, cookDateStr, su
+from lxml import etree as et
+from .cooking import alphanum, cook_date_str, su
 import json
 import re
 import urllib2
@@ -50,8 +50,8 @@ class IsbnDbOpener(IsbnOpener):
 
     def get_url(self, endpoint, term):
         handle = urllib2.urlopen(self.root_url % {'api_key': self.api_key,
-                                'endpoint': endpoint,
-                                'term': term})
+                                                  'endpoint': endpoint,
+                                                  'term': term})
         return json.load(handle)
 
     def get_publication(self, isbn):
@@ -92,7 +92,7 @@ class GoogleBooksAPIOpener(IsbnOpener):
             data['publisher'] = book.get('publisher')
             data['abstract'] = book.get('description')
             if book.get('publishedDate'):
-                data['pubdate'] = cookDateStr(book['publishedDate'])
+                data['pubdate'] = cook_date_str(book['publishedDate'])
             data['google_books_link'] = book['previewLink']
             return data
 
@@ -120,7 +120,7 @@ class WorldCatOpener(IsbnOpener):
         editors = []
         root = tree.getroot()
         _authors = root.find('{%s}%s' % (ns, 'authors'))
-        if _authors:
+        if _authors and len(_authors):
             for author in _authors.findall('{%s}%s' % (ns, 'author')):
                 author = author.text
                 brkt_pattern = '\[(.*?)\]'

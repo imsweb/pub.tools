@@ -1,10 +1,8 @@
 from Bio import Entrez
 from unidecode import unidecode
 from . import config
-from .cooking import cookDateStr, su
+from .cooking import cook_date_str, su
 from httplib import IncompleteRead
-from math import ceil
-from StringIO import StringIO
 import re
 import time
 
@@ -13,7 +11,6 @@ Entrez.tool = config.ENTREZ_TOOL
 
 
 class IMSEntrezError(Exception):
-
     def __init__(self, value):
         self.value = value
 
@@ -90,7 +87,9 @@ def parse_entrez_book_record(record):
 
     pubdate = book.get('PubDate', '')
     if pubdate:
-        data['pubdate'] = cookDateStr(' '.join([i for i in (pubdate.get('Year', ''), pubdate.get('Season', ''), pubdate.get('Month', ''), pubdate.get('Day', '')) if i]))
+        data['pubdate'] = cook_date_str(' '.join([i for i in (
+            pubdate.get('Year', ''), pubdate.get('Season', ''),
+            pubdate.get('Month', ''), pubdate.get('Day', '')) if i]))
 
     data['volume'] = book.get('Volume', '')
     data['volumetitle'] = book.get('VolumeTitle', '')
@@ -109,7 +108,7 @@ def parse_entrez_book_record(record):
 
     sections = []
     for section in document.get('Sections', []):
-        sec = {}
+        sec = dict()
         sec['title'] = section['SectionTitle']
         if section.get('LocationLabel', ''):
             sec['type'] = section['LocationLabel'].attributes['Type']
@@ -141,11 +140,15 @@ def parse_entrez_journal_record(record):
     data['medium'] = journal['JournalIssue'].attributes['CitedMedium']
     data['pagination'] = article.get('Pagination', {}).get('MedlinePgn', '')
     data['affiliation'] = article.get('Affiliation')
-    data['pubdate'] = cookDateStr(' '.join([i for i in (pubdate.get('MedlineDate', ''), pubdate.get('Year', ''), pubdate.get('Season', ''), pubdate.get('Month', ''), pubdate.get('Day', '')) if i]))
+    data['pubdate'] = cook_date_str(' '.join([i for i in (
+        pubdate.get('MedlineDate', ''), pubdate.get('Year', ''),
+        pubdate.get('Season', ''), pubdate.get('Month', ''),
+        pubdate.get('Day', '')) if i]))
     data['title'] = article['ArticleTitle']
 
     for pmdate in pmdates:
-        pmdate_str = cookDateStr(' '.join([i for i in (pmdate.get('Year', ''), pmdate.get('Month', ''), pmdate.get('Day', '')) if i]))
+        pmdate_str = cook_date_str(
+            ' '.join([i for i in (pmdate.get('Year', ''), pmdate.get('Month', ''), pmdate.get('Day', '')) if i]))
         data['pmpubdate_' + pmdate.attributes['PubStatus'].replace('-', '')] = pmdate_str
 
     authors = []
@@ -183,16 +186,18 @@ def parse_entrez_journal_record(record):
     for meshHeader in medline.get('MeshHeadingList', []):
         mesh.append(unicode(meshHeader['DescriptorName']))
         # Might be nice to return name and ID at some point.
-        #d = meshHeader['DescriptorName']
+        # d = meshHeader['DescriptorName']
         # mesh.append({
         #    'name': unicode(d),
         #    'id': d.attributes['UI'],
-        #})
+        # })
     data['mesh'] = mesh
     data['pubtypelist'] = [unicode(ptl) for ptl in article.get('PublicationTypeList', [])]
     for adate in articledate:
         if adate.attributes['DateType'] == 'Electronic':
-            data['edate'] = cookDateStr(' '.join([i for i in (adate.get('MedlineDate', ''), adate.get('Year', ''), adate.get('Season', ''), adate.get('Month', ''), adate.get('Day', '')) if i]))
+            data['edate'] = cook_date_str(' '.join([i for i in (
+                adate.get('MedlineDate', ''), adate.get('Year', ''), adate.get('Season', ''),
+                adate.get('Month', ''), adate.get('Day', '')) if i]))
     data['medlineta'] = medlineinfo.get('MedlineTA', '')
     data['nlmuniqueid'] = medlineinfo.get('NlmUniqueID', '')
     data['medlinecountry'] = medlineinfo.get('Country', '')
@@ -269,18 +274,9 @@ def get_publications(pmids):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
         handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
         try:
-            # Read in all the data at once, to handle IncompleteRead exceptions (which biopython doesn't).
-            data = read_response(handle)
-            # Consume the Entrez.parse generator early, so we don't return duplicates because of late failures.
-            for record in list(Entrez.parse(StringIO(data))):
-                yield parse_entrez_record(record)
-            # Successfully parsed all the results, move to the next slice and reset the attempt counter.
-            start += config.MAX_PUBS
-            attempts = 0
-        except ValueError: # not a failed attempt, handling new Biopython with Entrez.read
-            handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml") # update stale handle
+            handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")  # update stale handle
             data = Entrez.read(handle)
-            for record in data['PubmedArticle']+data['PubmedBookArticle']:
+            for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield parse_entrez_record(record)
             start += config.MAX_PUBS
             attempts = 0
@@ -302,7 +298,8 @@ def find_pmids(query):
 
 
 def get_searched_publications(WebEnv, QueryKey, ids=None):
-    """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow down subset of ids """
+    """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow
+    down subset of ids """
     if isinstance(ids, basestring):
         ids = [ids]
     records = []
@@ -320,10 +317,10 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
             record = parse_entrez_record(record)
             if record:
                 records.append(record)
-    except ValueError: # newer Biopython requires this to be Entrez.read
+    except ValueError:  # newer Biopython requires this to be Entrez.read
         handle = Entrez.efetch(**query)
         data = Entrez.read(handle)
-        for record in data['PubmedArticle']+data['PubmedBookArticle']:
+        for record in data['PubmedArticle'] + data['PubmedBookArticle']:
             record = parse_entrez_record(record)
             # Entrez.read does not use the ids query key so we have to do this ourselves
             if record and (ids and record['pmid'] in ids or not ids):
@@ -336,13 +333,15 @@ def esearch_publications(term):
     return process_handle(handle)
 
 
-def find_publications(authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None, ir=None, affl=None, doi=False, inclusive=False):
+def find_publications(authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None,
+                      ir=None, affl=None, doi='', inclusive=False):
     term = generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
     if not start:
         start = '1500/01/01'
     if not end:
         end = '2099/01/01'
-    handle = Entrez.esearch(db="pubmed", term=term, datetype='pdat', mindate=start, maxdate=end, retmode="xml", retmax="100000")
+    handle = Entrez.esearch(db="pubmed", term=term, datetype='pdat', mindate=start, maxdate=end, retmode="xml",
+                            retmax="100000")
     return process_handle(handle)
 
 
@@ -360,16 +359,24 @@ def generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, do
     """Generate the search string that will be passed to ESearch based on these criteria"""
     authjoin = inclusive == "OR" and " OR " or " "
     authors_string = authors and authjoin.join(['%s[auth]' % unidecode(a) for a in authors if a]) or ''
-    stops = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always', 'among', 'an', 'and', 'another', 'any',
-             'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'between', 'both', 'but', 'by', 'can', 'could',
-             'did', 'do', 'does', 'done', 'due', 'during', 'each', 'either', 'enough', 'especially', 'etc', 'for', 'found',
-             'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'however', 'i', 'if', 'in', 'into', 'is', 'it',
-             'its', 'itself', 'just', 'kg', 'km', 'made', 'mainly', 'make', 'may', 'mg', 'might', 'ml', 'mm', 'most', 'mostly',
-             'must', 'nearly', 'neither', 'no', 'nor', 'obtained', 'of', 'often', 'on', 'our', 'overall', 'perhaps', 'quite',
+    stops = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always', 'among', 'an', 'and', 'another',
+             'any',
+             'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'between', 'both', 'but', 'by', 'can',
+             'could',
+             'did', 'do', 'does', 'done', 'due', 'during', 'each', 'either', 'enough', 'especially', 'etc', 'for',
+             'found',
+             'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'however', 'i', 'if', 'in', 'into', 'is',
+             'it',
+             'its', 'itself', 'just', 'kg', 'km', 'made', 'mainly', 'make', 'may', 'mg', 'might', 'ml', 'mm', 'most',
+             'mostly',
+             'must', 'nearly', 'neither', 'no', 'nor', 'obtained', 'of', 'often', 'on', 'our', 'overall', 'perhaps',
+             'quite',
              'rather', 'really', 'regarding', 'seem', 'seen', 'several', 'should', 'show', 'showed', 'shown', 'shows',
              'significantly', 'since', 'so', 'some', 'such', 'than', 'that', 'the', 'their', 'theirs', 'them', 'then',
-             'there', 'therefore', 'these', 'they', 'this', 'those', 'through', 'thus', 'to', 'upon', 'use', 'used', 'using',
-             'various', 'very', 'was', 'we', 'were', 'what', 'when', 'which', 'while', 'with', 'within', 'without', 'would']
+             'there', 'therefore', 'these', 'they', 'this', 'those', 'through', 'thus', 'to', 'upon', 'use', 'used',
+             'using',
+             'various', 'very', 'was', 'we', 'were', 'what', 'when', 'which', 'while', 'with', 'within', 'without',
+             'would']
     pstops = ['\&', '\(', '\)', '\-', '\;', '\:', '\,', '\.', '\?', '\!', ' ']
     if title:
         for stop in stops:
@@ -390,4 +397,6 @@ def generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, do
     mesh_string = mesh and '+'.join(['%s[mesh]' % m for m in mesh]) or ''
     doi_string = doi and '%s[doi]' % doi.replace('(', ' ').replace(')', ' ') or ''
 
-    return '+'.join([elem for elem in (authors_string, title_string, journal_string, pmid_string, mesh_string, gr_string, ir_string, affl_string, doi_string) if elem])
+    return '+'.join([elem for elem in (
+        authors_string, title_string, journal_string, pmid_string, mesh_string, gr_string, ir_string, affl_string,
+        doi_string) if elem])

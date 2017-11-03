@@ -5,17 +5,21 @@ from .cooking import cook_date_str, su
 from httplib import IncompleteRead
 import re
 import time
+import logging
 
 Entrez.email = config.ENTREZ_EMAIL
 Entrez.tool = config.ENTREZ_TOOL
+Entrez.api_key = config.ENTREZ_API_KEY
+logger = logging.getLogger('pub.tools')
 
 
-class IMSEntrezError(Exception):
+class PubToolsError(Exception):
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
         return self.value
+IMSEntrezError = PubToolsError
 
 
 def parse_entrez_record(record):
@@ -265,28 +269,41 @@ def read_response(handle):
 
 
 def get_publications(pmids):
+    """ We let Biopython do most of the heavy lifting, including building the request POST. Publications are
+    fetched in chunks of config.MAX_PUBS as there does seem to be a limit imposed by NCBI. There is also
+    a 3-request per second limit imposed by NCBI until we get an API key, but that should also be handled by
+    Biopython. Finally, if the request fails for any reason we can retry config.MAX_RETRIES times
+
+    :param pmids: a list of PMIDs
+    :return: generator of pubs as python dicts
+    """
     # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
+    total_time = time.time()
     if not isinstance(pmids, list):
         pmids = list(pmids)
     start = 0
     attempts = 0
     while start < len(pmids):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
-        handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
         try:
-            handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")  # update stale handle
+            timer = time.time()
+            logger.info('Fetching publications %d through %d...' % (start, min(len(pmids),start+config.MAX_PUBS)))
+            handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
             data = Entrez.read(handle)
+            logger.info('Fetched and read after %.02fs' % (time.time()-timer))
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield parse_entrez_record(record)
             start += config.MAX_PUBS
             attempts = 0
-        except:
+        except Exception, e:
             attempts += 1
+            logger.info('efetch failed: "%s", attempting retry %d' % (e,attempts))
             if attempts >= config.MAX_RETRIES:
-                raise Exception('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmid_slice))
+                raise PubToolsError('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmid_slice))
             time.sleep(config.RETRY_SLEEP)
         finally:
             handle.close()
+    logging.info('Total publications retrieved in %.02f seconds' % (time.time()-total_time))
 
 
 def find_pmids(query):

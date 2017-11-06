@@ -303,7 +303,7 @@ def get_publications(pmids):
             time.sleep(config.RETRY_SLEEP)
         finally:
             handle.close()
-    logging.info('Total publications retrieved in %.02f seconds' % (time.time()-total_time))
+    logger.info('Total publications retrieved in %.02f seconds' % (time.time()-total_time))
 
 
 def find_pmids(query):

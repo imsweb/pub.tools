@@ -19,6 +19,8 @@ class PubToolsError(Exception):
 
     def __str__(self):
         return self.value
+
+
 IMSEntrezError = PubToolsError
 
 
@@ -287,23 +289,23 @@ def get_publications(pmids):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
         try:
             timer = time.time()
-            logger.info('Fetching publications %d through %d...' % (start, min(len(pmids),start+config.MAX_PUBS)))
+            logger.info('Fetching publications %d through %d...' % (start, min(len(pmids), start + config.MAX_PUBS)))
             handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
             data = Entrez.read(handle)
-            logger.info('Fetched and read after %.02fs' % (time.time()-timer))
+            logger.info('Fetched and read after %.02fs' % (time.time() - timer))
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield parse_entrez_record(record)
             start += config.MAX_PUBS
             attempts = 0
         except Exception, e:
             attempts += 1
-            logger.info('efetch failed: "%s", attempting retry %d' % (e,attempts))
+            logger.info('efetch failed: "%s", attempting retry %d' % (e, attempts))
             if attempts >= config.MAX_RETRIES:
                 raise PubToolsError('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmid_slice))
             time.sleep(config.RETRY_SLEEP)
         finally:
             handle.close()
-    logger.info('Total publications retrieved in %.02f seconds' % (time.time()-total_time))
+    logger.info('Total publications retrieved in %.02f seconds' % (time.time() - total_time))
 
 
 def find_pmids(query):
@@ -377,23 +379,16 @@ def generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, do
     authjoin = inclusive == "OR" and " OR " or " "
     authors_string = authors and authjoin.join(['%s[auth]' % unidecode(a) for a in authors if a]) or ''
     stops = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always', 'among', 'an', 'and', 'another',
-             'any',
-             'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'between', 'both', 'but', 'by', 'can',
-             'could',
-             'did', 'do', 'does', 'done', 'due', 'during', 'each', 'either', 'enough', 'especially', 'etc', 'for',
-             'found',
-             'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'however', 'i', 'if', 'in', 'into', 'is',
-             'it',
-             'its', 'itself', 'just', 'kg', 'km', 'made', 'mainly', 'make', 'may', 'mg', 'might', 'ml', 'mm', 'most',
-             'mostly',
-             'must', 'nearly', 'neither', 'no', 'nor', 'obtained', 'of', 'often', 'on', 'our', 'overall', 'perhaps',
-             'quite',
-             'rather', 'really', 'regarding', 'seem', 'seen', 'several', 'should', 'show', 'showed', 'shown', 'shows',
-             'significantly', 'since', 'so', 'some', 'such', 'than', 'that', 'the', 'their', 'theirs', 'them', 'then',
-             'there', 'therefore', 'these', 'they', 'this', 'those', 'through', 'thus', 'to', 'upon', 'use', 'used',
-             'using',
-             'various', 'very', 'was', 'we', 'were', 'what', 'when', 'which', 'while', 'with', 'within', 'without',
-             'would']
+             'any', 'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'between', 'both', 'but', 'by',
+             'can', 'could', 'did', 'do', 'does', 'done', 'due', 'during', 'each', 'either', 'enough', 'especially',
+             'etc', 'for', 'found', 'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'however', 'i',
+             'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'kg', 'km', 'made', 'mainly', 'make', 'may', 'mg',
+             'might', 'ml', 'mm', 'most', 'mostly', 'must', 'nearly', 'neither', 'no', 'nor', 'obtained', 'of', 'often',
+             'on', 'our', 'overall', 'perhaps', 'quite', 'rather', 'really', 'regarding', 'seem', 'seen', 'several',
+             'should', 'show', 'showed', 'shown', 'shows', 'significantly', 'since', 'so', 'some', 'such', 'than',
+             'that', 'the', 'their', 'theirs', 'them', 'then', 'there', 'therefore', 'these', 'they', 'this', 'those',
+             'through', 'thus', 'to', 'upon', 'use', 'used', 'using', 'various', 'very', 'was', 'we', 'were', 'what',
+             'when', 'which', 'while', 'with', 'within', 'without', 'would']
     pstops = ['\&', '\(', '\)', '\-', '\;', '\:', '\,', '\.', '\?', '\!', ' ']
     if title:
         for stop in stops:

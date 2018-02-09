@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-version = '1.4'
+version = '1.4.1'
 
 setup(name='pub.tools',
       version=version,

@@ -245,7 +245,7 @@ def journal_citation(authors=(), editors=(), title='', journal='', pubdate='', v
                 if doi:
                     print >> out, 'doi: %s. eCollection %s' % (doi, period(pubdate))
                 else:
-                    print >> out, 'eCollection %s' + period(pubdate)
+                    print >> out, 'eCollection %s' % period(pubdate)
 
     else:
         print >> out, u'<b>Author: </b>%s<br/>' % u', '.join([su(cookauthor(a)).replace(u',', u' ') for a in authors])

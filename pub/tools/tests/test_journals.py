@@ -1,5 +1,6 @@
-from pub.tools.journals import atoj, cache, jtoa
 import unittest
+
+from ..journals import atoj, cache, jtoa
 
 
 class TestJournals(unittest.TestCase):

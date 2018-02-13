@@ -1,7 +1,8 @@
-from pub.tools import entrez
-from pub.tools.citations import journal_citation
-from datetime import datetime
 import unittest
+from datetime import datetime
+
+from .. import entrez
+from ..citations import journal_citation
 
 
 class TestCase(unittest.TestCase):
@@ -369,7 +370,7 @@ class TestCase(unittest.TestCase):
         """ Both dates should be stored and the citation reflect it """
         record = entrez.get_publication(pmid='10854512')
         record['journal'] = record['medlineta']
-        self.assertEqual(journal_citation(**record),
+        self.assertEqual(journal_citation(italicize=True, **record),
                          'Soon MS, Lin OS. Inflammatory fibroid polyp of the duodenum. <i>Surg Endosc</i> 2000 '
                          'Jan;14(1):86. Epub 1999 Nov 25.')
 
@@ -377,7 +378,7 @@ class TestCase(unittest.TestCase):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='14729922')
         record['journal'] = record['medlineta']
-        self.assertEqual(journal_citation(**record),
+        self.assertEqual(journal_citation(italicize=True, **record),
                          'Edgar RC. Local homology recognition and distance measures in linear time using compressed '
                          'amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.')
 
@@ -385,7 +386,7 @@ class TestCase(unittest.TestCase):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='23372575')
         record['journal'] = record['medlineta']
-        self.assertEqual(journal_citation(**record),
+        self.assertEqual(journal_citation(italicize=True, **record),
                          'Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 Jan 25;3:330. doi: '
                          '10.3389/fgene.2012.00330. eCollection 2012.')
 

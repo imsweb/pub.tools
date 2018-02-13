@@ -7,31 +7,40 @@ import warnings
 preferred_date_format = '%Y %b %d'
 preferred_date_format_long = '%Y %b %d %I:%M %p'
 
-mmap = {
+daterange_to_month_start = {
     'winter': 1, 'spring': 4, 'summer': 7, 'fall': 10, 'autumn': 10, 'win': 1, 'spr': 4, 'sum': 7, 'fal': 10,
     'aut': 10, 'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4,
     'may': 5, 'jun': 6, 'june': 6, 'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9,
     'oct': 10, 'october': 10, 'nov': 11, 'november': 11, 'dec': 12, 'december': 12, '1stquart': 1, '2ndquart': 4,
     '3rdquart': 7, '4thquart': 10
 }
-mmap_end = {
+daterange_to_month_end = {
     'winter': 3, 'spring': 6, 'summer': 9, 'fall': 12, 'autumn': 12, 'win': 3, 'spr': 6, 'sum': 9, 'fal': 12,
     'aut': 12, 'jan': 1, 'january': 1, 'feb': 2, 'february': 2, 'mar': 3, 'march': 3, 'apr': 4, 'april': 4,
     'may': 5, 'jun': 6, 'june': 6, 'jul': 7, 'july': 7, 'aug': 8, 'august': 8, 'sep': 9, 'september': 9,
     'oct': 10, 'october': 10, 'nov': 11, 'november': 11, 'dec': 12, 'december': 12, '1stquart': 3,
     '2ndquart': 6, '3rdquart': 9, '4thquart': 12
 }
-rmap = {
+standardize_range = {
     'winter': 'Winter', 'spring': 'Spring', 'summer': 'Summer', 'fall': 'Fall', 'autumn': 'Autumn', 'win': 'Win',
     'spr': 'Spr', 'sum': 'Sum', 'fal': 'Fal', 'aut': 'Aut', 'jan': 'Jan', 'january': 'Jan', 'feb': 'Feb',
     'february': 'Feb', 'mar': 'Mar', 'march': 'Mar', 'apr': 'Apr', 'april': 'Apr', 'may': 'May', 'jun': 'Jun',
     'june': 'Jun', 'jul': 'Jul', 'july': 'Jul', 'aug': 'Aug', 'august': 'Aug', 'sep': 'Sep', 'september': 'Sep',
     'oct': 'Oct', 'october': 'Oct', 'nov': 'Nov', 'november': 'Nov', 'dec': 'Dec', 'december': 'Dec'
 }
-rism = {
+# convert date into a format recognized by RIS
+ris_month = {
     'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 'Sep': '09',
     'Oct': '10', 'Nov': '11', 'Dec': '12'
 }
+
+#  legacy naming
+rmap = standardize_range.copy()
+rism = ris_month.copy()
+mmap = daterange_to_month_start.copy()
+mmap_end = daterange_to_month_end.copy()
+
+
 monthlist = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 punclist = ['.', ',', ':', ';', '\'', '(', ')', '{', '}', '[', ']', '=', '+', '$', '#', '%', '@', '!', '^', '&', '*']
 
@@ -92,9 +101,9 @@ def cook_date(year='', month='', day='', medlinedate='', end=False):
         month = int(month)
     except (ValueError, TypeError,):
         if not end:
-            month = mmap.get(str(month.lower()).split('-')[0], 1)
+            month = daterange_to_month_start.get(str(month.lower()).split('-')[0], 1)
         else:
-            month = mmap_end.get(str(month.lower()).split('-')[-1], 1)
+            month = daterange_to_month_end.get(str(month.lower()).split('-')[-1], 1)
     if not day:
         day = 1
     cooked = datetime(int(year), int(month), int(day))
@@ -105,9 +114,9 @@ def cook_date_str(value):
     """ takes a string and reformats it to '%Y %b %-d'. e.g. '8-11-2009' becomes '2009 Aug 11'
     """
     try:
-        value = value.replace('th ', ' ').replace('nd ', ' ').replace('st ', ' ')
-        if '- ' in value:
-            value = value.replace(' - ', '-').replace('- ', '-')
+        for suffix in ('th', 'nd', 'st', 'rd'):  # ordinals
+            value = re.sub(r'(\d)%s\s' % suffix, r'\1 ', value)
+        value = re.sub(r'\s*-\s*', '-', value)
         if ' ' not in value:
             value = value.replace('-', ' ')
         else:
@@ -125,8 +134,8 @@ def cook_date_str(value):
                     num = int(val)
                 except ValueError:  # string, month/season
                     if month:
-                        day = mmap[month.lower()]
-                    month = '-'.join([rmap[m.lower()] for m in val.split('-') if m])
+                        day = daterange_to_month_start[month.lower()]
+                    month = '-'.join([standardize_range[m.lower()] for m in val.split('-') if m])
                     continue
                 if 12 < num < 32:
                     if day:
@@ -155,8 +164,8 @@ def cook_date_ris(value):
     if vals:
         year = vals[0]
     if len(vals) > 1:
-        if rism.get(vals[1]):
-            month = rism[vals[1]]
+        if ris_month.get(vals[1]):
+            month = ris_month[vals[1]]
         else:
             other = vals[1]
     if len(vals) > 2:

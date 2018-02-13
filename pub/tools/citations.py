@@ -72,10 +72,8 @@ def cookauthor(author):
 
 
 @cooked_citation
-def book_citation(authors=(), editors=(), title='', journal='', pubdate='', volume='', issue='', pagination='',
-                  edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='',
-                  conferencename='', conferencedate='', reportnum='', publisher='', abstract={}, serieseditors=(),
-                  pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
+def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
+                  edition='', series='', pubplace='', publisher='', **kwargs):
     out = StringIO()
     if editors and not authors:
         print >> out, period(u'%s, editor%s' % (
@@ -109,10 +107,8 @@ def book_citation(authors=(), editors=(), title='', journal='', pubdate='', volu
 
 
 @cooked_citation
-def chapter_citation(authors=(), editors=(), title='', journal='', pubdate='', volume='', issue='', pagination='',
-                     edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='',
-                     conferencename='', conferencedate='', reportnum='', publisher='', abstract={}, serieseditors=(),
-                     pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
+def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination='',
+                     edition='', series='', pubplace='', booktitle='', publisher='', **kwargs):
     out = StringIO()
     if editors and not authors:
         print >> out, period(u'%s, editor%s' % (
@@ -150,10 +146,8 @@ def chapter_citation(authors=(), editors=(), title='', journal='', pubdate='', v
 
 
 @cooked_citation
-def conference_citation(authors=(), editors=(), title='', journal='', pubdate='', volume='', issue='', pagination='',
-                        edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='',
-                        conferencename='', conferencedate='', reportnum='', publisher='', abstract={}, serieseditors=(),
-                        pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
+def conference_citation(authors=(), editors=(), title='', pubdate='', pagination='', pubplace='', place='',
+                        conferencename='', conferencedate='', publisher='', italicize=False, **kwargs):
     out = StringIO()
     if editors and not authors:
         print >> out, period(u'%s, editor%s' % (
@@ -165,8 +159,10 @@ def conference_citation(authors=(), editors=(), title='', journal='', pubdate=''
     if editors and authors:
         print >> out, period(u'%s, editor%s' % (
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
-    if conferencename:
+    if conferencename and italicize:
         print >> out, semi_colon(u'<i>Proceedings of %s</i>' % conferencename)
+    elif conferencename:
+        print >> out, semi_colon(conferencename)
     if conferencedate:
         if place or pubdate or publisher:
             print >> out, semi_colon(conferencedate)
@@ -192,34 +188,35 @@ def conference_citation(authors=(), editors=(), title='', journal='', pubdate=''
 
 
 @cooked_citation
-def journal_citation(authors=(), editors=(), title='', journal='', pubdate='', volume='', issue='', pagination='',
-                     edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='',
-                     conferencename='', conferencedate='', reportnum='', publisher='', abstract={}, serieseditors=(),
-                     pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
+def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
+                     pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, italicize=False, **kwargs):
+    if not abstract:
+        abstract = {}
     out = StringIO()
     if not use_abstract:
         if authors:
             print >> out, period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors if a]))
         if title:
             print >> out, period(title)
-        if journal:
+        if journal and italicize:
             print >> out, u'<i>%s</i> ' % su(journal).strip()
+        elif journal:
+            print >> out, period(su(journal).strip())
 
-        dat = ''
         if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
-            dat = pubdate
+            date = pubdate
         elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
-            dat = edate
+            date = edate
         else:
-            dat = pubdate or edate
+            date = pubdate or edate
 
-        if dat:
+        if date:
             if pagination and not (volume or issue):
-                print >> out, colon(dat)
+                print >> out, colon(date)
             elif volume or issue:
-                print >> out, semi_colon_no_space(dat)
+                print >> out, semi_colon_no_space(date)
             else:
-                print >> out, period(dat)
+                print >> out, period(date)
         if volume:
             if pagination and not issue:
                 print >> out, colon_no_space(volume)
@@ -256,14 +253,14 @@ def journal_citation(authors=(), editors=(), title='', journal='', pubdate='', v
         print >> out, u'<br/>'
         print >> out, u'<b>Pubmed link: </b><a href="http://www.ncbi.nlm.nih.gov/pubmed/%s">' \
                       u'http://www.ncbi.nlm.nih.gov/pubmed/%s</a><br/>' % (
-            pmid, pmid)
+                          pmid, pmid)
         if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
-            dat = pubdate
+            date = pubdate
         elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
-            dat = edate
+            date = edate
         else:
-            dat = pubdate or edate
-        print >> out, u'<b>Citation Date: </b>%s' % dat
+            date = pubdate or edate
+        print >> out, u'<b>Citation Date: </b>%s' % date
         if pubmodel in ('Print-Electronic',):
             if edate:
                 print >> out, u'. Epub %s<br/>' % period(edate)
@@ -291,10 +288,8 @@ def journal_citation(authors=(), editors=(), title='', journal='', pubdate='', v
 
 
 @cooked_citation
-def monograph_citation(authors=(), editors=(), title='', journal='', pubdate='', volume='', issue='', pagination='',
-                       edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='',
-                       conferencename='', conferencedate='', reportnum='', publisher='', abstract={}, serieseditors=(),
-                       pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
+def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='', weburl='', reportnum='', publisher='',
+                       serieseditors=(), **kwargs):
     out = StringIO()
     if serieseditors and not authors:
         print >> out, period(u'%s, editor%s' % (
@@ -332,10 +327,8 @@ def monograph_citation(authors=(), editors=(), title='', journal='', pubdate='',
 
 
 @cooked_citation
-def report_citation(authors=(), editors=(), title='', journal='', pubdate='', volume='', issue='', pagination='',
-                    edition='', series='', pubplace='', booktitle='', chapternum='', weburl='', place='',
-                    conferencename='', conferencedate='', reportnum='', publisher='', abstract={}, serieseditors=(),
-                    pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, **kwargs):
+def report_citation(authors=(), editors=(), title='', pubdate='', pagination='', series='', pubplace='', weburl='',
+                    reportnum='', publisher='', **kwargs):
     out = StringIO()
     if editors and not authors:
         print >> out, period(u'%s, editor%s' % (

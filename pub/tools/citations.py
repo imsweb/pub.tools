@@ -1,6 +1,8 @@
-from .cooking import su
-from cgi import escape
+import warnings
 from StringIO import StringIO
+from cgi import escape
+
+from .cooking import su
 
 punc_endings = ('.', '?', '!')
 
@@ -147,7 +149,13 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
 
 @cooked_citation
 def conference_citation(authors=(), editors=(), title='', pubdate='', pagination='', pubplace='', place='',
-                        conferencename='', conferencedate='', publisher='', italicize=False, **kwargs):
+                        conferencename='', conferencedate='', publisher='', italicize=None, **kwargs):
+    if italicize is None:
+        warnings.warn(
+            "Use the 'italicize' boolean parameter to include <i> tags. The current default is True but "
+            "will be False in a future release",
+            DeprecationWarning)
+        italicize = True
     out = StringIO()
     if editors and not authors:
         print >> out, period(u'%s, editor%s' % (
@@ -189,7 +197,13 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
 
 @cooked_citation
 def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
-                     pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, italicize=False, **kwargs):
+                     pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, italicize=None, **kwargs):
+    if italicize is None:
+        warnings.warn(
+            "Use the 'italicize' boolean parameter to include <i> tags. The current default is True but "
+            "will be False in a future release",
+            DeprecationWarning, stacklevel=2)
+        italicize = True
     if not abstract:
         abstract = {}
     out = StringIO()

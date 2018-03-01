@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-version = '1.5'
+version = '1.6'
 
 setup(name='pub.tools',
       version=version,
@@ -23,6 +23,7 @@ setup(name='pub.tools',
           'setuptools',
           'biopython',
           'unidecode',
-          'lxml'
+          'lxml',
+          'requests'
       ],
       )

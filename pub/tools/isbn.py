@@ -1,8 +1,12 @@
-from lxml import etree as et
-from .cooking import alphanum, cook_date_str, su
 import json
 import re
 import urllib2
+from io import BytesIO
+
+import requests
+from lxml import etree as et
+
+from .cooking import alphanum, cook_date_str, su
 
 
 class IsbnData(object):
@@ -40,25 +44,29 @@ class IsbnOpener(object):
 
 
 class IsbnDbOpener(IsbnOpener):
-    root_url = 'http://isbndb.com/api/v2/json/%(api_key)s/%(endpoint)s/%(term)s'
+    """ This requires a paid service now, not fully tested """
+    root_url = 'https://api.isbndb.com/%(endpoint)s/(term)s'
     name = 'ISBNdb'
 
     def url(self, term):
-        return self.root_url % {'api_key': self.api_key,
-                                'endpoint': 'book',
-                                'term': term}
+        return self.root_url % {
+            'api_key': self.api_key,
+            'endpoint': 'book',
+            'term': term
+        }
 
     def get_url(self, endpoint, term):
-        handle = urllib2.urlopen(self.root_url % {'api_key': self.api_key,
-                                                  'endpoint': endpoint,
-                                                  'term': term})
-        return json.load(handle)
+        url = self.root_url % {'endpoint': endpoint, 'term': term}
+        headers = {'X-API-KEY': self.api_key}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return json.loads(response.text)
 
     def get_publication(self, isbn):
         data = IsbnData()
         isbn = alphanum(isbn)
         book = self.get_url(endpoint='book', term=isbn)
-        if book.get('data'):
+        if book and book.get('data'):
             book = book['data'][0]
             data['title'] = su(book.get('title_long') or book.get('title'))
             data['language'] = book.get('language')
@@ -73,18 +81,20 @@ class GoogleBooksAPIOpener(IsbnOpener):
     name = 'Google Books API'
 
     def url(self, isbn):
-        return self.root_url % {'api_key': self.api_key,
-                                'isbn': isbn}
+        return self.root_url % {
+            'api_key': self.api_key,
+                                'isbn': isbn
+        }
 
     def get_url(self, isbn):
-        handle = urllib2.urlopen(self.url(isbn))
-        return json.load(handle)
+        response = urllib2.urlopen(self.url(isbn))  # requests module fails to validate SSL cert?
+        return json.load(response)
 
     def get_publication(self, isbn):
         data = IsbnData()
         isbn = alphanum(isbn)
         book = self.get_url(isbn)
-        if book['totalItems']:
+        if book and book['totalItems']:
             book = book['items'][0]['volumeInfo']
             data['title'] = book['title']
             data['language'] = book.get('language')
@@ -105,40 +115,42 @@ class WorldCatOpener(IsbnOpener):
         return self.root_url % {'isbn': term}
 
     def get_url(self, isbn):
-        handle = urllib2.urlopen(self.root_url % {'isbn': isbn})
-        return handle
+        response = requests.get(self.root_url % {'isbn': isbn})
+        if response.status_code == 200:
+            return response.text
 
     def get_publication(self, isbn):
         data = IsbnData()
         isbn = alphanum(isbn)
         source = self.get_url(isbn)
 
-        tree = et.parse(source)
-        ns = 'http://classify.oclc.org'
+        if source:
+            tree = et.parse(BytesIO(str(source)))
+            ns = 'http://classify.oclc.org'
 
-        authors = []
-        editors = []
-        root = tree.getroot()
-        _authors = root.find('{%s}%s' % (ns, 'authors'))
-        if _authors and len(_authors):
-            for author in _authors.findall('{%s}%s' % (ns, 'author')):
-                author = author.text
-                brkt_pattern = '\[(.*?)\]'
-                brkt = re.search(brkt_pattern, author)
-                if brkt:
-                    brkt_value = brkt.group(1)
-                    author_name = author.split(brkt.group())[0].strip()
-                    # what values are allowed here? Just try for editor for now
-                    for role in brkt_value.split(';'):
-                        role = role.strip()
-                        if role == 'Editor' and author_name not in editors:
-                            editors.append(author_name)
-                        elif role == 'Author' and author_name not in authors:
-                            authors.append(author_name)
-                else:
-                    authors.append(author)
-            data['authors'] = authors
-            data['editors'] = editors
-            data['title'] = ''
-            data['title'] = root.find('{%s}%s' % (ns, 'work')).attrib['title']
-            return data
+            authors = []
+            editors = []
+            root = tree.getroot()
+            _authors = root.find('{%s}%s' % (ns, 'authors'))
+            if _authors and _authors is not None:
+                for author in _authors.findall('{%s}%s' % (ns, 'author')):
+                    author = author.text
+                    brkt_pattern = '\[(.*?)\]'
+                    brkt = re.search(brkt_pattern, author)
+                    if brkt:
+                        brkt_value = brkt.group(1)
+                        author_name = author.split(brkt.group())[0].strip()
+                        # what values are allowed here? Just try for editor for now
+                        for role in brkt_value.split(';'):
+                            role = role.strip()
+                            if role == 'Editor' and author_name not in editors:
+                                editors.append(author_name)
+                            elif role == 'Author' and author_name not in authors:
+                                authors.append(author_name)
+                    else:
+                        authors.append(author)
+                data['authors'] = authors
+                data['editors'] = editors
+                data['title'] = ''
+                data['title'] = root.find('{%s}%s' % (ns, 'work')).attrib['title']
+                return data

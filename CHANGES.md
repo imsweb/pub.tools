@@ -1,5 +1,10 @@
 # Changes to pub.tools
 
+## [1.6.1] - 3 April 2018
+- Monkey patch in a fix for an upcoming BioPython release:
+  - https://github.com/OscarMaestre/biopython/commit/68fedf11d640a40d3920bd3f00ce6bd1c39553ed
+  - https://github.com/biopython/biopython/issues/1539
+
 ## [1.6] - 1 March 2018
 - Fixed the book REST API calls to allow for failure
 - book REST API calls now use requests module

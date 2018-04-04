@@ -1,8 +1,13 @@
+import os
 import unittest
 from datetime import datetime
 
+from Bio import Entrez
+
 from .. import entrez
 from ..citations import journal_citation
+
+base_path = os.path.dirname(os.path.realpath(__file__))
 
 
 class TestCase(unittest.TestCase):
@@ -444,6 +449,13 @@ class TestCase(unittest.TestCase):
         self.assertEquals(len(record['IdList']), 1)
         record = entrez.get_searched_publications(record['WebEnv'], record['QueryKey'])
         self.check_pub_data(record[0])
+
+    def test_extract_title_without_tags(self):
+        """Test extraction of article title with HTML tags"""
+        with open(os.path.join(base_path, 'title_with_html_tags.xml'), "rb") as handle:
+            data = Entrez.read(handle)
+            self.assertEqual(data['PubmedArticle'][0]['MedlineCitation']['Article']['ArticleTitle'],
+                             "Leucocyte telomere length, genetic variants at theTERTgene region and risk of pancreatic cancer.")
 
 
 def test_suite():

@@ -345,11 +345,16 @@ class TestCase(unittest.TestCase):
         self.assertEqual(record['grants'], [{'grantid': u'F32 CA130434-01', 'acronym': 'CA', 'agency': 'NCI NIH HHS'},
                                             {'grantid': u'T32 CA09168-30', 'acronym': 'CA', 'agency': 'NCI NIH HHS'}])
 
-    def test_generateSearchString(self):
+    def test_generate_search_string(self):
         """ biopython will not take non-ascii chars """
         search = entrez.generate_search_string(authors=u'\xe9', title=u'\xe9', journal=u'\xe9', pmid=u'', mesh=u'',
                                                gr=u'', ir=u'', affl=u'', doi=u'')
         self.assertEqual(search, u'e[au]+e[ti]+"e"[jour]')
+
+    def test_pmc_search(self):
+        """ Get the PMID from PMC"""
+        self.assertEqual(entrez.get_pmid_by_pmc('4909985'), '27291797')
+        self.assertEqual(entrez.get_pmid_by_pmc('PMC4909985'), '27291797')
 
     def test_validyn(self):
         record = entrez.get_publication('20051087')
@@ -449,13 +454,6 @@ class TestCase(unittest.TestCase):
         self.assertEquals(len(record['IdList']), 1)
         record = entrez.get_searched_publications(record['WebEnv'], record['QueryKey'])
         self.check_pub_data(record[0])
-
-    def test_extract_title_without_tags(self):
-        """Test extraction of article title with HTML tags"""
-        with open(os.path.join(base_path, 'title_with_html_tags.xml'), "rb") as handle:
-            data = Entrez.read(handle)
-            self.assertEqual(data['PubmedArticle'][0]['MedlineCitation']['Article']['ArticleTitle'],
-                             "Leucocyte telomere length, genetic variants at theTERTgene region and risk of pancreatic cancer.")
 
 
 def test_suite():

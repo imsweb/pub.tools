@@ -283,7 +283,7 @@ def get_publication_by_doi(doi):
         return get_publication(ids['IdList'][0])
 
 
-def get_publication_by_pmc(pmcid):
+def get_pmid_by_pmc(pmcid):
     """
     We can't search by PMC in PubMed, but we can get the PMID from the PMC database
 
@@ -291,7 +291,7 @@ def get_publication_by_pmc(pmcid):
     A full DOM parser is probably fine for a file of this size.
 
     :param pmcid: The PMC id of the record
-    :return: parsed publication in dict format
+    :return: PMID. You can get the publication from this
     """
     if pmcid.startswith('PMC'):
         pmcid = pmcid[3:]
@@ -302,7 +302,7 @@ def get_publication_by_pmc(pmcid):
             if node.getAttribute('pub-id-type') == 'pmid':
                 for child in node.childNodes:
                     if child.nodeType == child.TEXT_NODE:
-                        return get_publication(child.nodeValue)
+                        return child.nodeValue
 
 
 def get_publications(pmids):

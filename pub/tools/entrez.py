@@ -1,16 +1,33 @@
-from Bio import Entrez
-from unidecode import unidecode
-from . import config
-from .cooking import cook_date_str, su
-from httplib import IncompleteRead
+import logging
 import re
 import time
-import logging
+from StringIO import StringIO
+from httplib import IncompleteRead
+from xml.dom import minidom
+
+from Bio import Entrez
+from unidecode import unidecode
+
+from . import config
+from .cooking import cook_date_str, su
 
 Entrez.email = config.ENTREZ_EMAIL
 Entrez.tool = config.ENTREZ_TOOL
 Entrez.api_key = config.ENTREZ_API_KEY
 logger = logging.getLogger('pub.tools')
+
+STOPWORDS = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always', 'among', 'an', 'and', 'another',
+             'any', 'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'between', 'both', 'but', 'by',
+             'can', 'could', 'did', 'do', 'does', 'done', 'due', 'during', 'each', 'either', 'enough', 'especially',
+             'etc', 'for', 'found', 'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'however', 'i',
+             'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'kg', 'km', 'made', 'mainly', 'make', 'may', 'mg',
+             'might', 'ml', 'mm', 'most', 'mostly', 'must', 'nearly', 'neither', 'no', 'nor', 'obtained', 'of', 'often',
+             'on', 'our', 'overall', 'perhaps', 'quite', 'rather', 'really', 'regarding', 'seem', 'seen', 'several',
+             'should', 'show', 'showed', 'shown', 'shows', 'significantly', 'since', 'so', 'some', 'such', 'than',
+             'that', 'the', 'their', 'theirs', 'them', 'then', 'there', 'therefore', 'these', 'they', 'this', 'those',
+             'through', 'thus', 'to', 'upon', 'use', 'used', 'using', 'various', 'very', 'was', 'we', 'were', 'what',
+             'when', 'which', 'while', 'with', 'within', 'without', 'would']
+PUNC_STOPWORDS = ['\&', '\(', '\)', '\-', '\;', '\:', '\,', '\.', '\?', '\!', ' ']
 
 
 class PubToolsError(Exception):
@@ -24,18 +41,32 @@ class PubToolsError(Exception):
 IMSEntrezError = PubToolsError
 
 
-def parse_entrez_record(record):
+def _parse_author_name(author, investigator=False):
+    fname = author.get('ForeName', '')
+    # strip excess spaces like in https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=22606070&retmode=xml
+    fname = ' '.join([part for part in fname.split(' ') if part])
+    return {
+        'lname': author.get('LastName', ''),
+        'fname': fname,
+        'iname': author.get('Initials', ''),
+        'cname': author.get('CollectiveName', ''),
+        'suffix': author.get('Suffix', ''),
+        'investigator': investigator,
+    }
+
+
+def _parse_entrez_record(record):
     """ convert this into our own data structure format
         Journal keys - MedlineCitation, PubmedData
         Book keys - BookDocument, PubmedBookData
     """
     if 'PubmedData' in record:
-        return parse_entrez_journal_record(record)
+        return _parse_entrez_journal_record(record)
     elif 'PubmedBookData' in record:
-        return parse_entrez_book_record(record)
+        return _parse_entrez_book_record(record)
 
 
-def parse_entrez_book_record(record):
+def _parse_entrez_book_record(record):
     data = {'type': 'book'}
     document = record.pop('BookDocument')
     book = document.pop('Book')
@@ -47,12 +78,7 @@ def parse_entrez_book_record(record):
         for author in document['AuthorList'][0]:
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
-            authors.append({'lname': author.get('LastName', ''),
-                            'fname': author.get('ForeName', ''),
-                            'iname': author.get('Initials', ''),
-                            'cname': author.get('CollectiveName', ''),
-                            'suffix': author.get('Suffix', ''),
-                            'investigator': False})
+            authors.append(_parse_author_name(author))
     data['authors'] = authors
 
     editors = []
@@ -60,12 +86,7 @@ def parse_entrez_book_record(record):
         for author in book['AuthorList'][0]:
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
-            authors.append({'lname': author.get('LastName', ''),
-                            'fname': author.get('ForeName', ''),
-                            'iname': author.get('Initials', ''),
-                            'cname': author.get('CollectiveName', ''),
-                            'suffix': author.get('Suffix', ''),
-                            'investigator': False})
+            authors.append(_parse_author_name(author))
     data['editors'] = editors
 
     data['language'] = document.get('Language', '') and document['Language'][0]
@@ -127,7 +148,7 @@ def parse_entrez_book_record(record):
     return data
 
 
-def parse_entrez_journal_record(record):
+def _parse_entrez_journal_record(record):
     data = {'type': 'journal'}
     medline = record.pop('MedlineCitation')
     medlineinfo = medline.pop('MedlineJournalInfo')
@@ -162,20 +183,10 @@ def parse_entrez_journal_record(record):
         if author.attributes['ValidYN'] == 'Y':
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
-            authors.append({'lname': author.get('LastName', ''),
-                            'fname': author.get('ForeName', ''),
-                            'iname': author.get('Initials', ''),
-                            'cname': author.get('CollectiveName', ''),
-                            'suffix': author.get('Suffix', ''),
-                            'investigator': False})
+            authors.append(_parse_author_name(author))
     for investigator in medline.get('InvestigatorList', []):
         if investigator.attributes['ValidYN'] == 'Y':
-            authors.append({'lname': investigator.get('LastName', ''),
-                            'fname': investigator.get('ForeName', ''),
-                            'iname': investigator.get('Initials', ''),
-                            'cname': investigator.get('CollectiveName', ''),
-                            'suffix': investigator.get('Suffix', ''),
-                            'investigator': True})
+            authors.append(_parse_author_name(investigator, investigator=True))
     data['authors'] = authors
     data['pmid'] = str(medline['PMID'])
 
@@ -233,51 +244,76 @@ def parse_entrez_journal_record(record):
 
 
 def get_publication(pmid):
+    """
+    Get a single publication by ID. We don't use PubMed's convoluted data structure but instead return
+    a dict with simple values. Most values are a string or list, but some like authors and grants are further
+    dicts containing more components.
+
+    PubMed contains both books and journals and we parse both, with some difference in available keys.
+
+    :param pmid: PubMed ID
+    :return: parsed publication in dict format
+    """
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
     try:
         for rec in Entrez.parse(handle):
-            return parse_entrez_record(rec)
+            return _parse_entrez_record(rec)
     except ValueError:
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
         data = Entrez.read(handle)
         rec = None
         if data['PubmedArticle']:
-            rec = parse_entrez_journal_record(data['PubmedArticle'][0])
+            rec = _parse_entrez_journal_record(data['PubmedArticle'][0])
         elif data['PubmedBookArticle']:
-            rec = parse_entrez_book_record(data['PubmedBookArticle'][0])
+            rec = _parse_entrez_book_record(data['PubmedBookArticle'][0])
         return rec
     finally:
         handle.close()
 
 
 def get_publication_by_doi(doi):
+    """
+    Shortcut for finding publication with DOI
+
+    :param doi: DOI value
+    :return: parsed publication in dict format
+    """
     ids = find_publications(doi=doi)
     if int(ids['Count']) == 1:
         return get_publication(ids['IdList'][0])
 
 
-def read_response(handle):
+def get_publication_by_pmc(pmcid):
     """
-    Fully reads a urlopen handle, taking into account IncompleteRead exceptions.
+    We can't search by PMC in PubMed, but we can get the PMID from the PMC database
+
+    Unfortunately, BioPython does not appear able to parse this XML file so we have to do so manually.
+    A full DOM parser is probably fine for a file of this size.
+
+    :param pmcid: The PMC id of the record
+    :return: parsed publication in dict format
     """
-    data = ''
-    while True:
-        try:
-            data += handle.read()
-            break
-        except IncompleteRead as ir:
-            data += ir.partial
-    return data
+    if pmcid.startswith('PMC'):
+        pmcid = pmcid[3:]
+    handle = Entrez.efetch(db="pmc", id=pmcid)
+    if handle:
+        data = minidom.parse(StringIO(handle.read()))
+        for node in data.getElementsByTagName('article-id'):
+            if node.getAttribute('pub-id-type') == 'pmid':
+                for child in node.childNodes:
+                    if child.nodeType == child.TEXT_NODE:
+                        return get_publication(child.nodeValue)
 
 
 def get_publications(pmids):
-    """ We let Biopython do most of the heavy lifting, including building the request POST. Publications are
+    """
+    We let Biopython do most of the heavy lifting, including building the request POST. Publications are
     fetched in chunks of config.MAX_PUBS as there does seem to be a limit imposed by NCBI. There is also
     a 3-request per second limit imposed by NCBI until we get an API key, but that should also be handled by
     Biopython. Finally, if the request fails for any reason we can retry config.MAX_RETRIES times
 
     :param pmids: a list of PMIDs
-    :return: generator of pubs as python dicts
+    :return: generator of parsed pubs as python dicts
     """
     # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
     total_time = time.time()
@@ -294,7 +330,7 @@ def get_publications(pmids):
             data = Entrez.read(handle)
             logger.info('Fetched and read after %.02fs' % (time.time() - timer))
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
-                yield parse_entrez_record(record)
+                yield _parse_entrez_record(record)
             start += config.MAX_PUBS
             attempts = 0
         except Exception, e:
@@ -309,6 +345,12 @@ def get_publications(pmids):
 
 
 def find_pmids(query):
+    """
+    Perform an ESearch and extract the pmids
+
+    :param query: a generated search term compliant with pubmed
+    :return: a list of pmid strings
+    """
     handle = Entrez.esearch(db='pubmed', term=query, datetype='pdat', retmode='xml', retmax='100000')
     try:
         return Entrez.read(handle).get('IdList', [])
@@ -316,44 +358,39 @@ def find_pmids(query):
         handle.close()
 
 
-def get_searched_publications(WebEnv, QueryKey, ids=None):
-    """ Get a bunch of publications from Entrez using WebEnv and QueryKey from EPost. Option to narrow
-    down subset of ids """
-    if isinstance(ids, basestring):
-        ids = [ids]
-    records = []
-    query = {
-        'db': 'pubmed',
-        'webenv': WebEnv,
-        'query_key': QueryKey,
-        'retmode': 'xml'
-    }
-    if ids:
-        query['ids'] = ids
-    handle = Entrez.efetch(**query)
-    try:
-        for record in Entrez.parse(handle):
-            record = parse_entrez_record(record)
-            if record:
-                records.append(record)
-    except ValueError:  # newer Biopython requires this to be Entrez.read
-        handle = Entrez.efetch(**query)
-        data = Entrez.read(handle)
-        for record in data['PubmedArticle'] + data['PubmedBookArticle']:
-            record = parse_entrez_record(record)
-            # Entrez.read does not use the ids query key so we have to do this ourselves
-            if record and (ids and record['pmid'] in ids or not ids):
-                records.append(record)
-    return records
+def esearch_publications(query):
+    """
+    Perform an ESearch based on a term
 
-
-def esearch_publications(term):
-    handle = Entrez.esearch(db="pubmed", term=term, datetype='pdat', retmode="xml", retmax="100000")
+    :param query: a generated search term compliant with pubmed
+    :return: ESearch record. The useful values here are going to be the WebEnv and QueryKey which you can pass
+             to get_searched_publications
+    """
+    handle = Entrez.esearch(db="pubmed", term=query, datetype='pdat', retmode="xml", retmax="100000")
     return process_handle(handle)
 
 
 def find_publications(authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None,
                       ir=None, affl=None, doi='', inclusive=False):
+    """
+    You can use the resulting WebEnv and QueryKey values to call get_searched_publications
+    https://www.ncbi.nlm.nih.gov/books/NBK3827/#_pubmedhelp_Search_Field_Descriptions_and_
+
+    :param authors: a list of strings
+    :param title: article title str. Stop words and punctuation will be removed
+    :param journal: article journal str
+    :param start: YYYY/MM/DD start date
+    :param end: YYYY/MM/DD end date
+    :param pmid: article pubmed id
+    :param mesh: mesh keywords
+    :param gr: grant number
+    :param ir: investigator
+    :param affl: author affiliation
+    :param doi: doi id
+    :param inclusive: if "OR", Authors are or'd. Default is and'd
+    :return: ESearch record. The useful values here are going to be the WebEnv and QueryKey which you can pass
+             to get_searched_publications
+    """
     term = generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
     if not start:
         start = '1500/01/01'
@@ -364,7 +401,100 @@ def find_publications(authors=None, title=None, journal=None, start=None, end=No
     return process_handle(handle)
 
 
+def generate_search_string(authors=None, title=None, journal=None, pmid=None, mesh=None, gr=None, ir=None, affl=None,
+                           doi=None, inclusive=False):
+    """
+    Generate the search string that will be passed to ESearch based on these criteria
+
+    :param authors: a list of strings
+    :param title: article title str. Stop words and punctuation will be removed
+    :param journal: article journal str
+    :param pmid: article pubmed id
+    :param mesh: mesh keywords
+    :param gr: grant number
+    :param ir: investigator
+    :param affl: author affiliation
+    :param doi: doi id
+    :param inclusive: if "OR", Authors are or'd. Default is and'd
+    :return: valid PubMed query string
+    """
+    search_strings = []
+    if authors:
+        authjoin = inclusive == "OR" and " OR " or " "
+        search_strings.append(authjoin.join(['%s[au]' % unidecode(a) for a in authors if a]))
+
+    if title:
+        for stop in STOPWORDS:
+            comp = re.compile(r'(\s)?\b%s\b(\s)?' % stop, re.IGNORECASE)
+            title = comp.sub('*', title)
+        for stop in PUNC_STOPWORDS:
+            comp = re.compile(r'(\s)?(\b)?%s(\b)?(\s)?' % stop, re.IGNORECASE)
+            title = comp.sub('*', title)
+        titlevals = [elem.strip() for elem in title.split('*')]
+        search_strings.append(titlevals and '+'.join(['%s[ti]' % unidecode(t) for t in titlevals if t]) or '')
+    if journal:
+        search_strings.append('"%s"[jour]' % unidecode(journal))
+    if pmid:
+        search_strings.append('%s[pmid]' % pmid)
+    if gr:
+        search_strings.append('%s[gr]' % gr)
+    if affl:
+        search_strings.append('%s[ad]' % affl)
+    if ir:
+        search_strings.append('%s[ir]' % ir)
+    if mesh:
+        search_strings.append('+'.join(['%s[mesh]' % m for m in mesh]))
+    if doi:
+        search_strings.append('%s[doi]' % doi.replace('(', ' ').replace(')', ' '))
+
+    return '+'.join(search_strings)
+
+
+def get_searched_publications(web_env, query_key, ids=None):
+    """
+    Get a bunch of publications from Entrez using WebEnv and query_key from EPost. Option to narrow
+    down subset of ids
+
+    :param web_env: web environment from an ESearch
+    :param query_key: query key from an ESearch
+    :param ids: subset of ids if you don't want the full results of the search
+    :return: parsed publications from the search
+    """
+    if isinstance(ids, basestring):
+        ids = [ids]
+    records = []
+    query = {
+        'db': 'pubmed',
+        'webenv': web_env,
+        'query_key': query_key,
+        'retmode': 'xml'
+    }
+    if ids:
+        query['ids'] = ids
+    handle = Entrez.efetch(**query)
+    try:
+        for record in Entrez.parse(handle):
+            record = _parse_entrez_record(record)
+            if record:
+                records.append(record)
+    except ValueError:  # newer Biopython requires this to be Entrez.read
+        handle = Entrez.efetch(**query)
+        data = Entrez.read(handle)
+        for record in data['PubmedArticle'] + data['PubmedBookArticle']:
+            record = _parse_entrez_record(record)
+            # Entrez.read does not use the ids query key so we have to do this ourselves
+            if record and (ids and record['pmid'] in ids or not ids):
+                records.append(record)
+    return records
+
+
 def process_handle(handle):
+    """
+    Use EPost to store our PMID results to the Entrez History server and get back the WebEnv and QueryKey values
+
+    :param handle: Entrez http stream
+    :return: Entrez read handle value with WebEnv and QueryKey
+    """
     record = Entrez.read(handle)
     if record['IdList']:
         # If we have search results, send the ids to EPost and use WebEnv/QueryKey from now on
@@ -374,41 +504,19 @@ def process_handle(handle):
     return record
 
 
-def generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive=False):
-    """Generate the search string that will be passed to ESearch based on these criteria"""
-    authjoin = inclusive == "OR" and " OR " or " "
-    authors_string = authors and authjoin.join(['%s[auth]' % unidecode(a) for a in authors if a]) or ''
-    stops = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always', 'among', 'an', 'and', 'another',
-             'any', 'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'between', 'both', 'but', 'by',
-             'can', 'could', 'did', 'do', 'does', 'done', 'due', 'during', 'each', 'either', 'enough', 'especially',
-             'etc', 'for', 'found', 'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'however', 'i',
-             'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'kg', 'km', 'made', 'mainly', 'make', 'may', 'mg',
-             'might', 'ml', 'mm', 'most', 'mostly', 'must', 'nearly', 'neither', 'no', 'nor', 'obtained', 'of', 'often',
-             'on', 'our', 'overall', 'perhaps', 'quite', 'rather', 'really', 'regarding', 'seem', 'seen', 'several',
-             'should', 'show', 'showed', 'shown', 'shows', 'significantly', 'since', 'so', 'some', 'such', 'than',
-             'that', 'the', 'their', 'theirs', 'them', 'then', 'there', 'therefore', 'these', 'they', 'this', 'those',
-             'through', 'thus', 'to', 'upon', 'use', 'used', 'using', 'various', 'very', 'was', 'we', 'were', 'what',
-             'when', 'which', 'while', 'with', 'within', 'without', 'would']
-    pstops = ['\&', '\(', '\)', '\-', '\;', '\:', '\,', '\.', '\?', '\!', ' ']
-    if title:
-        for stop in stops:
-            comp = re.compile(r'(\s)?\b%s\b(\s)?' % stop, re.IGNORECASE)
-            title = comp.sub('*', title)
-        for stop in pstops:
-            comp = re.compile(r'(\s)?(\b)?%s(\b)?(\s)?' % stop, re.IGNORECASE)
-            title = comp.sub('*', title)
-        titlevals = [elem.strip() for elem in title.split('*')]
-        title_string = titlevals and '+'.join(['%s[titl]' % unidecode(t) for t in titlevals if t]) or ''
-    else:
-        title_string = ''
-    journal_string = journal and '"%s"[jour]' % unidecode(journal) or ''
-    pmid_string = pmid and '%s[pmid]' % pmid or ''
-    gr_string = gr and '%s[gr]' % gr or ''
-    affl_string = affl and '%s[affl]' % affl or ''
-    ir_string = ir and '%s[ir]' % ir or ''
-    mesh_string = mesh and '+'.join(['%s[mesh]' % m for m in mesh]) or ''
-    doi_string = doi and '%s[doi]' % doi.replace('(', ' ').replace(')', ' ') or ''
+def read_response(handle):
+    """
+    Fully reads an http stream from Entrez, taking into account IncompleteRead exceptions. Potentially useful for
+    debugging
 
-    return '+'.join([elem for elem in (
-        authors_string, title_string, journal_string, pmid_string, mesh_string, gr_string, ir_string, affl_string,
-        doi_string) if elem])
+    :param handle: Entrez http stream
+    :return: text of stream
+    """
+    data = ''
+    while True:
+        try:
+            data += handle.read()
+            break
+        except IncompleteRead as ir:
+            data += ir.partial
+    return data

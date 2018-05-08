@@ -344,7 +344,7 @@ class TestCase(unittest.TestCase):
         """ biopython will not take non-ascii chars """
         search = entrez.generate_search_string(authors=u'\xe9', title=u'\xe9', journal=u'\xe9', pmid=u'', mesh=u'',
                                                gr=u'', ir=u'', affl=u'', doi=u'')
-        self.assertEqual(search, u'e[auth]+e[titl]+"e"[jour]')
+        self.assertEqual(search, u'e[au]+e[ti]+"e"[jour]')
 
     def test_validyn(self):
         record = entrez.get_publication('20051087')

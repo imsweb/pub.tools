@@ -1,4 +1,4 @@
-ENTREZ_TOOL = "ims.entrez"
+ENTREZ_TOOL = "pub.tools"
 ENTREZ_EMAIL = "plone.administration@imsweb.com"
 ENTREZ_API_KEY = 'b8a3037bf326a4742928b8769831b7769707'
 NO_VALUE = u"<<blank>>"

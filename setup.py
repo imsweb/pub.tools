@@ -5,9 +5,9 @@ version = '1.7'
 setup(name='pub.tools',
       version=version,
       description="Package of tools for formatting publication data and accessing data from Entrez tool",
-      # Get more strings from
-      # http://pypi.python.org/pypi?:action=list_classifiers
       classifiers=[
+          "Framework :: Plone :: 5.0",
+          "Framework :: Plone :: 5.1",
           "Programming Language :: Python",
       ],
       keywords='',

@@ -1,14 +1,30 @@
 from setuptools import find_packages, setup
+import os
 
 version = '1.7'
+
+
+def read(*rnames):
+    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+
+
+long_description = (
+    read('README.md')
+    + '\n' +
+    read('CHANGES.md')
+    + '\n')
 
 setup(name='pub.tools',
       version=version,
       description="Package of tools for formatting publication data and accessing data from Entrez tool",
+      long_description=long_description,
       classifiers=[
           "Framework :: Plone :: 5.0",
           "Framework :: Plone :: 5.1",
           "Programming Language :: Python",
+          "Topic :: Scientific/Engineering",
+          "Topic :: Scientific/Engineering :: Bio-Informatics",
+          "Topic :: Software Development :: Libraries :: Python Modules",
       ],
       keywords='',
       author='Eric Wohnlich',

@@ -1,4 +1,4 @@
-# Changes to pub.tools
+# Changelog
 
 ## [1.7] - 10 May 2018
 - Refactor some entrez functions to make it more obvious what the API endpoints are

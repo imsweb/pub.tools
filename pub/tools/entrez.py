@@ -450,12 +450,12 @@ def generate_search_string(authors=None, title=None, journal=None, pmid=None, me
     return '+'.join(search_strings)
 
 
-def get_searched_publications(web_env, query_key, ids=None):
+def get_searched_publications(WebEnv, QueryKey, ids=None):
     """
     Get a bunch of publications from Entrez using WebEnv and query_key from EPost. Option to narrow
     down subset of ids
 
-    :param web_env: web environment from an ESearch
+    :param WebEnv: web environment from an ESearch
     :param query_key: query key from an ESearch
     :param ids: subset of ids if you don't want the full results of the search
     :return: parsed publications from the search
@@ -465,8 +465,8 @@ def get_searched_publications(web_env, query_key, ids=None):
     records = []
     query = {
         'db': 'pubmed',
-        'webenv': web_env,
-        'query_key': query_key,
+        'webenv': WebEnv,
+        'query_key': QueryKey,
         'retmode': 'xml'
     }
     if ids:

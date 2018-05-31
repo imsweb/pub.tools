@@ -303,6 +303,11 @@ def get_pmid_by_pmc(pmcid):
                 for child in node.childNodes:
                     if child.nodeType == child.TEXT_NODE:
                         return child.nodeValue
+        # we found an article but it has no PMID given
+        # try to search PubMed with PMC as a general term
+        search = find_publications(all="PMC%s" % pmcid)
+        if search['Count'] == '1':
+            return search['IdList'][0]
 
 
 def get_publications(pmids):
@@ -370,7 +375,7 @@ def esearch_publications(query):
     return process_handle(handle)
 
 
-def find_publications(authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None,
+def find_publications(all=None, authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None,
                       ir=None, affl=None, doi='', inclusive=False):
     """
     You can use the resulting WebEnv and QueryKey values to call get_searched_publications
@@ -391,7 +396,7 @@ def find_publications(authors=None, title=None, journal=None, start=None, end=No
     :return: ESearch record. The useful values here are going to be the WebEnv and QueryKey which you can pass
              to get_searched_publications
     """
-    term = generate_search_string(authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
+    term = generate_search_string(all, authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
     if not start:
         start = '1500/01/01'
     if not end:
@@ -401,7 +406,7 @@ def find_publications(authors=None, title=None, journal=None, start=None, end=No
     return process_handle(handle)
 
 
-def generate_search_string(authors=None, title=None, journal=None, pmid=None, mesh=None, gr=None, ir=None, affl=None,
+def generate_search_string(all=None, authors=None, title=None, journal=None, pmid=None, mesh=None, gr=None, ir=None, affl=None,
                            doi=None, inclusive=False):
     """
     Generate the search string that will be passed to ESearch based on these criteria
@@ -419,6 +424,8 @@ def generate_search_string(authors=None, title=None, journal=None, pmid=None, me
     :return: valid PubMed query string
     """
     search_strings = []
+    if all:
+        search_strings.append(all)
     if authors:
         authjoin = inclusive == "OR" and " OR " or " "
         search_strings.append(authjoin.join(['%s[au]' % unidecode(a) for a in authors if a]))
@@ -456,7 +463,7 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
     down subset of ids
 
     :param WebEnv: web environment from an ESearch
-    :param query_key: query key from an ESearch
+    :param QueryKey: query key from an ESearch
     :param ids: subset of ids if you don't want the full results of the search
     :return: parsed publications from the search
     """

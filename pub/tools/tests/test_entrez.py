@@ -443,11 +443,11 @@ class TestCase(unittest.TestCase):
         for e, r in zip(authors, result['authors']):
             for k in set(e.keys()).union(r.keys()):
                 self.assertEqual(e.get(k) or '', r.get(k) or '',
-                                 msg='%s :: Expected: %s; Received: %s' % (k, e.get(k) or '', r.get(k) or ''))
+                                 msg='{} :: Expected: {}; Received: {}'.format(k, e.get(k) or '', r.get(k) or ''))
         for e, r in zip(editors, result['editors']):
             for k in set(e.keys()).union(r.keys()):
                 self.assertEqual(e.get(k) or '', r.get(k) or '',
-                                 msg='%s :: Expected: %s; Received: %s' % (k, e.get(k) or '', r.get(k) or ''))
+                                 msg='{} :: Expected: {}; Received: {}'.format(k, e.get(k) or '', r.get(k) or ''))
 
     def test_find_and_fetch(self):
         record = entrez.find_publications(pmid='12727674')

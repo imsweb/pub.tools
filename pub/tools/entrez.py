@@ -238,7 +238,7 @@ def _parse_entrez_journal_record(record):
     for pmdate in record['PubmedData'].get('History', []):
         dtype = pmdate.attributes.get('PubStatus')
         _pmdate = ' '.join([d for d in (pmdate.get('Year'), pmdate.get('Month'), pmdate.get('Day')) if d])
-        data['pmpubdate_%s' % dtype] = _pmdate
+        data['pmpubdate_{}'.format(dtype)] = _pmdate
 
     return data
 
@@ -305,7 +305,7 @@ def get_pmid_by_pmc(pmcid):
                         return child.nodeValue
         # we found an article but it has no PMID given
         # try to search PubMed with PMC as a general term
-        search = find_publications(all="PMC%s" % pmcid)
+        search = find_publications(all="PMC{}".format(pmcid))
         if search['Count'] == '1':
             return search['IdList'][0]
 
@@ -330,23 +330,23 @@ def get_publications(pmids):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
         try:
             timer = time.time()
-            logger.info('Fetching publications %d through %d...' % (start, min(len(pmids), start + config.MAX_PUBS)))
+            logger.info('Fetching publications {} through {}...'.format(start, min(len(pmids), start + config.MAX_PUBS)))
             handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
             data = Entrez.read(handle)
-            logger.info('Fetched and read after %.02fs' % (time.time() - timer))
+            logger.info('Fetched and read after {:.02f}s'.format(time.time() - timer))
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield _parse_entrez_record(record)
             start += config.MAX_PUBS
             attempts = 0
         except Exception, e:
             attempts += 1
-            logger.info('efetch failed: "%s", attempting retry %d' % (e, attempts))
+            logger.info('efetch failed: "{}", attempting retry {}'.format(e, attempts))
             if attempts >= config.MAX_RETRIES:
-                raise PubToolsError('Something is wrong with Entrez or these PMIDs: ' + ','.join(pmid_slice))
+                raise PubToolsError('Something is wrong with Entrez or these PMIDs: {}'.format(','.join(pmid_slice)))
             time.sleep(config.RETRY_SLEEP)
         finally:
             handle.close()
-    logger.info('Total publications retrieved in %.02f seconds' % (time.time() - total_time))
+    logger.info('Total publications retrieved in {:.02f} seconds'.format(time.time() - total_time))
 
 
 def find_pmids(query):
@@ -428,31 +428,31 @@ def generate_search_string(all=None, authors=None, title=None, journal=None, pmi
         search_strings.append(all)
     if authors:
         authjoin = inclusive == "OR" and " OR " or " "
-        search_strings.append(authjoin.join(['%s[au]' % unidecode(a) for a in authors if a]))
+        search_strings.append(authjoin.join(['{}[au]'.format(unidecode(a)) for a in authors if a]))
 
     if title:
         for stop in STOPWORDS:
-            comp = re.compile(r'(\s)?\b%s\b(\s)?' % stop, re.IGNORECASE)
+            comp = re.compile(r'(\s)?\b{}\b(\s)?'.format(stop), re.IGNORECASE)
             title = comp.sub('*', title)
         for stop in PUNC_STOPWORDS:
-            comp = re.compile(r'(\s)?(\b)?%s(\b)?(\s)?' % stop, re.IGNORECASE)
+            comp = re.compile(r'(\s)?(\b)?{}(\b)?(\s)?'.format(stop), re.IGNORECASE)
             title = comp.sub('*', title)
         titlevals = [elem.strip() for elem in title.split('*')]
-        search_strings.append(titlevals and '+'.join(['%s[ti]' % unidecode(t) for t in titlevals if t]) or '')
+        search_strings.append(titlevals and '+'.join(['{}[ti]'.format(unidecode(t)) for t in titlevals if t]) or '')
     if journal:
-        search_strings.append('"%s"[jour]' % unidecode(journal))
+        search_strings.append('"{}"[jour]'.format(unidecode(journal)))
     if pmid:
-        search_strings.append('%s[pmid]' % pmid)
+        search_strings.append('{}[pmid]'.format(pmid))
     if gr:
-        search_strings.append('%s[gr]' % gr)
+        search_strings.append('{}[gr]'.format(gr))
     if affl:
-        search_strings.append('%s[ad]' % affl)
+        search_strings.append('{}[ad]'.format(affl))
     if ir:
-        search_strings.append('%s[ir]' % ir)
+        search_strings.append('{}[ir]'.format(ir))
     if mesh:
-        search_strings.append('+'.join(['%s[mesh]' % m for m in mesh]))
+        search_strings.append('+'.join(['{}[mesh]'.format(m) for m in mesh]))
     if doi:
-        search_strings.append('%s[doi]' % doi.replace('(', ' ').replace(')', ' '))
+        search_strings.append('{}[doi]'.format(doi.replace('(', ' ').replace(')', ' ')))
 
     return '+'.join(search_strings)
 

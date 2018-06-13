@@ -344,13 +344,19 @@ class TestCooking(unittest.TestCase):
         d = cooking.cook_date_str(pre)
         self.assertEqual(d, expected)
 
-    def testDateStr12(self):
+    def test_date_str12(self):
         pre = 'Dec 4 2009'
         expected = '2009 Dec 4'
         d = cooking.cook_date_str(pre)
         self.assertEqual(d, expected)
 
-    def testdatetime1(self):
+    def test_date_str13(self):
+        pre = '2009 Aug 15th'
+        expected = '2009 Aug 15'
+        d = cooking.cook_date_str(pre)
+        self.assertEqual(d, expected)
+
+    def test_datetime1(self):
         pre = '8/11/2009'
         expected = datetime(2009, 11, 8)
         d = cooking.cook_date(None, None, None, pre)
@@ -358,7 +364,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime2(self):
+    def test_datetime2(self):
         pre = '8 11 2009'
         expected = datetime(2009, 11, 8)
         d = cooking.cook_date(None, None, None, pre)
@@ -366,7 +372,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime3(self):
+    def test_datetime3(self):
         pre = '15/8/2009'
         expected = datetime(2009, 8, 15)
         d = cooking.cook_date(None, None, None, pre)
@@ -374,7 +380,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime4(self):
+    def test_datetime4(self):
         pre = '15 Aug 2009'
         expected = datetime(2009, 8, 15)
         d = cooking.cook_date(None, None, None, pre)
@@ -382,7 +388,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime5(self):
+    def test_datetime5(self):
         pre = '11 Aug 2009'
         expected = datetime(2009, 8, 11)
         d = cooking.cook_date(None, None, None, pre)
@@ -390,7 +396,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime6(self):
+    def test_datetime6(self):
         pre = '15 Aug, 2009'
         expected = datetime(2009, 8, 15)
         d = cooking.cook_date(None, None, None, pre)
@@ -398,7 +404,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime7(self):
+    def test_datetime7(self):
         pre = 'Winter 2008'
         expected = datetime(2008, 1, 1)
         d = cooking.cook_date(None, None, None, pre)
@@ -406,7 +412,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime8(self):
+    def test_datetime8(self):
         pre = 'Jun 2008'
         expected = datetime(2008, 6, 1)
         d = cooking.cook_date(None, None, None, pre)
@@ -414,7 +420,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime9(self):
+    def test_datetime9(self):
         pre = 'Spring-Fall 2008'
         expected = datetime(2008, 4, 1)
         d = cooking.cook_date(None, None, None, pre)
@@ -422,7 +428,7 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testdatetime10(self):
+    def test_datetime10(self):
         pre = '2009 Dec-2010 Jan'
         expected = datetime(2009, 12, 1)
         d = cooking.cook_date(None, None, None, pre)
@@ -430,44 +436,44 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d.month, expected.month)
         self.assertEqual(d.day, expected.day)
 
-    def testDateRIS1(self):
+    def test_date_ris1(self):
         pre = '2009 Jun 5'
         expected = '2009/06/05/'
         d = cooking.cook_date_ris(pre)
         self.assertEqual(d, expected)
 
-    def testDateRIS2(self):
+    def test_date_ris2(self):
         pre = '2009 Spring'
         expected = '2009///Spring'
         d = cooking.cook_date_ris(pre)
         self.assertEqual(d, expected)
 
-    def testDateRIS3(self):
+    def test_date_ris3(self):
         pre = '18 Apr 1978'
         expected = '1978/04/18/'
         d = cooking.cook_date_ris(pre)
         self.assertEqual(d, expected)
 
-    def testDateRIS4(self):
+    def test_date_ris4(self):
         # garbage/unknown. What does that 18 mean?
         pre = '18 1980'
         expected = '1980///18'
         d = cooking.cook_date_ris(pre)
         self.assertEqual(d, expected)
 
-    def testDateRIS5(self):
+    def test_date_ris5(self):
         pre = '1995 Aug 9-16'
         expected = '1995/08/9/'
         d = cooking.cook_date_ris(pre)
         self.assertEqual(d, expected)
 
-    def testCookDateEnd(self):
+    def test_cook_date_end(self):
         pre = '2010 July/August'
         expected = datetime(2010, 8, 1)
         d = cooking.cook_date(None, None, None, pre, end=True)
         self.assertEqual(d, expected)
 
-    def testDateMonths(self):
+    def test_date_months(self):
         pre = '2010 July-2011 August'
         expected = ['Jul 2010', 'Aug 2010', 'Sep 2010', 'Oct 2010', 'Nov 2010', 'Dec 2010', 'Jan 2011', 'Feb 2011',
                     'Mar 2011', 'Apr 2011', 'May 2011', 'Jun 2011', 'Jul 2011', 'Aug 2011']

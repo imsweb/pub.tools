@@ -45,18 +45,14 @@ class IsbnOpener(object):
 
 class IsbnDbOpener(IsbnOpener):
     """ This requires a paid service now, not fully tested """
-    root_url = 'https://api.isbndb.com/%(endpoint)s/(term)s'
+    root_url = 'https://api.isbndb.com/{endpoint}/{term}'
     name = 'ISBNdb'
 
     def url(self, term):
-        return self.root_url % {
-            'api_key': self.api_key,
-            'endpoint': 'book',
-            'term': term
-        }
+        return self.root_url.format(api_key=self.api_key,endpoint='book',term=term)
 
     def get_url(self, endpoint, term):
-        url = self.root_url % {'endpoint': endpoint, 'term': term}
+        url = self.root_url.format(endpoint=endpoint, term=term)
         headers = {'X-API-KEY': self.api_key}
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
@@ -77,14 +73,11 @@ class IsbnDbOpener(IsbnOpener):
 
 
 class GoogleBooksAPIOpener(IsbnOpener):
-    root_url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:%(isbn)s&key=%(api_key)s'
+    root_url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}&key={api_key}'
     name = 'Google Books API'
 
     def url(self, isbn):
-        return self.root_url % {
-            'api_key': self.api_key,
-                                'isbn': isbn
-        }
+        return self.root_url.format(api_key=self.api_key, isbn=isbn)
 
     def get_url(self, isbn):
         response = urllib2.urlopen(self.url(isbn))  # requests module fails to validate SSL cert?
@@ -108,14 +101,14 @@ class GoogleBooksAPIOpener(IsbnOpener):
 
 
 class WorldCatOpener(IsbnOpener):
-    root_url = 'http://classify.oclc.org/classify2/Classify?isbn=%(isbn)s&summary=true'
+    root_url = 'http://classify.oclc.org/classify2/Classify?isbn={isbn}&summary=true'
     name = 'WorldCat'
 
     def url(self, term):
-        return self.root_url % {'isbn': term}
+        return self.root_url.format(isbn=term)
 
     def get_url(self, isbn):
-        response = requests.get(self.root_url % {'isbn': isbn})
+        response = requests.get(self.root_url.format(isbn=term))
         if response.status_code == 200:
             return response.text
 
@@ -131,9 +124,9 @@ class WorldCatOpener(IsbnOpener):
             authors = []
             editors = []
             root = tree.getroot()
-            _authors = root.find('{%s}%s' % (ns, 'authors'))
+            _authors = root.find('{{{}}}authors'.format(ns)
             if _authors and _authors is not None:
-                for author in _authors.findall('{%s}%s' % (ns, 'author')):
+                for author in _authors.findall('{{{}}}author'.format(ns)):
                     author = author.text
                     brkt_pattern = '\[(.*?)\]'
                     brkt = re.search(brkt_pattern, author)
@@ -152,5 +145,5 @@ class WorldCatOpener(IsbnOpener):
                 data['authors'] = authors
                 data['editors'] = editors
                 data['title'] = ''
-                data['title'] = root.find('{%s}%s' % (ns, 'work')).attrib['title']
+                data['title'] = root.find('{{{}}}work'.format(ns)).attrib['title']
                 return data

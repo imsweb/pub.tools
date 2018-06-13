@@ -124,7 +124,7 @@ class WorldCatOpener(IsbnOpener):
             authors = []
             editors = []
             root = tree.getroot()
-            _authors = root.find('{{{}}}authors'.format(ns)
+            _authors = root.find('{{{}}}authors'.format(ns))
             if _authors and _authors is not None:
                 for author in _authors.findall('{{{}}}author'.format(ns)):
                     author = author.text

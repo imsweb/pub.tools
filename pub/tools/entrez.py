@@ -344,8 +344,6 @@ def get_publications(pmids):
             if attempts >= config.MAX_RETRIES:
                 raise PubToolsError('Something is wrong with Entrez or these PMIDs: {}'.format(','.join(pmid_slice)))
             time.sleep(config.RETRY_SLEEP)
-        finally:
-            handle.close()
     logger.info('Total publications retrieved in {:.02f} seconds'.format(time.time() - total_time))
 
 

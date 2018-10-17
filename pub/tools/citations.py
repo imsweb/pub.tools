@@ -1,6 +1,6 @@
 import warnings
 from six import StringIO
-from cgi import escape
+from html import escape
 
 from .cooking import su
 

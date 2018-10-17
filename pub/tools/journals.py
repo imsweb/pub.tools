@@ -36,13 +36,13 @@ def cache():
 
 
 def get_abbreviations():
-    f = open(os.path.join(base_path, 'journals.json'))
-    return json.load(f)['atoj']
+    with open(os.path.join(base_path, 'journals.json')) as f:
+        return json.load(f)['atoj']
 
 
 def get_journals():
-    f = open(os.path.join(base_path, 'journals.json'))
-    return json.load(f)['jtoa']
+    with open(os.path.join(base_path, 'journals.json')) as f:
+        return json.load(f)['jtoa']
 
 
 def atoj(abbrv):

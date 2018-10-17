@@ -1,6 +1,7 @@
 import logging
 import re
 import time
+import six
 from six import StringIO
 from six.moves.http_client import IncompleteRead
 from builtins import str
@@ -466,7 +467,7 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
     :param ids: subset of ids if you don't want the full results of the search
     :return: parsed publications from the search
     """
-    if isinstance(ids, basestring):
+    if isinstance(ids, six.string_types):
         ids = [ids]
     records = []
     query = {

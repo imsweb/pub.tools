@@ -12,19 +12,19 @@ class TestCooking(unittest.TestCase):
     def test_citation_basics(self):
         start = ''
         expected = ''
-        self.assertEquals(punctuate(start, ''), expected)
+        self.assertEqual(punctuate(start, ''), expected)
         start = 'foo'
         expected = 'foo.'
-        self.assertEquals(punctuate(start, '.'), expected)
+        self.assertEqual(punctuate(start, '.'), expected)
         start = 'foo+'
         expected = 'foo+'
-        self.assertEquals(punctuate(start, '+'), expected)
+        self.assertEqual(punctuate(start, '+'), expected)
         start = 'foo'
         expected = 'foo. '
-        self.assertEquals(period(start), expected)
+        self.assertEqual(period(start), expected)
         start = 'foo.'
         expected = 'foo. '
-        self.assertEquals(period(start), expected)
+        self.assertEqual(period(start), expected)
 
     def test_journal_citation(self):
         record = {

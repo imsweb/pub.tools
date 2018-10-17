@@ -40,6 +40,7 @@ setup(name='pub.tools',
           'biopython',
           'unidecode',
           'lxml',
-          'requests'
+          'requests',
+          'six'
       ],
       )

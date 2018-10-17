@@ -1,7 +1,8 @@
 import csv
 import json
 import os
-import urllib2
+from six.moves import urllib
+import codecs
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -11,8 +12,8 @@ base_path = os.path.dirname(os.path.realpath(__file__))
 def cache():
     url = 'http://www.ncbi.nlm.nih.gov/pmc/front-page/NIH_PA_journal_list.csv'
     try:
-        conn = urllib2.urlopen(url)
-        reader = csv.reader(conn)
+        conn = urllib.request.urlopen(url)
+        reader = csv.reader(codecs.iterdecode(conn, 'latin-1'))
 
         _atoj = {}
         _jtoa = {}
@@ -30,7 +31,7 @@ def cache():
         f = open(os.path.join(base_path, 'journals.json'), 'w')
         json.dump(data, f)
         f.close()
-    except urllib2.HTTPError:
+    except urllib.error.HTTPError:
         pass
 
 
@@ -61,5 +62,5 @@ def atodates(abbrv):
 
 try:
     cache()
-except urllib2.URLError:  # if ncbi is down
+except urllib.error.URLError:  # if ncbi is down
     pass

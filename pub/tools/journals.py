@@ -20,7 +20,7 @@ def cache():
         dates = {}
         while True:
             try:
-                title, abbr, pissn, eissn, start, end = reader.next()
+                title, abbr, pissn, eissn, start, end = next(reader)
                 _atoj[abbr.lower()] = title
                 _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (start, end)

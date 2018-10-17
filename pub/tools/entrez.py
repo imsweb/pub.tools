@@ -1,8 +1,8 @@
 import logging
 import re
 import time
-from StringIO import StringIO
-from httplib import IncompleteRead
+from six import StringIO
+from six.moves.http_client import IncompleteRead
 from xml.dom import minidom
 
 from Bio import Entrez
@@ -338,7 +338,7 @@ def get_publications(pmids):
                 yield _parse_entrez_record(record)
             start += config.MAX_PUBS
             attempts = 0
-        except Exception, e:
+        except Exception as e:
             attempts += 1
             logger.info('efetch failed: "{}", attempting retry {}'.format(e, attempts))
             if attempts >= config.MAX_RETRIES:

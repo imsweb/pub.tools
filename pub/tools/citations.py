@@ -78,33 +78,33 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
                   edition='', series='', pubplace='', publisher='', **kwargs):
     out = StringIO()
     if editors and not authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))  + '\n')
     if authors:
-        print >> out, period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors]))
+        out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors])) + '\n')
     if title:
-        print >> out, period(title)
+        out.write(period(title) + '\n')
     if edition:
-        print >> out, period(edition)
+        out.write(period(edition) + '\n')
     if editors and authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))  + '\n')
     if pubplace:
         if publisher:
-            print >> out, colon(pubplace)
+            out.write(colon(pubplace) + '\n')
         else:
-            print >> out, period(pubplace)
+            out.write(period(pubplace) + '\n')
     if publisher:
         if pubdate:
-            print >> out, semi_colon(publisher)
+            out.write(semi_colon(publisher) + '\n')
         else:
-            print >> out, period(publisher)
+            out.write(period(publisher) + '\n')
     if pubdate:
-        print >> out, period(pubdate)
+        out.write(period(pubdate) + '\n')
     if pagination:
-        print >> out, u'p. {0}'.format(period(pagination))
+        out.write(u'p. {0}'.format(period(pagination)) + '\n')
     if series:
-        print >> out, u'({})'.format(series)
+        out.write(u'({})'.format(series) + '\n')
     return out.getvalue()
 
 
@@ -113,37 +113,37 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
                      edition='', series='', pubplace='', booktitle='', publisher='', **kwargs):
     out = StringIO()
     if editors and not authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if authors:
-        print >> out, period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors]))
+        out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors])) + '\n')
     if title:
-        print >> out, period(title)
+        out.write(period(title) + '\n')
     if edition or editors or booktitle:
-        print >> out, u'In: '
+        out.write(u'In: ' + '\n')
     if editors and authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if booktitle:
-        print >> out, period(booktitle)
+        out.write(period(booktitle) + '\n')
     if edition:
-        print >> out, period(edition)
+        out.write(period(edition) + '\n')
     if pubplace:
         if publisher:
-            print >> out, colon(pubplace)
+            out.write(colon(pubplace) + '\n')
         else:
-            print >> out, period(pubplace)
+            out.write(period(pubplace) + '\n')
     if publisher:
         if pubdate:
-            print >> out, semi_colon(publisher)
+            out.write(semi_colon(publisher) + '\n')
         else:
-            print >> out, period(publisher)
+            out.write(period(publisher) + '\n')
     if pubdate:
-        print >> out, period(pubdate)
+        out.write(period(pubdate) + '\n')
     if pagination:
-        print >> out, u'p. {}'.format(period(pagination))
+        out.write(u'p. {}'.format(period(pagination)) + '\n')
     if series:
-        print >> out, u'({})'.format(series)
+        out.write(u'({})'.format(series) + '\n')
     return out.getvalue()
 
 
@@ -158,40 +158,40 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
         italicize = True
     out = StringIO()
     if editors and not authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if authors:
-        print >> out, period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors]))
+        out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors])) + '\n')
     if title:
-        print >> out, period(title)
+        out.write(period(title) + '\n')
     if editors and authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if conferencename and italicize:
-        print >> out, semi_colon(u'<i>Proceedings of {}</i>'.format(conferencename))
+        out.write(semi_colon(u'<i>Proceedings of {}</i>'.format(conferencename)) + '\n')
     elif conferencename:
-        print >> out, semi_colon(conferencename)
+        out.write(semi_colon(conferencename) + '\n')
     if conferencedate:
         if place or pubdate or publisher:
-            print >> out, semi_colon(conferencedate)
+            out.write(semi_colon(conferencedate) + '\n')
         else:
-            print >> out, period(conferencedate)
+            out.write(period(conferencedate) + '\n')
     if place:
-        print >> out, period(place)
+        out.write(period(place) + '\n')
     if pubplace:
         if publisher or pubdate:
-            print >> out, colon(pubplace)
+            out.write(colon(pubplace) + '\n')
         else:
-            print >> out, period(pubplace)
+            out.write(period(pubplace) + '\n')
     if publisher:
         if pubdate:
-            print >> out, semi_colon(publisher)
+            out.write(semi_colon(publisher) + '\n')
         else:
-            print >> out, period(publisher)
+            out.write(period(publisher) + '\n')
     if pubdate:
-        print >> out, period(pubdate)
+        out.write(period(pubdate) + '\n')
     if pagination:
-        print >> out, u'p. {}'.format(period(pagination))
+        out.write(u'p. {}'.format(period(pagination)) + '\n')
     return out.getvalue()
 
 
@@ -209,13 +209,13 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     out = StringIO()
     if not use_abstract:
         if authors:
-            print >> out, period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors if a]))
+            out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors if a])) + '\n')
         if title:
-            print >> out, period(title)
+            out.write(period(title) + '\n')
         if journal and italicize:
-            print >> out, u'<i>{}</i> '.format(su(journal).strip())
+            out.write(u'<i>{}</i> '.format(su(journal).strip()) + '\n')
         elif journal:
-            print >> out, period(su(journal).strip())
+            out.write(period(su(journal).strip()) + '\n')
 
         if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
             date = pubdate
@@ -226,68 +226,68 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
 
         if date:
             if pagination and not (volume or issue):
-                print >> out, colon(date)
+                out.write(colon(date) + '\n')
             elif volume or issue:
-                print >> out, semi_colon_no_space(date)
+                out.write(semi_colon_no_space(date) + '\n')
             else:
-                print >> out, period(date)
+                out.write(period(date) + '\n')
         if volume:
             if pagination and not issue:
-                print >> out, colon_no_space(volume)
+                out.write(colon_no_space(volume) + '\n')
             elif pagination:
-                print >> out, volume
+                out.write(volume + '\n')
             else:
-                print >> out, period(volume)
+                out.write(period(volume) + '\n')
         if issue:
             if pagination:
-                print >> out, colon_no_space(u'({})'.format(issue))
+                out.write(colon_no_space(u'({})'.format(issue)) + '\n')
             else:
-                print >> out, period(u'({})'.format(issue))
+                out.write(period(u'({})'.format(issue)) + '\n')
         if pagination:
-            print >> out, period(pagination)
+            out.write(period(pagination) + '\n')
         if pubmodel in ('Print-Electronic',):
             if edate:
-                print >> out, 'Epub ' + period(edate)
+                out.write('Epub ' + period(edate) + '\n')
         if pubmodel in ('Electronic-Print',):
             if pubdate:
-                print >> out, 'Print ' + period(pubdate)
+                out.write('Print ' + period(pubdate) + '\n')
         if pubmodel in ('Electronic-eCollection',):
             if pubdate:
                 if doi:
-                    print >> out, 'doi: {}. eCollection {}'.format(doi, period(pubdate))
+                    out.write('doi: {}. eCollection {}'.format(doi, period(pubdate)) + '\n')
                 else:
-                    print >> out, 'eCollection {}'.format(period(pubdate))
+                    out.write('eCollection {}'.format(period(pubdate)) + '\n')
 
     else:
-        print >> out, u'<b>Author: </b>{}<br/>'.format(u', '.join([su(cookauthor(a)).replace(u',', u' ') for a in authors]))
-        print >> out, u'<b>Title: </b>{}<br/>'.format(title)
-        print >> out, u'<b>Journal: </b>{}'.format(journal)
+        out.write(u'<b>Author: </b>{}<br/>'.format(u', '.join([su(cookauthor(a)).replace(u',', u' ') for a in authors])) + '\n')
+        out.write(u'<b>Title: </b>{}<br/>'.format(title) + '\n')
+        out.write(u'<b>Journal: </b>{}'.format(journal) + '\n')
         if journal and issue and volume and pagination:
-            print >> out, u'. {volume}({issue}):{pagination}'.format(volume=volume, issue=issue, pagination=pagination)
-        print >> out, u'<br/>'
-        print >> out, u'<b>Pubmed link: </b><a href="http://www.ncbi.nlm.nih.gov/pubmed/{0}">' \
-                      u'http://www.ncbi.nlm.nih.gov/pubmed/{0}</a><br/>'.format(pmid)
+            out.write(u'. {volume}({issue}):{pagination}'.format(volume=volume, issue=issue, pagination=pagination) + '\n')
+        out.write(u'<br/>' + '\n')
+        out.write(u'<b>Pubmed link: </b><a href="http://www.ncbi.nlm.nih.gov/pubmed/{0}">' \
+                      u'http://www.ncbi.nlm.nih.gov/pubmed/{0}</a><br/>'.format(pmid) + '\n')
         if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
             date = pubdate
         elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
             date = edate
         else:
             date = pubdate or edate
-        print >> out, u'<b>Citation Date: </b>{}'.format(date)
+        out.write(u'<b>Citation Date: </b>{}'.format(date) + '\n')
         if pubmodel in ('Print-Electronic',):
             if edate:
-                print >> out, u'. Epub {}<br/>'.format(period(edate))
+                out.write(u'. Epub {}<br/>'.format(period(edate)) + '\n')
         elif pubmodel in ('Electronic-Print',):
             if pubdate:
-                print >> out, u'. Print {}<br/>'.format(period(pubdate))
+                out.write(u'. Print {}<br/>'.format(period(pubdate)) + '\n')
         elif pubmodel in ('Electronic-eCollection',):
             if pubdate:
                 if doi:
-                    print >> out, u'doi: {}. eCollection {}<br/>'.format(doi, period(pubdate))
+                    out.write(u'doi: {}. eCollection {}<br/>'.format(doi, period(pubdate)) + '\n')
                 else:
-                    print >> out, u'eCollection {}<br/>'.format(period(pubdate))
+                    out.write(u'eCollection {}<br/>'.format(period(pubdate)) + '\n')
         else:
-            print >> out, u'<br/>'
+            out.write(u'<br/>' + '\n')
         abstracts = []
         for seg in abstract:
             abst = seg.get('label') or ''
@@ -296,7 +296,7 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
             if abst:
                 abstracts.append(abst)
         abstract = ' '.join(abstracts)
-        print >> out, u'<b>Abstract: </b>{}<br/>'.format(su(abstract))
+        out.write(u'<b>Abstract: </b>{}<br/>'.format(su(abstract)) + '\n')
     return out.getvalue()
 
 
@@ -305,37 +305,37 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
                        serieseditors=(), **kwargs):
     out = StringIO()
     if serieseditors and not authors:
-        print >> out, period(u'{}, editor{}'.format(
+        out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in serieseditors]),
-            len(serieseditors) > 1 and 's' or ''))
+            len(serieseditors) > 1 and 's' or '')) + '\n')
     if authors:
-        print >> out, semi_colon(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors]))
+        out.write(semi_colon(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors])) + '\n')
     if title:
-        print >> out, period(title)
+        out.write(period(title) + '\n')
     if series:
-        print >> out, period(series)
+        out.write(period(series) + '\n')
     if serieseditors and authors:
-        print >> out, period(u'{}, editor{}'.format(
+        out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in serieseditors]),
-            len(serieseditors) > 1 and 's' or ''))
+            len(serieseditors) > 1 and 's' or '')) + '\n')
     if pubplace:
         if publisher:
-            print >> out, colon(pubplace)
+            out.write(colon(pubplace) + '\n')
         elif pubdate:
-            print >> out, semi_colon(pubplace)
+            out.write(semi_colon(pubplace) + '\n')
         else:
-            print >> out, period(pubplace)
+            out.write(period(pubplace) + '\n')
     if publisher:
         if pubdate:
-            print >> out, semi_colon(publisher)
+            out.write(semi_colon(publisher) + '\n')
         else:
-            print >> out, period(publisher)
+            out.write(period(publisher) + '\n')
     if pubdate:
-        print >> out, period(pubdate)
+        out.write(period(pubdate) + '\n')
     if reportnum:
-        print >> out, period(reportnum)
+        out.write(period(reportnum) + '\n')
     if weburl:
-        print >> out, u'Available at {0}.'.format(weburl)
+        out.write(u'Available at {0}.'.format(weburl) + '\n')
     return out.getvalue()
 
 
@@ -344,35 +344,35 @@ def report_citation(authors=(), editors=(), title='', pubdate='', pagination='',
                     reportnum='', publisher='', **kwargs):
     out = StringIO()
     if editors and not authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if authors:
-        print >> out, period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors]))
+        out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors])) + '\n')
     if title:
-        print >> out, period(title)
+        out.write(period(title) + '\n')
     if series:
-        print >> out, period(series)
+        out.write(period(series) + '\n')
     if editors and authors:
-        print >> out, period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))
+        out.write(period(u'{}, editor{}'.format(
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if pubplace:
         if publisher:
-            print >> out, colon(pubplace)
+            out.write(colon(pubplace) + '\n')
         elif pubdate:
-            print >> out, semi_colon(pubplace)
+            out.write(semi_colon(pubplace) + '\n')
         else:
-            print >> out, period(pubplace)
+            out.write(period(pubplace) + '\n')
     if publisher:
         if pubdate:
-            print >> out, semi_colon(publisher)
+            out.write(semi_colon(publisher) + '\n')
         else:
-            print >> out, period(publisher)
+            out.write(period(publisher) + '\n')
     if pubdate:
-        print >> out, period(pubdate)
+        out.write(period(pubdate) + '\n')
     if reportnum:
-        print >> out, period(reportnum)
+        out.write(period(reportnum) + '\n')
     if pagination:
-        print >> out, period(u'p. {0}'.format(pagination))
+        out.write(period(u'p. {0}'.format(pagination)) + '\n')
     if weburl:
-        print >> out, u'Available at {0}.'.format(weburl)
+        out.write(u'Available at {0}.'.format(weburl) + '\n')
     return out.getvalue()

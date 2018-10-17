@@ -41,6 +41,7 @@ setup(name='pub.tools',
           'unidecode',
           'lxml',
           'requests',
-          'six'
+          'six',
+          'future'
       ],
       )

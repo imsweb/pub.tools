@@ -1,6 +1,7 @@
 from . import config
 from datetime import datetime
 import re
+import six
 
 import warnings
 
@@ -199,11 +200,11 @@ def cook_date_months(start, end):
 def safe_unicode(value, encoding='utf-8'):
     """ Converts a value to unicode, even it is already a unicode string.
     """
-    if isinstance(value, unicode):
+    if isinstance(value, six.text_type):
         return value
-    elif isinstance(value, basestring):
+    elif isinstance(value, six.string_types):
         try:
-            value = unicode(value, encoding)
+            value = value.decode(encoding)
         except UnicodeDecodeError:
             value = value.decode('utf-8', 'replace')
     return value

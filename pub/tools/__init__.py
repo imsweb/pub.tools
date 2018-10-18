@@ -1,1 +1,1 @@
-import pub.tools.journals
+from . import journals

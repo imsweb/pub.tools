@@ -1,6 +1,6 @@
 import json
 import re
-from six.moves import urllib
+import requests
 from io import BytesIO
 
 import requests
@@ -80,8 +80,8 @@ class GoogleBooksAPIOpener(IsbnOpener):
         return self.root_url.format(api_key=self.api_key, isbn=isbn)
 
     def get_url(self, isbn):
-        response = urllib.request.urlopen(self.url(isbn))  # requests module fails to validate SSL cert?
-        return json.load(response)
+        response = requests.get(self.url(isbn))  # requests module fails to validate SSL cert?
+        return response.json()
 
     def get_publication(self, isbn):
         data = IsbnData()

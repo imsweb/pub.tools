@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 from datetime import datetime
 
@@ -480,6 +481,21 @@ class TestCooking(unittest.TestCase):
         d = cooking.cook_date_months(start=cooking.cook_date(None, None, None, pre),
                                      end=cooking.cook_date(None, None, None, pre, end=True))
         self.assertEqual(d, expected)
+
+    def test_non_latin1(self):
+        record = {
+            'title': 'My title',
+            'authors': [{'lname': u'Wohnliché', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
+            'journal': 'Sample Journal',
+            'pubdate': 'Jan 2007',
+            'volume': '4',
+            'issue': '5',
+            'pagination': '345-7',
+            'pubmodel': 'Print',
+            'italicize': True,
+        }
+        citation = u'Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.'
+        self.assertEqual(citation, journal_citation(**record))
 
 
 def test_suite():

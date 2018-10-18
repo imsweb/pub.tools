@@ -1,5 +1,5 @@
 import warnings
-from StringIO import StringIO
+from six import StringIO
 from cgi import escape
 
 from .cooking import su

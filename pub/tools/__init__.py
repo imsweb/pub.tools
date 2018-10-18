@@ -1,1 +1,1 @@
-import journals
+from . import journals

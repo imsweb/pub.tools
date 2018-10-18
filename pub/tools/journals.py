@@ -1,37 +1,34 @@
 import csv
 import json
 import os
-import urllib2
+import requests
 
 base_path = os.path.dirname(os.path.realpath(__file__))
+
 
 # cache journal info on start up
 
 
 def cache():
     url = 'http://www.ncbi.nlm.nih.gov/pmc/front-page/NIH_PA_journal_list.csv'
-    try:
-        conn = urllib2.urlopen(url)
-        reader = csv.reader(conn)
+    response = requests.get(url)
+    if response.status_code == 200:
 
         _atoj = {}
         _jtoa = {}
         dates = {}
-        while True:
-            try:
-                title, abbr, pissn, eissn, start, end = reader.next()
+        reader = csv.reader(response.text.split('\n'))
+
+        for row in reader:
+            if row:
+                title, abbr, pissn, eissn, start, end = row
                 _atoj[abbr.lower()] = title
                 _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (start, end)
-            except StopIteration:
-                break
         data = {'atoj': _atoj, 'jtoa': _jtoa, 'dates': dates}
 
-        f = open(os.path.join(base_path, 'journals.json'), 'w')
-        json.dump(data, f)
-        f.close()
-    except urllib2.HTTPError:
-        pass
+        with open(os.path.join(base_path, 'journals.json'), 'w') as f:
+            json.dump(data, f)
 
 
 def get_abbreviations():
@@ -59,7 +56,5 @@ def atodates(abbrv):
     data = json.load(f)['dates']
     return data.get(abbrv.lower())
 
-try:
-    cache()
-except urllib2.URLError:  # if ncbi is down
-    pass
+
+cache()

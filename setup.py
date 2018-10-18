@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 import os
 
-version = '1.7.2'
+version = '2.0'
 
 
 def read(*rnames):
@@ -40,6 +40,8 @@ setup(name='pub.tools',
           'biopython',
           'unidecode',
           'lxml',
-          'requests'
+          'requests',
+          'six',
+          'future'
       ],
       )

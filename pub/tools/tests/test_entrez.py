@@ -451,7 +451,7 @@ class TestCase(unittest.TestCase):
 
     def test_find_and_fetch(self):
         record = entrez.find_publications(pmid='12727674')
-        self.assertEquals(len(record['IdList']), 1)
+        self.assertEqual(len(record['IdList']), 1)
         record = entrez.get_searched_publications(record['WebEnv'], record['QueryKey'])
         self.check_pub_data(record[0])
 

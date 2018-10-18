@@ -1,8 +1,10 @@
 import logging
 import re
 import time
+import six
 from six import StringIO
-from httplib import IncompleteRead
+from six.moves.http_client import IncompleteRead
+from builtins import str
 from xml.dom import minidom
 
 from Bio import Entrez
@@ -93,7 +95,7 @@ def _parse_entrez_book_record(record):
 
     articleids = document.pop('ArticleIdList')
     for aid in articleids:
-        data[aid.attributes['IdType']] = unicode(aid)
+        data[aid.attributes['IdType']] = str(aid)
 
     data['abstract'] = document.get('Abstract', {}).get('AbstractText', '')
     if isinstance(data['abstract'], list):
@@ -191,7 +193,7 @@ def _parse_entrez_journal_record(record):
     data['pmid'] = str(medline['PMID'])
 
     for aid in articleids:
-        data[aid.attributes['IdType']] = unicode(aid)
+        data[aid.attributes['IdType']] = str(aid)
 
     grants = []
     for grant in article.get('GrantList', []):
@@ -201,7 +203,7 @@ def _parse_entrez_journal_record(record):
     data['grants'] = grants
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
-        mesh.append(unicode(meshHeader['DescriptorName']))
+        mesh.append(str(meshHeader['DescriptorName']))
         # Might be nice to return name and ID at some point.
         # d = meshHeader['DescriptorName']
         # mesh.append({
@@ -209,7 +211,7 @@ def _parse_entrez_journal_record(record):
         #    'id': d.attributes['UI'],
         # })
     data['mesh'] = mesh
-    data['pubtypelist'] = [unicode(ptl) for ptl in article.get('PublicationTypeList', [])]
+    data['pubtypelist'] = [str(ptl) for ptl in article.get('PublicationTypeList', [])]
     for adate in articledate:
         if adate.attributes['DateType'] == 'Electronic':
             data['edate'] = cook_date_str(' '.join([i for i in (
@@ -223,7 +225,7 @@ def _parse_entrez_journal_record(record):
     if article.get('Abstract'):
         _abstracts = []
         for abst in article['Abstract']['AbstractText']:
-            text = unicode(abst)
+            text = str(abst)
             if hasattr(abst, 'attributes'):
                 nlmcat = abst.attributes.get('NlmCategory')
                 label = abst.attributes.get('Label')
@@ -465,7 +467,7 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
     :param ids: subset of ids if you don't want the full results of the search
     :return: parsed publications from the search
     """
-    if isinstance(ids, basestring):
+    if isinstance(ids, six.string_types):
         ids = [ids]
     records = []
     query = {

@@ -1,6 +1,5 @@
 import json
 import re
-import requests
 from io import BytesIO
 
 import requests
@@ -108,7 +107,7 @@ class WorldCatOpener(IsbnOpener):
         return self.root_url.format(isbn=term)
 
     def get_url(self, isbn):
-        response = requests.get(self.root_url.format(isbn=term))
+        response = requests.get(self.root_url.format(isbn=isbn))
         if response.status_code == 200:
             return response.text
 

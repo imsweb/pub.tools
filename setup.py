@@ -37,7 +37,7 @@ setup(name='pub.tools',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'biopython',
+          'biopython>=1.73',
           'unidecode',
           'lxml',
           'requests',

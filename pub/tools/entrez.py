@@ -245,7 +245,7 @@ def _parse_entrez_journal_record(record):
     return data
 
 
-def get_publication(pmid):
+def get_publication(pmid, escape=True):
     """
     Get a single publication by ID. We don't use PubMed's convoluted data structure but instead return
     a dict with simple values. Most values are a string or list, but some like authors and grants are further
@@ -254,15 +254,16 @@ def get_publication(pmid):
     PubMed contains both books and journals and we parse both, with some difference in available keys.
 
     :param pmid: PubMed ID
+    :param escape: used by Entrez.parse and .read. If true, will return as html
     :return: parsed publication in dict format
     """
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
     try:
-        for rec in Entrez.parse(handle):
+        for rec in Entrez.parse(handle, escape=escape):
             return _parse_entrez_record(rec)
     except ValueError:
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
-        data = Entrez.read(handle)
+        data = Entrez.read(handle, escape=escape)
         rec = None
         if data['PubmedArticle']:
             rec = _parse_entrez_journal_record(data['PubmedArticle'][0])
@@ -273,16 +274,17 @@ def get_publication(pmid):
         handle.close()
 
 
-def get_publication_by_doi(doi):
+def get_publication_by_doi(doi, escape=True):
     """
     Shortcut for finding publication with DOI
 
     :param doi: DOI value
+    :param escape: used by Entrez.parse and .read. If true, will return as html
     :return: parsed publication in dict format
     """
     ids = find_publications(doi=doi)
     if int(ids['Count']) == 1:
-        return get_publication(ids['IdList'][0])
+        return get_publication(ids['IdList'][0], escape)
 
 
 def get_pmid_by_pmc(pmcid):
@@ -312,7 +314,7 @@ def get_pmid_by_pmc(pmcid):
             return search['IdList'][0]
 
 
-def get_publications(pmids):
+def get_publications(pmids, escape=True):
     """
     We let Biopython do most of the heavy lifting, including building the request POST. Publications are
     fetched in chunks of config.MAX_PUBS as there does seem to be a limit imposed by NCBI. There is also
@@ -320,6 +322,7 @@ def get_publications(pmids):
     Biopython. Finally, if the request fails for any reason we can retry config.MAX_RETRIES times
 
     :param pmids: a list of PMIDs
+    :param escape: used by Entrez.parse and .read. If true, will return as html
     :return: generator of parsed pubs as python dicts
     """
     # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
@@ -334,7 +337,7 @@ def get_publications(pmids):
             timer = time.time()
             logger.info('Fetching publications {} through {}...'.format(start, min(len(pmids), start + config.MAX_PUBS)))
             handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
-            data = Entrez.read(handle)
+            data = Entrez.read(handle, escape=escape)
             logger.info('Fetched and read after {:.02f}s'.format(time.time() - timer))
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield _parse_entrez_record(record)
@@ -457,7 +460,7 @@ def generate_search_string(all=None, authors=None, title=None, journal=None, pmi
     return '+'.join(search_strings)
 
 
-def get_searched_publications(WebEnv, QueryKey, ids=None):
+def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
     """
     Get a bunch of publications from Entrez using WebEnv and query_key from EPost. Option to narrow
     down subset of ids
@@ -480,13 +483,13 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
         query['ids'] = ids
     handle = Entrez.efetch(**query)
     try:
-        for record in Entrez.parse(handle):
+        for record in Entrez.parse(handle, escape=escape):
             record = _parse_entrez_record(record)
             if record:
                 records.append(record)
     except ValueError:  # newer Biopython requires this to be Entrez.read
         handle = Entrez.efetch(**query)
-        data = Entrez.read(handle)
+        data = Entrez.read(handle, escape=escape)
         for record in data['PubmedArticle'] + data['PubmedBookArticle']:
             record = _parse_entrez_record(record)
             # Entrez.read does not use the ids query key so we have to do this ourselves
@@ -495,14 +498,14 @@ def get_searched_publications(WebEnv, QueryKey, ids=None):
     return records
 
 
-def process_handle(handle):
+def process_handle(handle, escape=True):
     """
     Use EPost to store our PMID results to the Entrez History server and get back the WebEnv and QueryKey values
 
     :param handle: Entrez http stream
     :return: Entrez read handle value with WebEnv and QueryKey
     """
-    record = Entrez.read(handle)
+    record = Entrez.read(handle, escape)
     if record['IdList']:
         # If we have search results, send the ids to EPost and use WebEnv/QueryKey from now on
         search_results = Entrez.read(Entrez.epost("pubmed", id=",".join(record['IdList'])))

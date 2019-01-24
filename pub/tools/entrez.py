@@ -1,13 +1,17 @@
 import logging
 import re
 import time
+from xml.dom import minidom
+try:
+    from html import unescape  # py3
+except ImportError:
+    from xml.sax.saxutils import unescape  # py2
+
 import six
+from Bio import Entrez
+from builtins import str
 from six import StringIO
 from six.moves.http_client import IncompleteRead
-from builtins import str
-from xml.dom import minidom
-
-from Bio import Entrez
 from unidecode import unidecode
 
 from . import config
@@ -41,6 +45,17 @@ class PubToolsError(Exception):
 
 
 IMSEntrezError = PubToolsError
+
+
+def _unescape(val):
+    if isinstance(val, list):
+        return [_unescape(v) for v in val]
+    elif isinstance(val, dict):
+        return {k: _unescape(v) for k, v in val.items()}
+    elif isinstance(val, basestring):
+        return unescape(val)
+    else:
+        return val
 
 
 def _parse_author_name(author, investigator=False):
@@ -269,6 +284,11 @@ def get_publication(pmid, escape=True):
             rec = _parse_entrez_journal_record(data['PubmedArticle'][0])
         elif data['PubmedBookArticle']:
             rec = _parse_entrez_book_record(data['PubmedBookArticle'][0])
+        if escape:
+            # unescape any fields that are not intended to be html
+            for key in rec:
+                if key not in ['title', 'abstract']:
+                    rec[key] = _unescape(rec[key])
         return rec
     finally:
         handle.close()
@@ -335,7 +355,8 @@ def get_publications(pmids, escape=True):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
         try:
             timer = time.time()
-            logger.info('Fetching publications {} through {}...'.format(start, min(len(pmids), start + config.MAX_PUBS)))
+            logger.info(
+                'Fetching publications {} through {}...'.format(start, min(len(pmids), start + config.MAX_PUBS)))
             handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
             data = Entrez.read(handle, escape=escape)
             logger.info('Fetched and read after {:.02f}s'.format(time.time() - timer))
@@ -378,7 +399,8 @@ def esearch_publications(query):
     return process_handle(handle)
 
 
-def find_publications(all=None, authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None, gr=None,
+def find_publications(all=None, authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None,
+                      gr=None,
                       ir=None, affl=None, doi='', inclusive=False):
     """
     You can use the resulting WebEnv and QueryKey values to call get_searched_publications
@@ -409,7 +431,8 @@ def find_publications(all=None, authors=None, title=None, journal=None, start=No
     return process_handle(handle)
 
 
-def generate_search_string(all=None, authors=None, title=None, journal=None, pmid=None, mesh=None, gr=None, ir=None, affl=None,
+def generate_search_string(all=None, authors=None, title=None, journal=None, pmid=None, mesh=None, gr=None, ir=None,
+                           affl=None,
                            doi=None, inclusive=False):
     """
     Generate the search string that will be passed to ESearch based on these criteria

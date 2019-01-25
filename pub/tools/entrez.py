@@ -2,10 +2,6 @@ import logging
 import re
 import time
 from xml.dom import minidom
-try:
-    from html import unescape  # py3
-except ImportError:
-    from xml.sax.saxutils import unescape  # py2
 
 import six
 from Bio import Entrez
@@ -13,6 +9,11 @@ from builtins import str
 from six import StringIO
 from six.moves.http_client import IncompleteRead
 from unidecode import unidecode
+
+try:
+    from html import unescape  # py3
+except ImportError:
+    from xml.sax.saxutils import unescape  # py2
 
 from . import config
 from .cooking import cook_date_str, su
@@ -52,7 +53,7 @@ def _unescape(val):
         return [_unescape(v) for v in val]
     elif isinstance(val, dict):
         return {k: _unescape(v) for k, v in val.items()}
-    elif isinstance(val, basestring):
+    elif isinstance(val, six.string_types):
         return unescape(val)
     else:
         return val
@@ -72,15 +73,24 @@ def _parse_author_name(author, investigator=False):
     }
 
 
-def _parse_entrez_record(record):
+def _parse_entrez_record(record, escape=True):
     """ convert this into our own data structure format
         Journal keys - MedlineCitation, PubmedData
         Book keys - BookDocument, PubmedBookData
     """
     if 'PubmedData' in record:
-        return _parse_entrez_journal_record(record)
+        rec = _parse_entrez_journal_record(record)
     elif 'PubmedBookData' in record:
-        return _parse_entrez_book_record(record)
+        rec = _parse_entrez_book_record(record)
+    else:
+        return
+
+    if escape:
+        # unescape any fields that are not intended to be html
+        for key in rec:
+            if key not in ['title', 'abstract']:
+                rec[key] = _unescape(rec[key])
+    return rec
 
 
 def _parse_entrez_book_record(record):
@@ -110,7 +120,7 @@ def _parse_entrez_book_record(record):
 
     articleids = document.pop('ArticleIdList')
     for aid in articleids:
-        data[aid.attributes['IdType']] = str(aid)
+        data[aid.attributes['IdType']] = su(aid)
 
     data['abstract'] = document.get('Abstract', {}).get('AbstractText', '')
     if isinstance(data['abstract'], list):
@@ -148,7 +158,7 @@ def _parse_entrez_book_record(record):
 
     # itemlist = document.get('ItemList','') - no idea what this is
 
-    data['pmid'] = str(document['PMID'])
+    data['pmid'] = su(document['PMID'])
 
     sections = []
     for section in document.get('Sections', []):
@@ -205,10 +215,10 @@ def _parse_entrez_journal_record(record):
         if investigator.attributes['ValidYN'] == 'Y':
             authors.append(_parse_author_name(investigator, investigator=True))
     data['authors'] = authors
-    data['pmid'] = str(medline['PMID'])
+    data['pmid'] = su(medline['PMID'])
 
     for aid in articleids:
-        data[aid.attributes['IdType']] = str(aid)
+        data[aid.attributes['IdType']] = su(aid)
 
     grants = []
     for grant in article.get('GrantList', []):
@@ -218,7 +228,7 @@ def _parse_entrez_journal_record(record):
     data['grants'] = grants
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
-        mesh.append(str(meshHeader['DescriptorName']))
+        mesh.append(su(meshHeader['DescriptorName']))
         # Might be nice to return name and ID at some point.
         # d = meshHeader['DescriptorName']
         # mesh.append({
@@ -226,7 +236,7 @@ def _parse_entrez_journal_record(record):
         #    'id': d.attributes['UI'],
         # })
     data['mesh'] = mesh
-    data['pubtypelist'] = [str(ptl) for ptl in article.get('PublicationTypeList', [])]
+    data['pubtypelist'] = [su(ptl) for ptl in article.get('PublicationTypeList', [])]
     for adate in articledate:
         if adate.attributes['DateType'] == 'Electronic':
             data['edate'] = cook_date_str(' '.join([i for i in (
@@ -269,27 +279,19 @@ def get_publication(pmid, escape=True):
     PubMed contains both books and journals and we parse both, with some difference in available keys.
 
     :param pmid: PubMed ID
-    :param escape: used by Entrez.parse and .read. If true, will return as html
+    :param escape: used by Entrez.parse and .read. If true, will return as html for title and abstract fields
     :return: parsed publication in dict format
     """
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
     try:
         for rec in Entrez.parse(handle, escape=escape):
-            return _parse_entrez_record(rec)
+            return _parse_entrez_record(rec, escape)
     except ValueError:
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
         data = Entrez.read(handle, escape=escape)
-        rec = None
-        if data['PubmedArticle']:
-            rec = _parse_entrez_journal_record(data['PubmedArticle'][0])
-        elif data['PubmedBookArticle']:
-            rec = _parse_entrez_book_record(data['PubmedBookArticle'][0])
-        if escape:
-            # unescape any fields that are not intended to be html
-            for key in rec:
-                if key not in ['title', 'abstract']:
-                    rec[key] = _unescape(rec[key])
-        return rec
+        record = data['PubmedArticle'] + data['PubmedBookArticle']
+        if record:
+            return _parse_entrez_record(record[0], escape)
     finally:
         handle.close()
 
@@ -361,7 +363,7 @@ def get_publications(pmids, escape=True):
             data = Entrez.read(handle, escape=escape)
             logger.info('Fetched and read after {:.02f}s'.format(time.time() - timer))
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
-                yield _parse_entrez_record(record)
+                yield _parse_entrez_record(record, escape)
             start += config.MAX_PUBS
             attempts = 0
         except Exception as e:
@@ -507,14 +509,14 @@ def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
     handle = Entrez.efetch(**query)
     try:
         for record in Entrez.parse(handle, escape=escape):
-            record = _parse_entrez_record(record)
+            record = _parse_entrez_record(record, escape)
             if record:
                 records.append(record)
     except ValueError:  # newer Biopython requires this to be Entrez.read
         handle = Entrez.efetch(**query)
         data = Entrez.read(handle, escape=escape)
         for record in data['PubmedArticle'] + data['PubmedBookArticle']:
-            record = _parse_entrez_record(record)
+            record = _parse_entrez_record(record, escape)
             # Entrez.read does not use the ids query key so we have to do this ourselves
             if record and (ids and record['pmid'] in ids or not ids):
                 records.append(record)

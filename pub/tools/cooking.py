@@ -196,18 +196,22 @@ def cook_date_months(start, end):
             months.append(monthlist[month - 1] + ' ' + str(year))
     return months
 
-
 def safe_unicode(value, encoding='utf-8'):
     """ Converts a value to unicode, even it is already a unicode string.
+
+        Only needed for python2
     """
-    if isinstance(value, six.text_type):
+    try:
+        if isinstance(value, unicode):
+            return value
+        elif isinstance(value, basestring):
+            try:
+                value = unicode(value, encoding)
+            except UnicodeDecodeError:
+                value = value.decode('utf-8', 'replace')
         return value
-    elif isinstance(value, six.string_types):
-        try:
-            value = value.decode(encoding)
-        except UnicodeDecodeError:
-            value = value.decode('utf-8', 'replace')
-    return value
+    except NameError:
+        return value
 
 
 su = safe_unicode

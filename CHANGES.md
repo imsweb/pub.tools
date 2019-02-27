@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1] - unreleased
+- Redesign of citation with abstract behavior.
+- add docstrings to citation functions
+
+## [2.0.2] - 25 Jan 2019
+- Revert safe_unicode use but have it be only applicable for python 2. Not an issue in python 3
+- Unescape all fields except title and abstract if using the "escape" parameter. Those two fields are treated as HTML 
+if escape is false all other fields are plain text 
+
+## [2.0] - 17 October 2018
+- Six implementation with support for python 2 and 3 [hoskins]
+
 ## [1.7] - 10 May 2018
 - Refactor some entrez functions to make it more obvious what the API endpoints are
 - Convert docstring of all intended end point functions to reST

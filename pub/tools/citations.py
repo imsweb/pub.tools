@@ -1,6 +1,7 @@
 import warnings
-from six import StringIO
+
 from html import escape
+from six import StringIO
 
 from .cooking import su
 
@@ -76,10 +77,24 @@ def cookauthor(author):
 @cooked_citation
 def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
                   edition='', series='', pubplace='', publisher='', **kwargs):
+    """ book citation
+
+    :param authors: iterable. Individual elements can be dict or plain text
+    :param editors: same functionality as authors
+    :param title: str
+    :param pubdate: str formatted date
+    :param pagination: str
+    :param edition: str
+    :param series: str
+    :param pubplace: str
+    :param publisher: str
+    :param kwargs: additional params catchall
+    :return: str
+    """
     out = StringIO()
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))  + '\n')
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if authors:
         out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors])) + '\n')
     if title:
@@ -88,7 +103,7 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
         out.write(period(edition) + '\n')
     if editors and authors:
         out.write(period(u'{}, editor{}'.format(
-            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or ''))  + '\n')
+            ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
     if pubplace:
         if publisher:
             out.write(colon(pubplace) + '\n')
@@ -111,6 +126,21 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
 @cooked_citation
 def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination='',
                      edition='', series='', pubplace='', booktitle='', publisher='', **kwargs):
+    """ book chapter citation
+
+    :param authors: iterable. Individual elements can be dict or plain text
+    :param editors: same functionality as authors
+    :param title: str (chapter title)
+    :param pubdate: str formatted date
+    :param pagination: str
+    :param edition: str
+    :param series: str
+    :param pubplace: str
+    :param booktitle: str
+    :param publisher: str
+    :param kwargs: additional params catchall
+    :return: str
+    """
     out = StringIO()
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(
@@ -150,6 +180,22 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
 @cooked_citation
 def conference_citation(authors=(), editors=(), title='', pubdate='', pagination='', pubplace='', place='',
                         conferencename='', conferencedate='', publisher='', italicize=None, **kwargs):
+    """ conference citation
+
+    :param authors: iterable. Individual elements can be dict or plain text
+    :param editors: same functionality as authors
+    :param title: str
+    :param pubdate: str formatted date
+    :param pagination: str
+    :param pubplace: str (location of publication)
+    :param place: str (location of conference event)
+    :param conferencename: str
+    :param conferencedate: str formatted
+    :param publisher: str
+    :param italicize: if true, conference name is wrapped in <i> tags
+    :param kwargs: additional params catchall
+    :return: str (unicode in py2) if not not italicize, otherwise HTML
+    """
     if italicize is None:
         warnings.warn(
             "Use the 'italicize' boolean parameter to include <i> tags. The current default is True but "
@@ -197,7 +243,25 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
 
 @cooked_citation
 def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
-                     pubmodel='Print', edate='', doi='', pmid='', use_abstract=False, italicize=None, **kwargs):
+                     pubmodel='Print', edate='', doi='', use_abstract=False, italicize=None, **kwargs):
+    """ journal citation
+
+    :param authors: iterable. Individual elements can be dict or plain text
+    :param title: str
+    :param journal: str
+    :param pubdate: str formatted date
+    :param volume: str
+    :param issue: str
+    :param pagination: str
+    :param abstract: iterable. Individual elements can be dict or plain text
+    :param pubmodel: determines which date types to use
+    :param edate: str formatted date
+    :param doi: str
+    :param use_abstract: boolean. If using abstract, result will be HTML
+    :param italicize: if true, journal is wrapped in <i> tags
+    :param kwargs: additional params catchall
+    :return: str (unicode in py2) if not abstract and not italicize, otherwise HTML
+    """
     if italicize is None:
         warnings.warn(
             "Use the 'italicize' boolean parameter to include <i> tags. The current default is True but "
@@ -207,102 +271,87 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     if not abstract:
         abstract = {}
     out = StringIO()
-    if not use_abstract:
-        if authors:
-            out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors if a])) + '\n')
-        if title:
-            out.write(period(title) + '\n')
-        if journal and italicize:
-            out.write(u'<i>{}</i> '.format(su(journal).strip()) + '\n')
-        elif journal:
-            out.write(period(su(journal).strip()) + '\n')
+    if authors:
+        out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors if a])) + '\n')
+    if title:
+        out.write(period(title) + '\n')
+    if journal and italicize:
+        out.write(u'<i>{}</i> '.format(su(journal).strip()) + '\n')
+    elif journal:
+        out.write(period(su(journal).strip()) + '\n')
 
-        if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
-            date = pubdate
-        elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
-            date = edate
-        else:
-            date = pubdate or edate
-
-        if date:
-            if pagination and not (volume or issue):
-                out.write(colon(date) + '\n')
-            elif volume or issue:
-                out.write(semi_colon_no_space(date) + '\n')
-            else:
-                out.write(period(date) + '\n')
-        if volume:
-            if pagination and not issue:
-                out.write(colon_no_space(volume) + '\n')
-            elif pagination:
-                out.write(volume + '\n')
-            else:
-                out.write(period(volume) + '\n')
-        if issue:
-            if pagination:
-                out.write(colon_no_space(u'({})'.format(issue)) + '\n')
-            else:
-                out.write(period(u'({})'.format(issue)) + '\n')
-        if pagination:
-            out.write(period(pagination) + '\n')
-        if pubmodel in ('Print-Electronic',):
-            if edate:
-                out.write('Epub ' + period(edate) + '\n')
-        if pubmodel in ('Electronic-Print',):
-            if pubdate:
-                out.write('Print ' + period(pubdate) + '\n')
-        if pubmodel in ('Electronic-eCollection',):
-            if pubdate:
-                if doi:
-                    out.write('doi: {}. eCollection {}'.format(doi, period(pubdate)) + '\n')
-                else:
-                    out.write('eCollection {}'.format(period(pubdate)) + '\n')
-
+    if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
+        date = pubdate
+    elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
+        date = edate
     else:
-        out.write(u'<b>Author: </b>{}<br/>'.format(u', '.join([su(cookauthor(a)).replace(u',', u' ') for a in authors])) + '\n')
-        out.write(u'<b>Title: </b>{}<br/>'.format(title) + '\n')
-        out.write(u'<b>Journal: </b>{}'.format(journal) + '\n')
-        if journal and issue and volume and pagination:
-            out.write(u'. {volume}({issue}):{pagination}'.format(volume=volume, issue=issue, pagination=pagination) + '\n')
+        date = pubdate or edate
+
+    if date:
+        if pagination and not (volume or issue):
+            out.write(colon(date) + '\n')
+        elif volume or issue:
+            out.write(semi_colon_no_space(date) + '\n')
+        else:
+            out.write(period(date) + '\n')
+    if volume:
+        if pagination and not issue:
+            out.write(colon_no_space(volume) + '\n')
+        elif pagination:
+            out.write(volume + '\n')
+        else:
+            out.write(period(volume) + '\n')
+    if issue:
+        if pagination:
+            out.write(colon_no_space(u'({})'.format(issue)) + '\n')
+        else:
+            out.write(period(u'({})'.format(issue)) + '\n')
+    if pagination:
+        out.write(period(pagination) + '\n')
+    if pubmodel in ('Print-Electronic',):
+        if edate:
+            out.write('Epub ' + period(edate) + '\n')
+    if pubmodel in ('Electronic-Print',):
+        if pubdate:
+            out.write('Print ' + period(pubdate) + '\n')
+    if pubmodel in ('Electronic-eCollection',):
+        if pubdate:
+            if doi:
+                out.write('doi: {}. eCollection {}'.format(doi, period(pubdate)) + '\n')
+            else:
+                out.write('eCollection {}'.format(period(pubdate)) + '\n')
+
+    if use_abstract:
         out.write(u'<br/>' + '\n')
-        out.write(u'<b>Pubmed link: </b><a href="http://www.ncbi.nlm.nih.gov/pubmed/{0}">' \
-                      u'http://www.ncbi.nlm.nih.gov/pubmed/{0}</a><br/>'.format(pmid) + '\n')
-        if pubmodel in ('Print', 'Electronic', 'Print-Electronic'):  # use the publication date
-            date = pubdate
-        elif pubmodel in ('Electronic-Print', 'Electronic-eCollection'):  # use the electronic date
-            date = edate
-        else:
-            date = pubdate or edate
-        out.write(u'<b>Citation Date: </b>{}'.format(date) + '\n')
-        if pubmodel in ('Print-Electronic',):
-            if edate:
-                out.write(u'. Epub {}<br/>'.format(period(edate)) + '\n')
-        elif pubmodel in ('Electronic-Print',):
-            if pubdate:
-                out.write(u'. Print {}<br/>'.format(period(pubdate)) + '\n')
-        elif pubmodel in ('Electronic-eCollection',):
-            if pubdate:
-                if doi:
-                    out.write(u'doi: {}. eCollection {}<br/>'.format(doi, period(pubdate)) + '\n')
-                else:
-                    out.write(u'eCollection {}<br/>'.format(period(pubdate)) + '\n')
-        else:
-            out.write(u'<br/>' + '\n')
         abstracts = []
         for seg in abstract:
             abst = seg.get('label') or ''
             abst += abst and ': ' or ''
             abst += seg.get('text') or ''
             if abst:
-                abstracts.append(abst)
+                abstracts.append(u'<p>{}</p>'.format(abst))
         abstract = ' '.join(abstracts)
-        out.write(u'<b>Abstract: </b>{}<br/>'.format(su(abstract)) + '\n')
+        out.write(u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>{}</div>'.format(su(abstract)) + '\n')
     return out.getvalue()
 
 
 @cooked_citation
 def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='', weburl='', reportnum='', publisher='',
                        serieseditors=(), **kwargs):
+    """ book chapter citation
+
+    :param authors: iterable. Individual elements can be dict or plain text
+    :param serieseditors: same functionality as authors
+    :param title: str
+    :param pubdate: str formatted date
+    :param series: str
+    :param pubplace: str
+    :param publisher: str
+    :param weburl: str
+    :param reportnum: str
+    :param kwargs: additional params catchall
+    :return: str
+    """
     out = StringIO()
     if serieseditors and not authors:
         out.write(period(u'{}, editor{}'.format(
@@ -342,6 +391,21 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
 @cooked_citation
 def report_citation(authors=(), editors=(), title='', pubdate='', pagination='', series='', pubplace='', weburl='',
                     reportnum='', publisher='', **kwargs):
+    """ book chapter citation
+
+    :param authors: iterable. Individual elements can be dict or plain text
+    :param editors: same functionality as authors
+    :param title: str
+    :param pubdate: str formatted date
+    :param pagination: str
+    :param series: str
+    :param pubplace: str
+    :param publisher: str
+    :param weburl: str
+    :param reportnum: str
+    :param kwargs: additional params catchall
+    :return: str
+    """
     out = StringIO()
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(

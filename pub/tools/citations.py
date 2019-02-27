@@ -331,7 +331,8 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
             if abst:
                 abstracts.append(u'<p>{}</p>'.format(abst))
         abstract = ' '.join(abstracts)
-        out.write(u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>{}</div>'.format(su(abstract)) + '\n')
+        if abstract:
+            out.write(u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>{}</div>'.format(su(abstract)) + '\n')
     return out.getvalue()
 
 

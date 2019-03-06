@@ -5,7 +5,6 @@ from xml.dom import minidom
 
 import six
 from Bio import Entrez
-from builtins import str
 from six import StringIO
 from six.moves.http_client import IncompleteRead
 from unidecode import unidecode

@@ -1,9 +1,8 @@
-from . import config
-from datetime import datetime
 import re
-import six
-
 import warnings
+from datetime import datetime
+
+from . import config
 
 preferred_date_format = '%Y %b %d'
 preferred_date_format_long = '%Y %b %d %I:%M %p'
@@ -40,7 +39,6 @@ rmap = standardize_range.copy()
 rism = ris_month.copy()
 mmap = daterange_to_month_start.copy()
 mmap_end = daterange_to_month_end.copy()
-
 
 monthlist = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 punclist = ['.', ',', ':', ';', '\'', '(', ')', '{', '}', '[', ']', '=', '+', '$', '#', '%', '@', '!', '^', '&', '*']
@@ -195,6 +193,7 @@ def cook_date_months(start, end):
         for month in range(month_start, month_end):
             months.append(monthlist[month - 1] + ' ' + str(year))
     return months
+
 
 def safe_unicode(value, encoding='utf-8'):
     """ Converts a value to unicode, even it is already a unicode string.

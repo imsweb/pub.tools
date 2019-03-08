@@ -2,6 +2,7 @@
 
 ## [2.1] - unreleased
 - Redesign of citation with abstract behavior.
+- "italicize" option has been replaced with an "html" option and does not do any safe escape
 - add docstrings to citation functions
 
 ## [2.0.2] - 25 Jan 2019

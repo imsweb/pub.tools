@@ -1,18 +1,8 @@
-import warnings
-
-from html import escape
 from six import StringIO
 
 from .cooking import su
 
 punc_endings = ('.', '?', '!')
-
-
-def safe_escape(text):
-    text = escape(text)
-    text = text.replace('&lt;i&gt;', '<i>')
-    text = text.replace('&lt;/i&gt;', '</i>')
-    return text
 
 
 def cooked_citation(func):
@@ -21,7 +11,7 @@ def cooked_citation(func):
         if kwargs.get('use_abstract'):
             return text.replace('\n', '').strip()
         else:
-            return safe_escape(text.replace('\n', '').strip())
+            return text.strip()
 
     return wrapper
 
@@ -76,7 +66,7 @@ def cookauthor(author):
 
 @cooked_citation
 def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
-                  edition='', series='', pubplace='', publisher='', **kwargs):
+                  edition='', series='', pubplace='', publisher='', html=False, **kwargs):
     """ book citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -88,10 +78,13 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
     :param series: str
     :param pubplace: str
     :param publisher: str
+    :param html: boolean
     :param kwargs: additional params catchall
     :return: str
     """
     out = StringIO()
+    if html:
+        out.write(u'</span>')
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
@@ -120,12 +113,14 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
         out.write(u'p. {0}'.format(period(pagination)) + '\n')
     if series:
         out.write(u'({})'.format(series) + '\n')
+    if html:
+        out.write(u'</span>')
     return out.getvalue()
 
 
 @cooked_citation
 def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination='',
-                     edition='', series='', pubplace='', booktitle='', publisher='', **kwargs):
+                     edition='', series='', pubplace='', booktitle='', publisher='', html=False, **kwargs):
     """ book chapter citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -138,10 +133,13 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
     :param pubplace: str
     :param booktitle: str
     :param publisher: str
+    :param html: boolean
     :param kwargs: additional params catchall
     :return: str
     """
     out = StringIO()
+    if html:
+        out.write(u'<span>')
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
@@ -174,12 +172,14 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
         out.write(u'p. {}'.format(period(pagination)) + '\n')
     if series:
         out.write(u'({})'.format(series) + '\n')
+    if html:
+        out.write(u'</span>')
     return out.getvalue()
 
 
 @cooked_citation
 def conference_citation(authors=(), editors=(), title='', pubdate='', pagination='', pubplace='', place='',
-                        conferencename='', conferencedate='', publisher='', italicize=None, **kwargs):
+                        conferencename='', conferencedate='', publisher='', html=None, **kwargs):
     """ conference citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -192,17 +192,13 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
     :param conferencename: str
     :param conferencedate: str formatted
     :param publisher: str
-    :param italicize: if true, conference name is wrapped in <i> tags
+    :param html: boolean
     :param kwargs: additional params catchall
     :return: str (unicode in py2) if not not italicize, otherwise HTML
     """
-    if italicize is None:
-        warnings.warn(
-            "Use the 'italicize' boolean parameter to include <i> tags. The current default is True but "
-            "will be False in a future release",
-            DeprecationWarning)
-        italicize = True
     out = StringIO()
+    if html:
+        out.write(u'<span>')
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
@@ -213,7 +209,7 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
     if editors and authors:
         out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
-    if conferencename and italicize:
+    if conferencename and html:
         out.write(semi_colon(u'<i>Proceedings of {}</i>'.format(conferencename)) + '\n')
     elif conferencename:
         out.write(semi_colon(conferencename) + '\n')
@@ -238,12 +234,14 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
         out.write(period(pubdate) + '\n')
     if pagination:
         out.write(u'p. {}'.format(period(pagination)) + '\n')
+    if html:
+        out.write(u'</span>')
     return out.getvalue()
 
 
 @cooked_citation
 def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
-                     pubmodel='Print', edate='', doi='', use_abstract=False, italicize=None, **kwargs):
+                     pubmodel='Print', edate='', doi='', use_abstract=False, html=False, **kwargs):
     """ journal citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -258,24 +256,20 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     :param edate: str formatted date
     :param doi: str
     :param use_abstract: boolean. If using abstract, result will be HTML
-    :param italicize: if true, journal is wrapped in <i> tags
+    :param html: boolean
     :param kwargs: additional params catchall
     :return: str (unicode in py2) if not abstract and not italicize, otherwise HTML
     """
-    if italicize is None:
-        warnings.warn(
-            "Use the 'italicize' boolean parameter to include <i> tags. The current default is True but "
-            "will be False in a future release",
-            DeprecationWarning, stacklevel=2)
-        italicize = True
     if not abstract:
         abstract = {}
     out = StringIO()
+    if html:
+        out.write(u'<span>')
     if authors:
         out.write(period(u', '.join([su(cookauthor(a).replace(',', ' ')) for a in authors if a])) + '\n')
     if title:
         out.write(period(title) + '\n')
-    if journal and italicize:
+    if journal and html:
         out.write(u'<i>{}</i> '.format(su(journal).strip()) + '\n')
     elif journal:
         out.write(period(su(journal).strip()) + '\n')
@@ -332,13 +326,17 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
                 abstracts.append(u'<p>{}</p>'.format(abst))
         abstract = ' '.join(abstracts)
         if abstract:
-            out.write(u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>{}</div>'.format(su(abstract)) + '\n')
+            out.write(
+                u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>{}</div>'.format(
+                    su(abstract)) + '\n')
+    if html:
+        out.write(u'</span>')
     return out.getvalue()
 
 
 @cooked_citation
 def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='', weburl='', reportnum='', publisher='',
-                       serieseditors=(), **kwargs):
+                       serieseditors=(), html=False, **kwargs):
     """ book chapter citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -354,6 +352,8 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
     :return: str
     """
     out = StringIO()
+    if html:
+        out.write(u'<span>')
     if serieseditors and not authors:
         out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in serieseditors]),
@@ -386,12 +386,14 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
         out.write(period(reportnum) + '\n')
     if weburl:
         out.write(u'Available at {0}.'.format(weburl) + '\n')
+    if html:
+        out.write(u'</span>')
     return out.getvalue()
 
 
 @cooked_citation
 def report_citation(authors=(), editors=(), title='', pubdate='', pagination='', series='', pubplace='', weburl='',
-                    reportnum='', publisher='', **kwargs):
+                    reportnum='', publisher='', html=False, **kwargs):
     """ book chapter citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -408,6 +410,8 @@ def report_citation(authors=(), editors=(), title='', pubdate='', pagination='',
     :return: str
     """
     out = StringIO()
+    if html:
+        out.write(u'<span>')
     if editors and not authors:
         out.write(period(u'{}, editor{}'.format(
             ', '.join([su(cookauthor(e).replace(',', ' ')) for e in editors]), len(editors) > 1 and 's' or '')) + '\n')
@@ -440,4 +444,6 @@ def report_citation(authors=(), editors=(), title='', pubdate='', pagination='',
         out.write(period(u'p. {0}'.format(pagination)) + '\n')
     if weburl:
         out.write(u'Available at {0}.'.format(weburl) + '\n')
+    if html:
+        out.write(u'</span>')
     return out.getvalue()

@@ -249,7 +249,7 @@ def _parse_entrez_journal_record(record):
     if article.get('Abstract'):
         _abstracts = []
         for abst in article['Abstract']['AbstractText']:
-            text = str(abst)
+            text = six.text_type(abst)
             if hasattr(abst, 'attributes'):
                 nlmcat = abst.attributes.get('NlmCategory')
                 label = abst.attributes.get('Label')

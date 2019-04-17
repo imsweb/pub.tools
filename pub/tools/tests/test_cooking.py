@@ -39,25 +39,25 @@ class TestCooking(unittest.TestCase):
             'pubmodel': 'Print',
             'italicize': True,
         }
-        citation = 'Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
         record['issue'] = ''
-        citation = 'Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4:345-7.'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4:345-7.</span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
         record['issue'] = '5'
         record['volume'] = ''
-        citation = 'Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;(5):345-7.'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;(5):345-7.</span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
         record['pagination'] = ''
-        citation = 'Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;(5).'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;(5).</span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
         record['journal'] = ''
-        citation = 'Wohnlich E, Carter G. My title. Jan 2007;(5).'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. Jan 2007;(5).</span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
     def test_journal_abstract_citation(self):
         record = {
@@ -72,11 +72,10 @@ class TestCooking(unittest.TestCase):
             'abstract': [{'label': 'INTRO', 'text': 'my findings'}],
             'use_abstract': True
         }
-        citation = '<b>Author: </b>Wohnlich E, Carter G<br/><b>Title: </b>My title<br/><b>Journal: ' \
-                   '</b>Sample Journal. 4(5):345-7<br/><b>Pubmed link: </b>' \
-                   '<a href="http://www.ncbi.nlm.nih.gov/pubmed/">http://www.ncbi.nlm.nih.gov/pubmed/</a>' \
-                   '<br/><b>Citation Date: </b>Jan 2007<br/><b>Abstract: </b>INTRO: my findings<br/>'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = u'<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7. <br/>' \
+                   u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>' \
+                   u'<p>INTRO: my findings</p></div></span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
     def test_book_citation(self):
         record = {
@@ -90,23 +89,23 @@ class TestCooking(unittest.TestCase):
             'pagination': '243',
             'series': 'My series',
         }
-        citation = 'Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York: ' \
-                   'Doubleday; 2007 Dec. p. 243. (My series)'
-        self.assertEqual(citation, book_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York: ' \
+                   'Doubleday; 2007 Dec. p. 243. (My series)</span>'
+        self.assertEqual(citation, book_citation(html=True, **record))
 
         record['pubdate'] = ''
-        citation = 'Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York: ' \
-                   'Doubleday. p. 243. (My series)'
-        self.assertEqual(citation, book_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York: ' \
+                   'Doubleday. p. 243. (My series)</span>'
+        self.assertEqual(citation, book_citation(html=True, **record))
 
         record['publisher'] = ''
-        citation = 'Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York. ' \
-                   'p. 243. (My series)'
-        self.assertEqual(citation, book_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. First Edition. Van Halen E, editor. New York. ' \
+                   'p. 243. (My series)</span>'
+        self.assertEqual(citation, book_citation(html=True, **record))
 
         record['authors'] = []
-        citation = 'Van Halen E, editor. My title. First Edition. New York. p. 243. (My series)'
-        self.assertEqual(citation, book_citation(**record))
+        citation = '<span>Van Halen E, editor. My title. First Edition. New York. p. 243. (My series)</span>'
+        self.assertEqual(citation, book_citation(html=True, **record))
 
     def test_chapter_citation(self):
         record = {
@@ -121,23 +120,24 @@ class TestCooking(unittest.TestCase):
             'pagination': '243',
             'series': 'My series',
         }
-        citation = 'Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. ' \
-                   'New York: Doubleday; 2007 Dec. p. 243. (My series)'
-        self.assertEqual(citation, chapter_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. ' \
+                   'New York: Doubleday; 2007 Dec. p. 243. (My series)</span>'
+        self.assertEqual(citation, chapter_citation(html=True, **record))
 
         record['pubdate'] = ''
-        citation = 'Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. ' \
-                   'New York: Doubleday. p. 243. (My series)'
-        self.assertEqual(citation, chapter_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. ' \
+                   'New York: Doubleday. p. 243. (My series)</span>'
+        self.assertEqual(citation, chapter_citation(html=True, **record))
 
         record['publisher'] = ''
-        citation = 'Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. ' \
-                   'New York. p. 243. (My series)'
-        self.assertEqual(citation, chapter_citation(**record))
+        citation = '<span>Wohnlich E, Carter G. My title. In: Van Halen E, editor. My Book. First Edition. ' \
+                   'New York. p. 243. (My series)</span>'
+        self.assertEqual(citation, chapter_citation(html=True, **record))
 
         record['authors'] = []
-        citation = 'Van Halen E, editor. My title. In: My Book. First Edition. New York. p. 243. (My series)'
-        self.assertEqual(citation, chapter_citation(**record))
+        citation = '<span>Van Halen E, editor. My title. In: My Book. First Edition. New York. p. 243. ' \
+                   '(My series)</span>'
+        self.assertEqual(citation, chapter_citation(html=True, **record))
 
     def test_conference_citation(self):
         record = {
@@ -154,30 +154,30 @@ class TestCooking(unittest.TestCase):
             'pagination': '345',
             'italicize': True,
         }
-        citation = 'Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference name' \
-                   '</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan. p. 345.'
-        self.assertEqual(citation, conference_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan. p. 345.</span>'
+        self.assertEqual(citation, conference_citation(html=True, **record))
 
         record['authors'] = []
-        citation = 'Sagan C, Thorne K, editors. My title. <i>Proceedings of Conference name</i>; 2007 Dec; New ' \
-                   'York. Boston: Doubleday; 2008 Jan. p. 345.'
-        self.assertEqual(citation, conference_citation(**record))
+        citation = '<span>Sagan C, Thorne K, editors. My title. <i>Proceedings of Conference name</i>; 2007 Dec; New ' \
+                   'York. Boston: Doubleday; 2008 Jan. p. 345.</span>'
+        self.assertEqual(citation, conference_citation(html=True, **record))
 
         record['authors'] = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
         record['pagination'] = ''
-        citation = 'Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
-                   'name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan.'
-        self.assertEqual(citation, conference_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan.</span>'
+        self.assertEqual(citation, conference_citation(html=True, **record))
 
         record['publisher'] = ''
-        citation = 'Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
-                   'name</i>; 2007 Dec; New York. Boston: 2008 Jan.'
-        self.assertEqual(citation, conference_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. Boston: 2008 Jan.</span>'
+        self.assertEqual(citation, conference_citation(html=True, **record))
 
         record['pubplace'] = ''
-        citation = 'Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
-                   'name</i>; 2007 Dec; New York. 2008 Jan.'
-        self.assertEqual(citation, conference_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. 2008 Jan.</span>'
+        self.assertEqual(citation, conference_citation(html=True, **record))
 
     def test_monograph_citation(self):
         record = {'title': 'My title',
@@ -190,32 +190,34 @@ class TestCooking(unittest.TestCase):
                   'pubdate': '2010 Feb',
                   'publisher': 'Doubleday',
                   'pubplace': 'Baltimore', }
-        citation = 'Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
-                   'Doubleday; 2010 Feb. 5. Available at http://plone.org.'
-        self.assertEqual(citation, monograph_citation(**record))
+        citation = '<span>Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
+                   'Doubleday; 2010 Feb. 5. Available at http://plone.org.</span>'
+        self.assertEqual(citation, monograph_citation(html=True, **record))
 
         record['weburl'] = ''
-        citation = 'Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
-                   'Doubleday; 2010 Feb. 5.'
-        self.assertEqual(citation, monograph_citation(**record))
+        citation = '<span>Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
+                   'Doubleday; 2010 Feb. 5.</span>'
+        self.assertEqual(citation, monograph_citation(html=True, **record))
 
         record['authors'] = []
-        citation = 'Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. 5.'
-        self.assertEqual(citation, monograph_citation(**record))
+        citation = '<span>Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. ' \
+                   '5.</span>'
+        self.assertEqual(citation, monograph_citation(html=True, **record))
 
         record['authors'] = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
         record['title'] = ''
-        citation = 'Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
-                   '2010 Feb. 5.'
-        self.assertEqual(citation, monograph_citation(**record))
+        citation = '<span>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
+                   '2010 Feb. 5.</span>'
+        self.assertEqual(citation, monograph_citation(html=True, **record))
 
         record['pubplace'] = ''
-        citation = 'Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Doubleday; 2010 Feb. 5.'
-        self.assertEqual(citation, monograph_citation(**record))
+        citation = '<span>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Doubleday; ' \
+                   '2010 Feb. 5.</span>'
+        self.assertEqual(citation, monograph_citation(html=True, **record))
 
         record['publisher'] = ''
-        citation = 'Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.'
-        self.assertEqual(citation, monograph_citation(**record))
+        citation = '<span>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.</span>'
+        self.assertEqual(citation, monograph_citation(html=True, **record))
 
     def test_report_citation(self):
         record = {'title': 'My title',
@@ -228,32 +230,34 @@ class TestCooking(unittest.TestCase):
                   'pubdate': '2010 Feb',
                   'publisher': 'Doubleday',
                   'pubplace': 'Baltimore', }
-        citation = 'Wohnlich E, Battle J. My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
-                   'Doubleday; 2010 Feb. 5. Available at http://plone.org.'
-        self.assertEqual(citation, report_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
+                   'Doubleday; 2010 Feb. 5. Available at http://plone.org.</span>'
+        self.assertEqual(citation, report_citation(html=True, **record))
 
         record['weburl'] = ''
-        citation = 'Wohnlich E, Battle J. My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
-                   'Doubleday; 2010 Feb. 5.'
-        self.assertEqual(citation, report_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
+                   'Doubleday; 2010 Feb. 5.</span>'
+        self.assertEqual(citation, report_citation(html=True, **record))
 
         record['authors'] = []
-        citation = 'Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. 5.'
-        self.assertEqual(citation, report_citation(**record))
+        citation = '<span>Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. ' \
+                   '5.</span>'
+        self.assertEqual(citation, report_citation(html=True, **record))
 
         record['authors'] = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
         record['title'] = ''
-        citation = 'Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
-                   '2010 Feb. 5.'
-        self.assertEqual(citation, report_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
+                   '2010 Feb. 5.</span>'
+        self.assertEqual(citation, report_citation(html=True, **record))
 
         record['pubplace'] = ''
-        citation = 'Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. Doubleday; 2010 Feb. 5.'
-        self.assertEqual(citation, report_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. Doubleday; 2010 ' \
+                   'Feb. 5.</span>'
+        self.assertEqual(citation, report_citation(html=True, **record))
 
         record['publisher'] = ''
-        citation = 'Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.'
-        self.assertEqual(citation, report_citation(**record))
+        citation = '<span>Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.</span>'
+        self.assertEqual(citation, report_citation(html=True, **record))
 
     def test_blankify(self):
         preb = ''
@@ -494,8 +498,8 @@ class TestCooking(unittest.TestCase):
             'pubmodel': 'Print',
             'italicize': True,
         }
-        citation = u'Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.'
-        self.assertEqual(citation, journal_citation(**record))
+        citation = u'<span>Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
+        self.assertEqual(citation, journal_citation(html=True, **record))
 
 
 def test_suite():

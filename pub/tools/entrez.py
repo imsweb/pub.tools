@@ -7,6 +7,7 @@ import six
 from Bio import Entrez
 from six import StringIO
 from six.moves.http_client import IncompleteRead
+from six.moves.urllib.error import HTTPError
 from unidecode import unidecode
 
 try:
@@ -522,7 +523,7 @@ def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
     return records
 
 
-def process_handle(handle, escape=True):
+def process_handle(handle, escape=True, attempts=0):
     """
     Use EPost to store our PMID results to the Entrez History server and get back the WebEnv and QueryKey values
 
@@ -532,9 +533,18 @@ def process_handle(handle, escape=True):
     record = Entrez.read(handle, escape)
     if record['IdList']:
         # If we have search results, send the ids to EPost and use WebEnv/QueryKey from now on
-        search_results = Entrez.read(Entrez.epost("pubmed", id=",".join(record['IdList'])))
-        record['WebEnv'] = search_results['WebEnv']
-        record['QueryKey'] = search_results['QueryKey']
+        try:
+            search_results = Entrez.read(Entrez.epost("pubmed", id=",".join(record['IdList'])))
+        except HTTPError as e:
+            attempts += 1
+            logger.info('eread failed: "{}", attempting retry {}'.format(e, attempts))
+            if attempts >= config.MAX_RETRIES:
+                raise PubToolsError('Unable to connect to Entrez')
+            time.sleep(config.RETRY_SLEEP)
+            return process_handle(handle, escape, attempts)
+        else:
+            record['WebEnv'] = search_results['WebEnv']
+            record['QueryKey'] = search_results['QueryKey']
     return record
 
 

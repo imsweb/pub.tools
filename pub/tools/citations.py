@@ -214,7 +214,7 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
     if conferencename and html:
         out.write(semi_colon(u'<i>Proceedings of {}</i>'.format(conferencename)))
     elif conferencename:
-        out.write(semi_colon(conferencename))
+        out.write(semi_colon(u'Proceedings of {}'.format(conferencename)))
     if conferencedate:
         if place or pubdate or publisher:
             out.write(semi_colon(conferencedate))

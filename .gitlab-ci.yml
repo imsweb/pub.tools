@@ -1,0 +1,20 @@
+stages:
+- test
+
+pubtools:
+  tags:
+  - openshift
+  image: docker.git.imsweb.com/systems/docker/pythonlxml
+  stage: test
+  before_script:
+  - echo $CI_PROJECT_NAMESPACE
+  - echo $CI_REGISTRY
+  - echo $CI_PROJECT_PATH
+  - virtualenv --clear -p python2.7 .
+  - source ./bin/activate
+  script:
+  - echo "Installing dependencies"
+  - python setup.py install
+  - echo "running test on version:"
+  - python setup.py --version
+  - python -m unittest discover

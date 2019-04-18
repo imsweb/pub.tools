@@ -501,6 +501,32 @@ class TestCooking(unittest.TestCase):
         citation = u'<span>Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
         self.assertEqual(citation, journal_citation(html=True, **record))
 
+    def test_html_chapter(self):
+        record = {
+            'title': 'Chapter 19. Estimating the Natural History of Breast Cancer from Bivariate Data on Age and '
+                     'Tumor Size at Diagnosis',
+            'authors': [
+                {'lname': 'Zorin', 'iname': 'AV'},
+                {'lname': 'Edler', 'iname': 'L'},
+                {'lname': 'Hanin', 'iname': 'LG'},
+                {'lname': 'Yakovlev', 'iname': 'AY'}
+            ],
+            'editors': [{'lname': 'Edler', 'iname': 'L'}, {'lname': 'Kitsos', 'iname': 'CP'}],
+            'pubdate': '2006 Mar 17',
+            'pagination': '317-27',
+            'edition': '',
+            'series': 'Wiley Series in Probability and Statistics',
+            'pubplace': 'New York',
+            'booktitle': 'Recent Advances in Quantitative Methods for Cancer and Human Health Risk Assessment',
+            'publisher': 'John Wiley & Sons, Ltd'
+        }
+        citation = u'<span>Zorin AV, Edler L, Hanin LG, Yakovlev AY. Chapter 19. Estimating the Natural History ' \
+                   u'of Breast Cancer from Bivariate Data on Age and Tumor Size at Diagnosis. In: Edler L, ' \
+                   u'Kitsos CP, editors. Recent Advances in Quantitative Methods for Cancer and Human Health Risk ' \
+                   u'Assessment. New York: John Wiley &amp; Sons, Ltd; 2006 Mar 17. p. 317-27. (Wiley Series in ' \
+                   u'Probability and Statistics)</span>'
+        self.assertEqual(citation, chapter_citation(html=True, **record))
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

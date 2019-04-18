@@ -1,4 +1,5 @@
 from six import StringIO
+from lxml import etree as et
 
 from .cooking import su
 
@@ -8,6 +9,19 @@ punc_endings = ('.', '?', '!')
 def cooked_citation(func):
     def wrapper(**kwargs):
         text = func(**kwargs)
+        try:
+            et.XML(text)
+        except et.XMLSyntaxError:
+            # try to escape ampersands, prevent double escape
+            text = text.replace("&amp;", "$$_pubtools_amp;")
+            text = text.replace("&lt;", "$$_pubtools_lt;")
+            text = text.replace("&gt;", "$$_pubtools_gt;")
+            text = text.replace("&quot;", "$$_pubtools_quot;")
+            text = text.replace("&", "&amp;")
+            text = text.replace("$$_pubtools_amp;", "&amp;")
+            text = text.replace("$$_pubtools_lt;", "&lt;")
+            text = text.replace("$$_pubtools_gt;", "&gt;")
+            text = text.replace("$$_pubtools_quot;", "&quot;")
         if kwargs.get('use_abstract'):
             return text.replace('\n', '').strip()
         else:

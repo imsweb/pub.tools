@@ -7,13 +7,16 @@ import six
 from Bio import Entrez
 from six import StringIO
 from six.moves.http_client import IncompleteRead
-from six.moves.urllib.error import HTTPError
 from unidecode import unidecode
 
 try:
     from html import unescape  # py3
 except ImportError:
     from xml.sax.saxutils import unescape  # py2
+try:
+    from urllib2 import urlopen  # py2
+except ImportError:
+    from urllib import urlopen  # py3
 
 from . import config
 from .cooking import cook_date_str, su
@@ -528,21 +531,26 @@ def process_handle(handle, escape=True, attempts=0):
     Use EPost to store our PMID results to the Entrez History server and get back the WebEnv and QueryKey values
 
     :param handle: Entrez http stream
+    :param escape: escape HTML entitites
+    :param attempts: retry attempts on gateway errors, up to MAX_RETRIES
     :return: Entrez read handle value with WebEnv and QueryKey
     """
-    record = Entrez.read(handle, escape)
-    if record['IdList']:
-        # If we have search results, send the ids to EPost and use WebEnv/QueryKey from now on
-        try:
+    try:
+        record = Entrez.read(handle, escape)
+        search_results = None
+        if record['IdList']:
+            # If we have search results, send the ids to EPost and use WebEnv/QueryKey from now on
             search_results = Entrez.read(Entrez.epost("pubmed", id=",".join(record['IdList'])))
-        except HTTPError as e:
-            attempts += 1
-            logger.info('eread failed: "{}", attempting retry {}'.format(e, attempts))
-            if attempts >= config.MAX_RETRIES:
-                raise PubToolsError('Unable to connect to Entrez')
-            time.sleep(config.RETRY_SLEEP)
-            return process_handle(handle, escape, attempts)
-        else:
+    except Exception as e:
+        attempts += 1
+        logger.info('Entrez.read failed: "{}", attempting retry {}'.format(e, attempts))
+        if attempts >= config.MAX_RETRIES:
+            raise PubToolsError('Unable to connect to Entrez')
+        time.sleep(config.RETRY_SLEEP)
+        handle = urlopen(handle.url)  # refetch, otherwise handle.read will always be empty and each attempt will fail
+        return process_handle(handle, escape, attempts)
+    else:
+        if search_results:
             record['WebEnv'] = search_results['WebEnv']
             record['QueryKey'] = search_results['QueryKey']
     return record

@@ -1,7 +1,8 @@
 stages:
 - test_p2
+- test_p3
 
-pubtools:
+testing_py2:
   tags:
   - openshift
   image: docker.git.imsweb.com/plone/buildout-configs/python2lxml-testrunner
@@ -11,6 +12,24 @@ pubtools:
   - echo $CI_REGISTRY
   - echo $CI_PROJECT_PATH
   - virtualenv --clear -p python2.7 .
+  - source ./bin/activate
+  script:
+  - echo "Installing dependencies"
+  - python setup.py install
+  - echo "running test on version:"
+  - python setup.py --version
+  - python -m unittest discover
+
+testing_py3:
+  tags:
+  - openshift
+  image: docker.git.imsweb.com/plone/buildout-configs/python3lxml-testrunner
+  stage: test_p3
+  before_script:
+  - echo $CI_PROJECT_NAMESPACE
+  - echo $CI_REGISTRY
+  - echo $CI_PROJECT_PATH
+  - virtualenv --clear -p python36 .
   - source ./bin/activate
   script:
   - echo "Installing dependencies"

@@ -16,7 +16,7 @@ except ImportError:
 try:
     from urllib2 import urlopen  # py2
 except ImportError:
-    from urllib import urlopen  # py3
+    from urllib.request import urlopen  # py3
 
 from . import config
 from .cooking import cook_date_str, su

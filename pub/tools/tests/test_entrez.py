@@ -177,7 +177,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(pub['title'], 'Use of agricultural pesticides and prostate cancer risk in the '
                                        'Agricultural Health Study cohort.')
         self.assertEqual(pub['medium'], 'Print')
-        self.assertEqual(pub.get('doi') or '', '')
+        self.assertEqual(pub.get('doi') or '', '10.1093/aje/kwg040')
         self.assertEqual(pub.get('nihmsid') or '', '')
         self.assertEqual(pub.get('pmc') or '', '')
         expected = (

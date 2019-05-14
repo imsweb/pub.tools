@@ -8,6 +8,8 @@ RUN yum -y install gcc \
  && yum -y install python-devel \
  && yum -y install python-virtualenv \
  && yum -y install git \
+ && virtualenv -p python2.7 ./venv2 \
+ && source ./bin/activate \
  && pip install --upgrade pip \
  && cd ~/
 

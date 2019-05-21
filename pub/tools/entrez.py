@@ -458,8 +458,8 @@ def generate_search_string(all=None, authors=None, title=None, journal=None, pmi
     if all:
         search_strings.append(all)
     if authors:
-        authjoin = inclusive == "OR" and " OR " or " "
-        search_strings.append(authjoin.join(['{}[au]'.format(unidecode(a)) for a in authors if a]))
+        auth_join = " OR " if inclusive == "OR" else " "
+        search_strings.append(auth_join.join(['{}[au]'.format(unidecode(a)) for a in authors if a]))
 
     if title:
         for stop in STOPWORDS:
@@ -473,7 +473,10 @@ def generate_search_string(all=None, authors=None, title=None, journal=None, pmi
     if journal:
         search_strings.append('"{}"[jour]'.format(unidecode(journal)))
     if pmid:
-        search_strings.append('{}[pmid]'.format(pmid))
+        if isinstance(pmid, list) or isinstance(pmid, tuple):
+            search_strings.append(" OR ".join(['{}[pmid]'.format(unidecode(pid)) for pid in pmid if pid]))
+        else:
+            search_strings.append('{}[pmid]'.format(pmid))
     if gr:
         search_strings.append('{}[gr]'.format(gr))
     if affl:

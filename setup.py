@@ -1,23 +1,12 @@
 from setuptools import find_packages, setup
-import os
 
-version = '2.1.5'
-
-
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
-
-
-long_description = (
-    read('README.md')
-    + '\n' +
-    read('CHANGES.md')
-    + '\n')
+version = '2.1.6'
 
 setup(name='pub.tools',
       version=version,
       description="Package of tools for formatting publication data and accessing data from Entrez tool",
-      long_description=long_description,
+      long_description=open("README.md").read() + "\n" + open("CHANGES.md").read(),
+      long_description_content_type='text/markdown',
       classifiers=[
           "Framework :: Plone :: 5.0",
           "Framework :: Plone :: 5.1",

@@ -72,9 +72,9 @@ class TestCooking(unittest.TestCase):
             'abstract': [{'label': 'INTRO', 'text': 'my findings'}],
             'use_abstract': True
         }
-        citation = u'<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7. <br/>' \
-                   u'<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>' \
-                   u'<p>INTRO: my findings</p></div></span>'
+        citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7. <br/>' \
+                   '<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>' \
+                   '<p>INTRO: my findings</p></div></span>'
         self.assertEqual(citation, journal_citation(html=True, **record))
 
     def test_book_citation(self):
@@ -489,7 +489,7 @@ class TestCooking(unittest.TestCase):
     def test_non_latin1(self):
         record = {
             'title': 'My title',
-            'authors': [{'lname': u'Wohnliché', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
+            'authors': [{'lname': 'Wohnliché', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
             'journal': 'Sample Journal',
             'pubdate': 'Jan 2007',
             'volume': '4',
@@ -498,7 +498,7 @@ class TestCooking(unittest.TestCase):
             'pubmodel': 'Print',
             'italicize': True,
         }
-        citation = u'<span>Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
+        citation = '<span>Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
         self.assertEqual(citation, journal_citation(html=True, **record))
 
     def test_html_chapter(self):
@@ -520,11 +520,11 @@ class TestCooking(unittest.TestCase):
             'booktitle': 'Recent Advances in Quantitative Methods for Cancer and Human Health Risk Assessment',
             'publisher': 'John Wiley & Sons, Ltd'
         }
-        citation = u'<span>Zorin AV, Edler L, Hanin LG, Yakovlev AY. Chapter 19. Estimating the Natural History ' \
-                   u'of Breast Cancer from Bivariate Data on Age and Tumor Size at Diagnosis. In: Edler L, ' \
-                   u'Kitsos CP, editors. Recent Advances in Quantitative Methods for Cancer and Human Health Risk ' \
-                   u'Assessment. New York: John Wiley &amp; Sons, Ltd; 2006 Mar 17. p. 317-27. (Wiley Series in ' \
-                   u'Probability and Statistics)</span>'
+        citation = '<span>Zorin AV, Edler L, Hanin LG, Yakovlev AY. Chapter 19. Estimating the Natural History ' \
+                   'of Breast Cancer from Bivariate Data on Age and Tumor Size at Diagnosis. In: Edler L, ' \
+                   'Kitsos CP, editors. Recent Advances in Quantitative Methods for Cancer and Human Health Risk ' \
+                   'Assessment. New York: John Wiley &amp; Sons, Ltd; 2006 Mar 17. p. 317-27. (Wiley Series in ' \
+                   'Probability and Statistics)</span>'
         self.assertEqual(citation, chapter_citation(html=True, **record))
 
 

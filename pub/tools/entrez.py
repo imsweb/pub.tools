@@ -1,25 +1,21 @@
 import logging
 import re
 import time
+from http.client import IncompleteRead
+from io import StringIO
 from xml.dom import minidom
 
-import six
 from Bio import Entrez
-from six import StringIO
-from six.moves.http_client import IncompleteRead
 from unidecode import unidecode
 
 try:
     from html import unescape  # py3
 except ImportError:
     from xml.sax.saxutils import unescape  # py2
-try:
-    from urllib2 import urlopen  # py2
-except ImportError:
-    from urllib.request import urlopen  # py3
+from urllib.request import urlopen  # py3
 
 from . import config
-from .cooking import cook_date_str, su
+from .cooking import cook_date_str
 
 Entrez.email = config.ENTREZ_EMAIL
 Entrez.tool = config.ENTREZ_TOOL
@@ -56,7 +52,7 @@ def _unescape(val):
         return [_unescape(v) for v in val]
     elif isinstance(val, dict):
         return {k: _unescape(v) for k, v in val.items()}
-    elif isinstance(val, six.string_types):
+    elif isinstance(val, str):
         return unescape(val)
     else:
         return val
@@ -64,7 +60,8 @@ def _unescape(val):
 
 def _parse_author_name(author, investigator=False):
     fname = author.get('ForeName', '')
-    # strip excess spaces like in https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=22606070&retmode=xml
+    # strip excess spaces like in
+    # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=22606070&retmode=xml
     fname = ' '.join([part for part in fname.split(' ') if part])
     return {
         'lname': author.get('LastName', ''),
@@ -123,20 +120,20 @@ def _parse_entrez_book_record(record):
 
     articleids = document.pop('ArticleIdList')
     for aid in articleids:
-        data[aid.attributes['IdType']] = su(aid)
+        data[aid.attributes['IdType']] = aid
 
     data['abstract'] = document.get('Abstract', {}).get('AbstractText', '')
     if isinstance(data['abstract'], list):
         data['abstract'] = data['abstract'][0]  # why does it do this?
-    articletitle = su(document.get('ArticleTitle', ''))
+    articletitle = document.get('ArticleTitle', '')
 
     locationlabel = document.get('LocationLabel', '')
     if locationlabel and locationlabel[0].attributes['Type'] == 'chapter':
         data['type'] = 'chapter'
         data['title'] = articletitle
-        data['booktitle'] = su(book.get('BookTitle', ''))
+        data['booktitle'] = book.get('BookTitle', '')
     else:
-        data['title'] = su(book.get('BookTitle', ''))
+        data['title'] = book.get('BookTitle', '')
 
     if book.get('Publisher', ''):
         data['publisher'] = book['Publisher'].get('PublisherName', '')
@@ -161,7 +158,7 @@ def _parse_entrez_book_record(record):
 
     # itemlist = document.get('ItemList','') - no idea what this is
 
-    data['pmid'] = su(document['PMID'])
+    data['pmid'] = document['PMID']
 
     sections = []
     for section in document.get('Sections', []):
@@ -218,10 +215,10 @@ def _parse_entrez_journal_record(record):
         if investigator.attributes['ValidYN'] == 'Y':
             authors.append(_parse_author_name(investigator, investigator=True))
     data['authors'] = authors
-    data['pmid'] = su(medline['PMID'])
+    data['pmid'] = medline['PMID']
 
     for aid in articleids:
-        data[aid.attributes['IdType']] = su(aid)
+        data[aid.attributes['IdType']] = aid
 
     grants = []
     for grant in article.get('GrantList', []):
@@ -231,7 +228,7 @@ def _parse_entrez_journal_record(record):
     data['grants'] = grants
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
-        mesh.append(su(meshHeader['DescriptorName']))
+        mesh.append(meshHeader['DescriptorName'])
         # Might be nice to return name and ID at some point.
         # d = meshHeader['DescriptorName']
         # mesh.append({
@@ -239,7 +236,7 @@ def _parse_entrez_journal_record(record):
         #    'id': d.attributes['UI'],
         # })
     data['mesh'] = mesh
-    data['pubtypelist'] = [su(ptl) for ptl in article.get('PublicationTypeList', [])]
+    data['pubtypelist'] = [ptl for ptl in article.get('PublicationTypeList', [])]
     for adate in articledate:
         if adate.attributes['DateType'] == 'Electronic':
             data['edate'] = cook_date_str(' '.join([i for i in (
@@ -253,7 +250,7 @@ def _parse_entrez_journal_record(record):
     if article.get('Abstract'):
         _abstracts = []
         for abst in article['Abstract']['AbstractText']:
-            text = six.text_type(abst)
+            text = str(abst)
             if hasattr(abst, 'attributes'):
                 nlmcat = abst.attributes.get('NlmCategory')
                 label = abst.attributes.get('Label')
@@ -501,7 +498,7 @@ def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
     :param ids: subset of ids if you don't want the full results of the search
     :return: parsed publications from the search
     """
-    if isinstance(ids, six.string_types):
+    if isinstance(ids, str):
         ids = [ids]
     records = []
     query = {

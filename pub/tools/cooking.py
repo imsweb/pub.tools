@@ -182,7 +182,7 @@ def cook_date_months(start, end):
     """ returns a list of all months within the date range. Useful for list based searches
     """
     months = []
-    years = range(start.year, end.year + 1)
+    years = list(range(start.year, end.year + 1))
     for year in years:
         month_start = 1
         month_end = 13
@@ -193,33 +193,6 @@ def cook_date_months(start, end):
         for month in range(month_start, month_end):
             months.append(monthlist[month - 1] + ' ' + str(year))
     return months
-
-
-def safe_unicode(value, encoding='utf-8'):
-    """ Converts a value to unicode, even it is already a unicode string.
-
-        Only needed for python2
-    """
-    try:
-        if isinstance(value, unicode):
-            return value
-        elif isinstance(value, basestring):
-            try:
-                value = unicode(value, encoding)
-            except UnicodeDecodeError:
-                value = value.decode('utf-8', 'replace')
-        return value
-    except NameError:
-        return value
-
-
-su = safe_unicode
-
-
-def sanitize(datastring):
-    import warnings
-    warnings.warn("pub.tools.sanitize is deprecated in favor of pub.tools.su", DeprecationWarning)
-    return su(datastring)
 
 
 def blankify(datastring=''):
@@ -240,19 +213,3 @@ def alphanum(value):
     """
     pattern = re.compile('[\W_]+', re.UNICODE)
     return pattern.sub('', value)
-
-
-# legacy
-def cookDate(year='', month='', day='', medlinedate='', end=False):
-    warnings.warn("This function is deprecated in favor of 'cook_date'", category=DeprecationWarning)
-    return cook_date(year=year, month=month, day=day, medlinedate=medlinedate, end=end)
-
-
-def cookDateMonths(start, end):
-    warnings.warn("This function is deprecated in favor of 'cook_date_months'", category=DeprecationWarning)
-    return cook_date_months(start, end)
-
-
-def cookDateRIS(value):
-    warnings.warn("This function is deprecated in favor of 'cook_date_ris'", category=DeprecationWarning)
-    return cook_date_ris(value)

@@ -166,11 +166,11 @@ class TestCase(unittest.TestCase):
             if not i.get('cname'):
                 i['investigator'] = True
         for received, expected in zip(record['authors'], investigators):
-            self.assertEqual(received.get('lname', u''), expected.get('lname', u''))
-            self.assertEqual(received.get('iname', u''), expected.get('iname', u''))
-            self.assertEqual(received.get('fname', u''), expected.get('fname', u''))
-            self.assertEqual(received.get('suffix', u''), expected.get('suffix', u''))
-            self.assertEqual(received.get('cname', u''), expected.get('cname', u''))
+            self.assertEqual(received.get('lname', ''), expected.get('lname', ''))
+            self.assertEqual(received.get('iname', ''), expected.get('iname', ''))
+            self.assertEqual(received.get('fname', ''), expected.get('fname', ''))
+            self.assertEqual(received.get('suffix', ''), expected.get('suffix', ''))
+            self.assertEqual(received.get('cname', ''), expected.get('cname', ''))
             self.assertEqual(bool(received.get('investigator')), bool(expected.get('investigator')))
 
     def check_pub_data(self, pub):
@@ -182,98 +182,98 @@ class TestCase(unittest.TestCase):
         self.assertEqual(pub.get('pmc') or '', '')
         expected = (
             {
-                'lname': u'Alavanja',
-                'cname': u'',
-                'iname': u'MC',
-                'fname': u'Michael C R',
-                'suffix': u'',
-                'investigator': u''
+                'lname': 'Alavanja',
+                'cname': '',
+                'iname': 'MC',
+                'fname': 'Michael C R',
+                'suffix': '',
+                'investigator': ''
             },
             {
-                'lname': u'Samanic',
-                'cname': u'',
-                'iname': u'C',
-                'fname': u'Claudine',
-                'suffix': u'',
-                'investigator': u''
+                'lname': 'Samanic',
+                'cname': '',
+                'iname': 'C',
+                'fname': 'Claudine',
+                'suffix': '',
+                'investigator': ''
             },
             {
-                'lname': u'Dosemeci',
-                'cname': u'',
-                'iname': u'M',
-                'fname': u'Mustafa',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Dosemeci',
+                'cname': '',
+                'iname': 'M',
+                'fname': 'Mustafa',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Lubin',
-                'cname': u'',
-                'iname': u'J',
-                'fname': u'Jay',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Lubin',
+                'cname': '',
+                'iname': 'J',
+                'fname': 'Jay',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Tarone',
-                'cname': u'',
-                'iname': u'R',
-                'fname': u'Robert',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Tarone',
+                'cname': '',
+                'iname': 'R',
+                'fname': 'Robert',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Lynch',
-                'cname': u'',
-                'iname': u'CF',
-                'fname': u'Charles F',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Lynch',
+                'cname': '',
+                'iname': 'CF',
+                'fname': 'Charles F',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Knott',
-                'cname': u'',
-                'iname': u'C',
-                'fname': u'Charles',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Knott',
+                'cname': '',
+                'iname': 'C',
+                'fname': 'Charles',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Thomas',
-                'cname': u'',
-                'iname': u'K',
-                'fname': u'Kent',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Thomas',
+                'cname': '',
+                'iname': 'K',
+                'fname': 'Kent',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Hoppin',
-                'cname': u'',
-                'iname': u'JA',
-                'fname': u'Jane A',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Hoppin',
+                'cname': '',
+                'iname': 'JA',
+                'fname': 'Jane A',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Barker',
-                'cname': u'',
-                'iname': u'J',
-                'fname': u'Joseph',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Barker',
+                'cname': '',
+                'iname': 'J',
+                'fname': 'Joseph',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Coble',
-                'cname': u'',
-                'iname': u'J',
-                'fname': u'Joseph',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Coble',
+                'cname': '',
+                'iname': 'J',
+                'fname': 'Joseph',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Sandler',
-                'cname': u'',
-                'iname': u'DP',
-                'fname': u'Dale P',
-                'suffix': u'',
-                'investigator': u''},
+                'lname': 'Sandler',
+                'cname': '',
+                'iname': 'DP',
+                'fname': 'Dale P',
+                'suffix': '',
+                'investigator': ''},
             {
-                'lname': u'Blair',
-                'cname': u'',
-                'iname': u'A',
-                'fname': u'Aaron',
-                'suffix': u'',
-                'investigator': u''
+                'lname': 'Blair',
+                'cname': '',
+                'iname': 'A',
+                'fname': 'Aaron',
+                'suffix': '',
+                'investigator': ''
             }
         )
         for r, e in zip(pub['authors'], expected):
@@ -326,9 +326,9 @@ class TestCase(unittest.TestCase):
                     'observed.'
         }]
         for r, e in zip(pub['abstract'], expected):
-            self.assertEqual(r.get('text', ''), e.get('text', ''))
-            self.assertEqual(r.get('label', ''), e.get('label', ''))
-            self.assertEqual(r.get('nlmcategory', ''), e.get('nlmcategory', ''))
+            self.assertEqual(r.get('text', '') or '', e.get('text', ''))
+            self.assertEqual(r.get('label', '') or '', e.get('label', ''))
+            self.assertEqual(r.get('nlmcategory', '') or '', e.get('nlmcategory', ''))
         self.assertEqual(pub['grants'] or [], [])
         self.assertEqual(pub['pubstatus'] or '', 'ppublish')
 
@@ -340,14 +340,14 @@ class TestCase(unittest.TestCase):
     def test_grants(self):
         """ Tests stripping out some white text """
         record = entrez.get_publication('18640298')
-        self.assertEqual(record['grants'], [{'grantid': u'F32 CA130434-01', 'acronym': 'CA', 'agency': 'NCI NIH HHS'},
-                                            {'grantid': u'T32 CA09168-30', 'acronym': 'CA', 'agency': 'NCI NIH HHS'}])
+        self.assertEqual(record['grants'], [{'grantid': 'F32 CA130434-01', 'acronym': 'CA', 'agency': 'NCI NIH HHS'},
+                                            {'grantid': 'T32 CA09168-30', 'acronym': 'CA', 'agency': 'NCI NIH HHS'}])
 
     def test_generate_search_string(self):
         """ biopython will not take non-ascii chars """
-        search = entrez.generate_search_string(authors=u'\xe9', title=u'\xe9', journal=u'\xe9', pmid=u'', mesh=u'',
-                                               gr=u'', ir=u'', affl=u'', doi=u'')
-        self.assertEqual(search, u'e[au]+e[ti]+"e"[jour]')
+        search = entrez.generate_search_string(authors='\xe9', title='\xe9', journal='\xe9', pmid='', mesh='',
+                                               gr='', ir='', affl='', doi='')
+        self.assertEqual(search, 'e[au]+e[ti]+"e"[jour]')
 
     def test_pmc_search(self):
         """ Get the PMID from PMC"""
@@ -439,11 +439,11 @@ class TestCase(unittest.TestCase):
         editors = [{'lname': 'Benzie', 'iname': 'IFF', 'fname': 'Iris F. F.', 'investigator': False},
                    {'lname': 'Wachtel-Galor', 'iname': 'S', 'fname': 'Sissi', 'investigator': False}]
         for e, r in zip(authors, result['authors']):
-            for k in set(e.keys()).union(r.keys()):
+            for k in set(e.keys()).union(list(r.keys())):
                 self.assertEqual(e.get(k) or '', r.get(k) or '',
                                  msg='{} :: Expected: {}; Received: {}'.format(k, e.get(k) or '', r.get(k) or ''))
         for e, r in zip(editors, result['editors']):
-            for k in set(e.keys()).union(r.keys()):
+            for k in set(e.keys()).union(list(r.keys())):
                 self.assertEqual(e.get(k) or '', r.get(k) or '',
                                  msg='{} :: Expected: {}; Received: {}'.format(k, e.get(k) or '', r.get(k) or ''))
 

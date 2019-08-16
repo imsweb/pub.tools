@@ -9,14 +9,14 @@ from .cooking import alphanum, cook_date_str, su
 
 
 class IsbnData(object):
-    book_title = u''
-    language = u''
-    publisher = u''
+    book_title = ''
+    language = ''
+    publisher = ''
     authors = []
     editors = []
-    abstract = u''
-    pubdate = u''
-    google_books_link = u''
+    abstract = ''
+    pubdate = ''
+    google_books_link = ''
 
     def get(self, key):  # dict like
         if hasattr(self, key):
@@ -117,7 +117,7 @@ class WorldCatOpener(IsbnOpener):
         source = self.get_url(isbn)
 
         if source:
-            tree = et.parse(BytesIO(str(source)))
+            tree = et.parse(BytesIO(source.encode('utf-8')))
             ns = 'http://classify.oclc.org'
 
             authors = []

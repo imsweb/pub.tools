@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 from lxml import etree as et
 
-from .cooking import alphanum, cook_date_str, su
+from .cooking import alphanum, cook_date_str
 
 
 class IsbnData(object):
@@ -63,7 +63,7 @@ class IsbnDbOpener(IsbnOpener):
         book = self.get_url(endpoint='book', term=isbn)
         if book and book.get('data'):
             book = book['data'][0]
-            data['title'] = su(book.get('title_long') or book.get('title'))
+            data['title'] = book.get('title_long') or book.get('title')
             data['language'] = book.get('language')
             data['authors'] = [b.get('name_latin') or b['name'] for b in book.get('author_data')]
             data['publisher'] = book.get('publisher_name')

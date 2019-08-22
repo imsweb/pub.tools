@@ -15,4 +15,4 @@ HTML with italic tagged journals or conference names.
 ## Journals
 
 The journals module uses the PMC source file https://www.ncbi.nlm.nih.gov/pmc/journals/?format=csv
-to construct a library of 
+to construct a library of journals keyed by abbreviation or full title.

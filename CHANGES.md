@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.1] - 22 Aug 2019
+- journals module reconfigured to not write to disk on startup
+
+## [3.0] - 12 Aug 2019
+- Exlusively supports python 3
+
 ## [2.1] - unreleased
 - Redesign of citation with abstract behavior.
 - "italicize" option has been replaced with an "html" option and does not do any safe escape

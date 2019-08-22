@@ -11,3 +11,8 @@ Tools available:
 Citations are based on a standard defined by PubMed https://www.ncbi.nlm.nih.gov/books/NBK7256/.
 For some publication types, passing the italicize parameter with a True value will return
 HTML with italic tagged journals or conference names.
+
+## Journals
+
+The journals module uses the PMC source file https://www.ncbi.nlm.nih.gov/pmc/journals/?format=csv
+to construct a library of 

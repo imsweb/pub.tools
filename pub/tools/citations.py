@@ -68,11 +68,9 @@ def semi_colon_no_space(text):
 
 def cookauthor(author):
     if isinstance(author, dict):
-        suffix = author.get('suffix') and ' ' + author['suffix'] or ''
         initial = author.get('iname') or author.get('fname') and author['fname'][0].upper() or ''
-        if initial:
-            initial = ' ' + initial
-        return (author.get('cname', '') or author.get('lname') or '') + initial + suffix
+        lname = author.get('cname') or author.get('lname')
+        return ' '.join([p for p in (lname, initial, author.get('suffix', '')) if p])
     return author
 
 

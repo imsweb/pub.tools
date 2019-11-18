@@ -326,9 +326,9 @@ class TestCase(unittest.TestCase):
                     'observed.'
         }]
         for r, e in zip(pub['abstract'], expected):
-            self.assertEqual(r.get('text', '') or '', e.get('text', ''))
-            self.assertEqual(r.get('label', '') or '', e.get('label', ''))
-            self.assertEqual(r.get('nlmcategory', '') or '', e.get('nlmcategory', ''))
+            self.assertEqual(r.get('text') or '', e.get('text') or '')
+            self.assertEqual(r.get('label') or '', e.get('label') or '')
+            self.assertEqual(r.get('nlmcategory') or '', e.get('nlmcategory') or '')
         self.assertEqual(pub['grants'] or [], [])
         self.assertEqual(pub['pubstatus'] or '', 'ppublish')
 

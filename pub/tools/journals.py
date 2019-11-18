@@ -24,6 +24,8 @@ def fetch_journals():
                 continue
             if row:
                 title, abbr, pissn, eissn, publisher, locator, latest, earliest, freeaccess, openaccess, participation, deposit, url = row
+                latest=latest.split(';')[-1]
+                earliest=earliest.split(';')[-1]
                 _atoj[abbr.lower()] = title
                 _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (earliest, latest)

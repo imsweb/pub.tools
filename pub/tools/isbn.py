@@ -127,7 +127,7 @@ class WorldCatOpener(IsbnOpener):
             if _authors and _authors is not None:
                 for author in _authors.findall('{{{}}}author'.format(ns)):
                     author = author.text
-                    brkt_pattern = '\[(.*?)\]'
+                    brkt_pattern = r'\[(.*?)\]'
                     brkt = re.search(brkt_pattern, author)
                     if brkt:
                         brkt_value = brkt.group(1)

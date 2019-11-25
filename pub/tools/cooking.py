@@ -211,5 +211,5 @@ def depunctuate(datastring):
 def alphanum(value):
     """ Convert to only the alphanumeric characters
     """
-    pattern = re.compile('[\W_]+', re.UNICODE)
+    pattern = re.compile(r'[\W_]+', re.UNICODE)
     return pattern.sub('', value)

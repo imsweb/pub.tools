@@ -33,7 +33,7 @@ STOPWORDS = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always
              'that', 'the', 'their', 'theirs', 'them', 'then', 'there', 'therefore', 'these', 'they', 'this', 'those',
              'through', 'thus', 'to', 'upon', 'use', 'used', 'using', 'various', 'very', 'was', 'we', 'were', 'what',
              'when', 'which', 'while', 'with', 'within', 'without', 'would']
-PUNC_STOPWORDS = ['\&', '\(', '\)', '\-', '\;', '\:', '\,', '\.', '\?', '\!', ' ']
+PUNC_STOPWORDS = [r'\&', r'\(', r'\)', r'\-', r'\;', r'\:', r'\,', r'\.', r'\?', r'\!', r' ']
 
 
 class PubToolsError(Exception):

@@ -24,8 +24,8 @@ def fetch_journals():
                 continue
             if row:
                 title, abbr, pissn, eissn, publisher, locator, latest, earliest, freeaccess, openaccess, participation, deposit, url = row
-                latest=latest.split(';')[-1]
-                earliest=earliest.split(';')[-1]
+                latest = latest.split(';')[-1]
+                earliest = earliest.split(';')[-1]
                 _atoj[abbr.lower()] = title
                 _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (earliest, latest)
@@ -33,6 +33,14 @@ def fetch_journals():
         data = {'atoj': _atoj, 'jtoa': _jtoa, 'dates': dates, 'full': full}
 
         return data
+
+
+try:
+    _journals = fetch_journals()
+except requests.exceptions.HTTPError:
+    _journals = []
+except requests.exceptions.ProxyError:
+    _journals = []
 
 
 def get_source(cache=False):
@@ -50,34 +58,32 @@ def get_source(cache=False):
             pass
         else:
             return journals
-    with open(os.path.join(base_path, 'journals.json')) as f:
-        journals = json.load(f)
-    return journals
+    return _journals
 
 
-def get_abbreviations(cache=False):
+def get_abbreviations(cache=True):
     return get_source(cache)['atoj']
 
 
-def get_journals(cache=False):
+def get_journals(cache=True):
     return get_source(cache)['jtoa']
 
 
-def get_dates(cache=False):
+def get_dates(cache=True):
     return get_source(cache)['dates']
 
 
-def atoj(abbrv, cache=False):
+def atoj(abbrv, cache=True):
     data = get_abbreviations(cache)
     return data.get(abbrv.lower())
 
 
-def jtoa(journal, cache=False):
+def jtoa(journal, cache=True):
     data = get_journals(cache)
     return data.get(journal.lower())
 
 
-def atodates(abbrv, cache=False):
+def atodates(abbrv, cache=True):
     data = get_dates(cache)
     return data.get(abbrv.lower())
 

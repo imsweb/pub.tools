@@ -6,6 +6,7 @@ from io import StringIO
 from xml.dom import minidom
 
 from Bio import Entrez
+from Bio.Entrez import Parser
 from unidecode import unidecode
 
 try:
@@ -85,9 +86,19 @@ def _parse_entrez_record(record, escape=True):
     else:
         return
 
-    if escape:
-        # unescape any fields that are not intended to be html
-        for key in rec:
+    def parse_element(val):
+        # don't keep instances of StringElement. These are not pickle-able objects and will not work in ZODB.
+        # convert to str
+        if isinstance(val, Parser.StringElement):
+            return str(val)
+        elif isinstance(val, list):
+            return [parse_element(v) for v in val]
+        return val
+
+    for key in rec:
+        rec[key] = parse_element(rec[key])
+        if escape:
+            # unescape any fields that are not intended to be html
             if key not in ['title', 'abstract']:
                 rec[key] = _unescape(rec[key])
     return rec
@@ -228,7 +239,7 @@ def _parse_entrez_journal_record(record):
     data['grants'] = grants
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
-        mesh.append(meshHeader['DescriptorName'])
+        mesh.append(str(meshHeader['DescriptorName']))
         # Might be nice to return name and ID at some point.
         # d = meshHeader['DescriptorName']
         # mesh.append({

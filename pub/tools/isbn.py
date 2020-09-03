@@ -48,7 +48,7 @@ class IsbnDbOpener(IsbnOpener):
     name = 'ISBNdb'
 
     def url(self, term):
-        return self.root_url.format(api_key=self.api_key,endpoint='book',term=term)
+        return self.root_url.format(api_key=self.api_key, endpoint='book', term=term)
 
     def get_url(self, endpoint, term):
         url = self.root_url.format(endpoint=endpoint, term=term)

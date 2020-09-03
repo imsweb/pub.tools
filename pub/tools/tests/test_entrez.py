@@ -387,7 +387,8 @@ class TestCase(unittest.TestCase):
         record = entrez.get_publication(pmid='14729922')
         record['journal'] = record['medlineta']
         self.assertEqual(journal_citation(html=True, **record),
-                         '<span>Edgar RC. Local homology recognition and distance measures in linear time using compressed '
+                         '<span>Edgar RC. Local homology recognition and distance measures in linear time using '
+                         'compressed '
                          'amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.</span>')
 
     def test_electronic_ecollection_pubmodel(self):
@@ -395,7 +396,8 @@ class TestCase(unittest.TestCase):
         record = entrez.get_publication(pmid='23372575')
         record['journal'] = record['medlineta']
         self.assertEqual(journal_citation(html=True, **record),
-                         '<span>Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 Jan 25;3:330. doi: '
+                         '<span>Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 '
+                         'Jan 25;3:330. doi: '
                          '10.3389/fgene.2012.00330. eCollection 2012.</span>')
 
     def test_book_parse(self):

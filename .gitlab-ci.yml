@@ -4,7 +4,7 @@ stages:
 testing_py3:
   tags:
   - openshift
-  image: docker.git.imsweb.com/plone/buildout-configs/python3lxml-testrunner
+  image: cr.git.imsweb.com/plone/buildout-configs/python3lxml-testrunner
   stage: test_p3
   before_script:
   - echo $CI_PROJECT_NAMESPACE

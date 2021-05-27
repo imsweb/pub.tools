@@ -10,7 +10,7 @@ testing_py3:
   - echo $CI_PROJECT_NAMESPACE
   - echo $CI_REGISTRY
   - echo $CI_PROJECT_PATH
-  - virtualenv --clear -p python36 .
+  - virtualenv --clear -p python38 .
   - source ./bin/activate
   script:
   - echo "Installing dependencies"

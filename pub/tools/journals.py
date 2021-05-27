@@ -42,7 +42,8 @@ except requests.exceptions.HTTPError:
     _journals = []
 except requests.exceptions.ProxyError:
     _journals = []
-
+except requests.exceptions.ConnectionError:
+    _journals = []
 
 def get_source(cache=False):
     """ return source dictionary of journals and abbreviations

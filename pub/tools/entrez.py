@@ -334,7 +334,10 @@ def get_pmid_by_pmc(pmcid):
         pmcid = pmcid[3:]
     handle = Entrez.efetch(db="pmc", id=pmcid)
     if handle:
-        data = minidom.parse(StringIO(handle.read()))
+        data = handle.read()
+        if isinstance(data, bytes):
+            data = data.decode('utf-8')
+        data = minidom.parse(StringIO(data))
         for node in data.getElementsByTagName('article-id'):
             if node.getAttribute('pub-id-type') == 'pmid':
                 for child in node.childNodes:

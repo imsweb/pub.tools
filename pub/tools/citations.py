@@ -66,11 +66,14 @@ def semi_colon_no_space(text):
     return punctuate(text, ';', '')
 
 
-def cookauthor(author):
+def cookauthor(author, suffix=True):
     if isinstance(author, dict):
         initial = author.get('iname') or author.get('fname') and author['fname'][0].upper() or ''
         lname = author.get('cname') or author.get('lname')
-        return ' '.join([p for p in (lname, initial, author.get('suffix', '')) if p])
+        parts = [lname, initial]
+        if suffix and author.get('suffix'):
+            parts.append(author['suffix'])
+        return ' '.join([p for p in parts if p])
     return author
 
 

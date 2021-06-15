@@ -73,7 +73,7 @@ def cookauthor(author, suffix=True):
         parts = [lname, initial]
         if suffix and author.get('suffix'):
             parts.append(author['suffix'])
-        return ' '.join([p for p in parts if p])
+        return ' '.join([p.rstrip() for p in parts if p])
     return author
 
 

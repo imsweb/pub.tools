@@ -1,6 +1,7 @@
 from setuptools import find_packages, setup
 
-version = '3.0.7'
+with open('VERSION.txt') as version_file:
+    version = version_file.read().strip()
 
 setup(name='pub.tools',
       version=version,

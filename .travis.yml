@@ -1,0 +1,33 @@
+dist: bionic
+language: python
+sudo: false
+cache:
+  pip: true
+  directories:
+  - eggs
+python:
+  - "3.8"
+matrix:
+  include:
+    - python: "3.8"
+  fast_finish: true
+before_install:
+  - sudo apt-get install -y firefox-geckodriver
+  - virtualenv -p `which python` .
+  - pip install -r requirements.txt
+
+before_script:
+- 'export DISPLAY=:99.0'
+- Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+- sleep 3
+- firefox -v
+
+script:
+  - python -m unittest discover
+
+after_success:
+  - createcoverage --output-dir=parts/test/coverage
+  - pip install coverage
+  - python -m coverage.pickle2json
+  - pip install -q coveralls
+  - coveralls

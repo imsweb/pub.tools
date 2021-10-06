@@ -1,4 +1,8 @@
 # Introduction
+To use this tool you will need to set your Entrez API key in the following environment variables:
+* ENTREZ_EMAIL
+* ENTREZ_API_KEY
+
 Tools available:
 
 * entrez - streamlines BioPython

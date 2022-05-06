@@ -7,6 +7,11 @@ base_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def fetch_journals():
+    """
+    Gets all journal info from NCBI. This will be cached
+
+    :return: dict
+    """
     url = 'https://www.ncbi.nlm.nih.gov/pmc/journals/?format=csv'
     response = requests.get(url)
     if response.status_code == 200:
@@ -46,10 +51,10 @@ except requests.exceptions.ConnectionError:
     _journals = []
 
 def get_source(cache=False):
-    """ return source dictionary of journals and abbreviations
+    """ get source dictionary of journals and abbreviations
 
     :param cache:
-    :return:
+    :return: cached or uncached journals
     """
     if not cache:
         try:
@@ -64,28 +69,61 @@ def get_source(cache=False):
 
 
 def get_abbreviations(cache=True):
+    """ get the mapping for abbreviation -> journal title
+
+    :param cache:
+    :return: dict
+    """
     return get_source(cache)['atoj']
 
 
 def get_journals(cache=True):
+    """ get the mapping for journal -> abbreviation
+
+    :param cache:
+    :return: dict
+    """
     return get_source(cache)['jtoa']
 
 
 def get_dates(cache=True):
+    """ get date range per journal abbreviation
+
+    :param cache:
+    :return: dict
+    """
     return get_source(cache)['dates']
 
 
 def atoj(abbrv, cache=True):
+    """ get journal title from abbreviation
+
+    :param abbrv:
+    :param cache:
+    :return: str
+    """
     data = get_abbreviations(cache)
     return data.get(abbrv.lower())
 
 
 def jtoa(journal, cache=True):
+    """ get abbreviation from journal title
+
+    :param journal:
+    :param cache:
+    :return: str
+    """
     data = get_journals(cache)
     return data.get(journal.lower())
 
 
 def atodates(abbrv, cache=True):
+    """ get date range from journal abbreviation
+
+    :param abbrv:
+    :param cache:
+    :return:
+    """
     data = get_dates(cache)
     return data.get(abbrv.lower())
 

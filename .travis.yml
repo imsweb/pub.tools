@@ -24,6 +24,12 @@ before_script:
 
 script:
   - python -m unittest discover
+  - pip install sphinx
+  - pip install sphinx-tabs
+  - pip install sphinx-rtd-theme
+  - pip install sphinx-argparse
+  - sphinx-apidoc -o docs pub
+  - sphinx-build -b html -d _build/doctrees -aWT docs public/
 
 after_success:
   - createcoverage --output-dir=parts/test/coverage

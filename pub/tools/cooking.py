@@ -44,13 +44,20 @@ punclist = ['.', ',', ':', ';', '\'', '(', ')', '{', '}', '[', ']', '=', '+', '$
 
 
 def cook_date(year='', month='', day='', medlinedate='', end=False):
-    """ returns a datetime object
-        medlinedate:
-           - string containing the full date
-           - used by PubMed (medline) to represent atypical dates, like Spring 2008
-           - takes precedence over year/month/day values
-        end:
-          - if the result represents a date range we return the start unless this variable is true
+    """
+    medlinedate
+     - string containing the full date
+     - used by PubMed (medline) to represent atypical dates, like Spring 2008
+     - takes precedence over year/month/day values
+    end
+     - if the result represents a date range we return the start unless this variable is true
+
+    :param year:
+    :param month:
+    :param day:
+    :param medlinedate:
+    :param end:
+    :return: returns a datetime object
     """
 
     if medlinedate:

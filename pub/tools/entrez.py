@@ -355,7 +355,7 @@ def get_publications(pmids, escape=True):
     We let Biopython do most of the heavy lifting, including building the request POST. Publications are
     fetched in chunks of config.MAX_PUBS as there does seem to be a limit imposed by NCBI. There is also
     a 3-request per second limit imposed by NCBI until we get an API key, but that should also be handled by
-    Biopython. Finally, if the request fails for any reason we can retry config.MAX_RETRIES times
+    Biopython. Retries are done automatically by Biopython.
 
     :param pmids: a list of PMIDs
     :param escape: used by Entrez.parse and .read. If true, will return as html
@@ -366,7 +366,6 @@ def get_publications(pmids, escape=True):
     if not isinstance(pmids, list):
         pmids = list(pmids)
     start = 0
-    attempts = 0
     while start < len(pmids):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
         try:
@@ -379,13 +378,9 @@ def get_publications(pmids, escape=True):
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield _parse_entrez_record(record, escape)
             start += config.MAX_PUBS
-            attempts = 0
         except Exception as e:
-            attempts += 1
-            logger.info('efetch failed: "{}", attempting retry {}'.format(e, attempts))
-            if attempts >= config.MAX_RETRIES:
-                raise PubToolsError('Something is wrong with Entrez or these PMIDs: {}'.format(','.join(pmid_slice)))
-            time.sleep(config.RETRY_SLEEP)
+            logger.info(f'efetch failed: "{e}"')
+            raise PubToolsError(f"Something is wrong with Entrez or these PMIDs: {','.join(pmid_slice)}")
     logger.info('Total publications retrieved in {:.02f} seconds'.format(time.time() - total_time))
 
 
@@ -540,13 +535,12 @@ def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
     return records
 
 
-def process_handle(handle, escape=True, attempts=0):
+def process_handle(handle, escape=True):
     """
     Use EPost to store our PMID results to the Entrez History server and get back the WebEnv and QueryKey values
 
     :param handle: Entrez http stream
     :param escape: escape HTML entitites
-    :param attempts: retry attempts on gateway errors, up to MAX_RETRIES
     :return: Entrez read handle value with WebEnv and QueryKey
     """
     try:
@@ -556,13 +550,8 @@ def process_handle(handle, escape=True, attempts=0):
             # If we have search results, send the ids to EPost and use WebEnv/QueryKey from now on
             search_results = Entrez.read(Entrez.epost("pubmed", id=",".join(record['IdList'])))
     except Exception as e:
-        attempts += 1
-        logger.info('Entrez.read failed: "{}", attempting retry {}'.format(e, attempts))
-        if attempts >= config.MAX_RETRIES:
-            raise PubToolsError('Unable to connect to Entrez')
-        time.sleep(config.RETRY_SLEEP)
-        handle = urlopen(handle.url)  # refetch, otherwise handle.read will always be empty and each attempt will fail
-        return process_handle(handle, escape, attempts)
+        logger.info(f'Entrez.read failed: "{e}"')
+        raise PubToolsError('Unable to connect to Entrez')
     else:
         if search_results:
             record['WebEnv'] = search_results['WebEnv']

@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1] - 17 Oct 2023
+- remove configuration of Entrez email and API key. This can easily be done by an application using Bio.Entrez directly, and is best done with encryption instead of plain text environment variables.
+
+## [4.0] - 6 Oct 2021
+- add tests
+
 ## [3.0.1] - 22 Aug 2019
 - journals module reconfigured to not write to disk on startup
 

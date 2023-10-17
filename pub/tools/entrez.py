@@ -1,6 +1,7 @@
 import logging
 import re
 import time
+from html import unescape
 from http.client import IncompleteRead
 from io import StringIO
 from xml.dom import minidom
@@ -9,18 +10,9 @@ from Bio import Entrez
 from Bio.Entrez import Parser
 from unidecode import unidecode
 
-try:
-    from html import unescape  # py3
-except ImportError:
-    from xml.sax.saxutils import unescape  # py2
-from urllib.request import urlopen  # py3
-
 from . import config
 from .cooking import cook_date_str
 
-Entrez.email = config.ENTREZ_EMAIL
-Entrez.tool = config.ENTREZ_TOOL
-Entrez.api_key = config.ENTREZ_API_KEY
 logger = logging.getLogger('pub.tools')
 
 STOPWORDS = ['a', 'about', 'again', 'all', 'almost', 'also', 'although', 'always', 'among', 'an', 'and', 'another',

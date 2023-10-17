@@ -28,6 +28,7 @@ setup(name='pub.tools',
           'biopython>=1.73',
           'unidecode',
           'lxml',
-          'requests'
+          'requests',
+          'cconf'
       ],
       )

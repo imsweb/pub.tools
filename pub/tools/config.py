@@ -1,8 +1,3 @@
-import os
-
-ENTREZ_TOOL = "pub.tools"
-ENTREZ_EMAIL = os.environ.get('ENTREZ_EMAIL')  # "plone.administration@imsweb.com"
-ENTREZ_API_KEY = os.environ.get('ENTREZ_API_KEY')  # ''
 NO_VALUE = "<<blank>>"
 MAX_PUBS = 9000
 # Biopython will put a count greater than 200 ids into a post, so we don't need to worry about request size

@@ -1,7 +1,13 @@
-# Introduction
-To use this tool you will need to set your Entrez API key in the following environment variables:
-* ENTREZ_EMAIL
-* ENTREZ_API_KEY
+# Installation
+
+    pip install pub.tools
+
+To use this tool you are advised to create an Entrez account and use the associated email and API key.
+
+    from Bio import Entrez
+    Entrez.email = "myemailhere@imsweb.com"
+    Entrez.tool = "pub.tools"
+    Entrez.api_key = "mykeyhere"
 
 Tools available:
 

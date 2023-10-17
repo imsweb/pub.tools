@@ -1,10 +1,7 @@
 from setuptools import find_packages, setup
 
-with open('VERSION.txt') as version_file:
-    version = version_file.read().strip()
-
 setup(name='pub.tools',
-      version=version,
+      version='4.1',
       description="Package of tools for formatting publication data and accessing data from PubMed's Entrez tool",
       long_description=open("README.md").read() + "\n" + open("CHANGES.md").read(),
       long_description_content_type='text/markdown',

@@ -59,6 +59,24 @@ class TestCooking(unittest.TestCase):
         citation = '<span>Wohnlich E, Carter G. My title. Jan 2007;(5).</span>'
         self.assertEqual(citation, journal_citation(html=True, **record))
 
+    def test_journal_link_citation(self):
+        record = {
+            'title': 'My title',
+            'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
+            'journal': 'Sample Journal',
+            'pubdate': 'Jan 2007',
+            'volume': '4',
+            'issue': '5',
+            'pagination': '345-7',
+            'pubmodel': 'Print',
+            'pmid': '12345678',
+            'italicize': True,
+        }
+        citation = '<span>Wohnlich E, Carter G. <a class="citation-pubmed-link" ' \
+                   'href="https://pubmed.ncbi.nlm.nih.gov/12345678/">My title</a>. ' \
+                   '<i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
+        self.assertEqual(citation, journal_citation(html=True, link=True, **record))
+
     def test_journal_abstract_citation(self):
         record = {
             'title': 'My title',

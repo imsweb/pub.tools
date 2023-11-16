@@ -257,7 +257,8 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
 
 @cooked_citation
 def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
-                     pubmodel='Print', edate='', doi='', use_abstract=False, html=False, **kwargs):
+                     pubmodel='Print', edate='', doi='', use_abstract=False, html=False, link=False,
+                     pmid='', **kwargs):
     """ journal citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -273,6 +274,7 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     :param doi: str
     :param use_abstract: boolean. If using abstract, result will be HTML
     :param html: boolean
+    :param link: boolean. Puts an anchor tag around the title, linking to PubMed
     :param kwargs: additional params catchall
     :return: str (unicode in py2) if not abstract and not italicize, otherwise HTML
     """
@@ -284,7 +286,10 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     if authors:
         out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors if a])))
     if title:
-        out.write(period(title))
+        if link and pmid:
+            out.write(period(f'<a class="citation-pubmed-link" href="https://pubmed.ncbi.nlm.nih.gov/{pmid}/">{title}</a>'))
+        else:
+            out.write(period(title))
     if journal and html:
         out.write('<i>{}</i> '.format(journal.strip()))
     elif journal:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pub.tools"
-version = "4.2"
+version = "4.2.1"
 requires-python = ">=3.8"
 description = "Wrapper for Biopython and NCBI's eUtils"
 classifiers = [
@@ -22,7 +22,8 @@ dependencies = [
     "biopython>=1.73",
     "requests",
     "lxml",
-    "unidecode"
+    "unidecode",
+    "beautifulsoup4"
 ]
 
 [project.urls]

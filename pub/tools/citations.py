@@ -1,4 +1,5 @@
 from io import StringIO
+from bs4 import BeautifulSoup
 
 from lxml import etree as et
 
@@ -30,9 +31,12 @@ def cooked_citation(func):
 
 
 def punctuate(text, punctuation, space=''):
+    soup = BeautifulSoup(text, 'html.parser')
+    element = soup.find('a')
     if not text:
         return text
-    if punctuation in punc_endings and text[-1] in punc_endings:
+    if punctuation in punc_endings and text[-1] in punc_endings or \
+            (element and element.get_text()[-1] in punc_endings):
         return text + space
     elif punctuation not in punc_endings and text[-1] == punctuation:
         return text + space
@@ -287,7 +291,8 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
         out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors if a])))
     if title:
         if link and pmid:
-            out.write(period(f'<a class="citation-pubmed-link" href="https://pubmed.ncbi.nlm.nih.gov/{pmid}/">{title}</a>'))
+            out.write(
+                period(f'<a class="citation-pubmed-link" href="https://pubmed.ncbi.nlm.nih.gov/{pmid}/">{title}</a>'))
         else:
             out.write(period(title))
     if journal and html:

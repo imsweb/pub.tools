@@ -545,6 +545,22 @@ class TestCooking(unittest.TestCase):
                    'Probability and Statistics)</span>'
         self.assertEqual(citation, chapter_citation(html=True, **record))
 
+    def test_linked_journal_citation(self):
+        record = {
+            'title': 'My title.',
+            'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
+            'journal': 'Sample Journal',
+            'pubdate': 'Jan 2007',
+            'volume': '4',
+            'issue': '5',
+            'pagination': '345-7',
+            'pubmodel': 'Print',
+            'abstract': [{'label': 'INTRO', 'text': 'my findings'}],
+            'use_abstract': True,
+            'pmid': '12345678',
+        }
+        journal_citation(html=True, link=True, **record)
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

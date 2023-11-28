@@ -559,7 +559,11 @@ class TestCooking(unittest.TestCase):
             'use_abstract': True,
             'pmid': '12345678',
         }
-        journal_citation(html=True, link=True, **record)
+        citation = '<span>Wohnlich E, Carter G. <a class="citation-pubmed-link" href="https://pubmed.ncbi.nlm.nih.gov' \
+                   '/12345678/">My title.</a> <i>Sample Journal</i> Jan 2007;4(5):345-7. <br/>' \
+                   '<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p><p>INTRO: ' \
+                   'my findings</p></div></span>'
+        self.assertEqual(citation, journal_citation(html=True, link=True, **record))
 
 
 def test_suite():

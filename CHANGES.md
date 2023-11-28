@@ -1,5 +1,8 @@
 # Changelog
 
+## [4.2.1] - 28 Nov 2023
+- add option for journal citation to use links. This creates a link to PubMed around the title. You must supply pmid and use link=True
+
 ## [4.1] - 17 Oct 2023
 - remove configuration of Entrez email and API key. This can easily be done by an application using Bio.Entrez directly, and is best done with encryption instead of plain text environment variables.
 

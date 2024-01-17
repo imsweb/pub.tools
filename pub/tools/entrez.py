@@ -214,7 +214,10 @@ def _parse_entrez_journal_record(record):
             for aff in author.get('AffiliationInfo', []):
                 data['affiliation'] = aff['Affiliation']
             authors.append(_parse_author_name(author))
-    for investigator in medline.get('InvestigatorList', []):
+    investigators = medline.get('InvestigatorList', [])
+    if investigators:
+        investigators = investigators[0]  # list wrapped
+    for investigator in investigators:
         if investigator.attributes['ValidYN'] == 'Y':
             authors.append(_parse_author_name(investigator, investigator=True))
     data['authors'] = authors

@@ -19,7 +19,7 @@ authors = [
 license = { text = "GPL" }
 
 dependencies = [
-    "biopython>=1.73",
+    "biopython>=1.83",
     "requests",
     "lxml",
     "unidecode",

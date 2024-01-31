@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.3] - 31 Jan 2024
+- fixes an issue with InvestigatorList where it is now wrapped in a list
+- update pin to biopython 1.83
+
 ## [4.2.1] - 28 Nov 2023
 - add option for journal citation to use links. This creates a link to PubMed around the title. You must supply pmid and use link=True
 

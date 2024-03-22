@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pub.tools"
-version = "4.3"
-requires-python = ">=3.8"
+version = "4.4"
+requires-python = ">=3.11"
 description = "Wrapper for Biopython and NCBI's eUtils"
 classifiers = [
           "Programming Language :: Python :: 3",

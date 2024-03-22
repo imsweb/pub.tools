@@ -63,6 +63,7 @@ def _parse_author_name(author, investigator=False):
         'cname': author.get('CollectiveName', ''),
         'suffix': author.get('Suffix', ''),
         'investigator': investigator,
+        'affiliations': author.get('affiliations', [])
     }
 
 
@@ -106,16 +107,18 @@ def _parse_entrez_book_record(record):
     authors = []
     if document.get('AuthorList', []) and document['AuthorList'][0].attributes['Type'] == 'authors':
         for author in document['AuthorList'][0]:
+            author['affiliations'] = []
             for aff in author.get('AffiliationInfo', []):
-                data['affiliation'] = aff['Affiliation']
+                author['affiliations'].append(['Affiliation'])
             authors.append(_parse_author_name(author))
     data['authors'] = authors
 
     editors = []
     if book.get('AuthorList', []) and book['AuthorList'][0].attributes['Type'] == 'editors':
         for author in book['AuthorList'][0]:
+            author['affiliations'] = []
             for aff in author.get('AffiliationInfo', []):
-                data['affiliation'] = aff['Affiliation']
+                author['affiliations'].append(aff['Affiliation'])
             authors.append(_parse_author_name(author))
     data['editors'] = editors
 
@@ -211,8 +214,9 @@ def _parse_entrez_journal_record(record):
     authors = []
     for author in article.get('AuthorList', []):
         if author.attributes['ValidYN'] == 'Y':
+            author['affiliations'] = []
             for aff in author.get('AffiliationInfo', []):
-                data['affiliation'] = aff['Affiliation']
+                author['affiliations'].append(aff['Affiliation'])
             authors.append(_parse_author_name(author))
     investigators = medline.get('InvestigatorList', [])
     if investigators:

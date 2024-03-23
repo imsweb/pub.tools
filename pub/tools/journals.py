@@ -2,18 +2,45 @@ import csv
 import json
 import os
 import requests
+import dataclasses
 
-base_path = os.path.dirname(os.path.realpath(__file__))
+JOURNAL_DATA_DIR = os.path.join(os.path.expanduser('~'), '.pubmed')
+JOURNAL_DATA_FILE = os.path.join(JOURNAL_DATA_DIR, 'journals.json')
 
 
-def fetch_journals():
+@dataclasses.dataclass(frozen=True)
+class JournalData:
+    title: str
+    abbr: str
+    pissn: str
+    eissn: str
+    publisher: str
+    locator: str
+    latest: str
+    earliest: str
+    freeaccess: str
+    openaccess: str
+    participation: str
+    deposit: str
+    url: str
+
+
+@dataclasses.dataclass(frozen=True)
+class AllJournalData:
+    atoj: dict[str, str]  # abbreviation -> journal
+    jtoa: dict[str, str]  # journal -> abbreviation
+    dates: dict[str, tuple[str, str]]  # start and end dates
+    full: dict[str, JournalData]
+
+
+def fetch_journals() -> AllJournalData:
     """
     Gets all journal info from NCBI. This will be cached
 
     :return: dict
     """
     url = 'https://www.ncbi.nlm.nih.gov/pmc/journals/?format=csv'
-    response = requests.get(url)
+    response = requests.get(url, timeout=5.0)
     if response.status_code == 200:
 
         _atoj = {}
@@ -35,27 +62,29 @@ def fetch_journals():
                 _atoj[abbr.lower()] = title
                 _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (earliest, latest)
-                full[abbr.lower()] = row
-        data = {'atoj': _atoj, 'jtoa': _jtoa, 'dates': dates, 'full': full}
+                full[abbr.lower()] = JournalData(*row)
+        return AllJournalData(
+            atoj=_atoj,
+            jtoa=_jtoa,
+            dates=dates,
+            full=full
+        )
 
-        return data
 
-
+journals = fetch_journals()
 try:
-    _journals = fetch_journals()
-except requests.exceptions.HTTPError:
-    _journals = []
-except requests.exceptions.ProxyError:
-    _journals = []
-except requests.exceptions.ConnectionError:
-    _journals = []
+    os.makedirs(JOURNAL_DATA_DIR)
+except FileExistsError:
+    pass
+with open(JOURNAL_DATA_FILE, 'w') as f:
+    json.dump(dataclasses.asdict(journals), f)
 
-def get_source(cache=False):
+
+def get_source(cache: bool = False) -> AllJournalData:
     """ get source dictionary of journals and abbreviations
 
-    :param cache:
-    :return: cached or uncached journals
     """
+    global journals
     if not cache:
         try:
             journals = fetch_journals()
@@ -63,50 +92,41 @@ def get_source(cache=False):
             pass
         except requests.exceptions.ProxyError:
             pass
-        else:
-            return journals
-    return _journals
+    return journals
 
 
-def get_abbreviations(cache=True):
+def get_abbreviations(cache: bool = True) -> dict[str, str]:
     """ get the mapping for abbreviation -> journal title
 
-    :param cache:
-    :return: dict
     """
-    return get_source(cache)['atoj']
+    return get_source(cache).atoj
 
 
-def get_journals(cache=True):
+def get_journals(cache: bool = True) -> dict[str, str]:
     """ get the mapping for journal -> abbreviation
 
-    :param cache:
-    :return: dict
     """
-    return get_source(cache)['jtoa']
+    return get_source(cache).jtoa
 
 
-def get_dates(cache=True):
+def get_dates(cache: bool = True) -> dict[str, tuple[str, str]]:
     """ get date range per journal abbreviation
 
     :param cache:
     :return: dict
     """
-    return get_source(cache)['dates']
+    return get_source(cache).dates
 
 
-def atoj(abbrv, cache=True):
+def atoj(abbrv: str, cache: bool = True) -> str:
     """ get journal title from abbreviation
 
-    :param abbrv:
-    :param cache:
-    :return: str
     """
     data = get_abbreviations(cache)
     return data.get(abbrv.lower())
 
 
-def jtoa(journal, cache=True):
+def jtoa(journal: str, cache: bool = True) -> str:
     """ get abbreviation from journal title
 
     :param journal:
@@ -117,7 +137,7 @@ def jtoa(journal, cache=True):
     return data.get(journal.lower())
 
 
-def atodates(abbrv, cache=True):
+def atodates(abbrv: str, cache: bool = True) -> tuple[str, str]:
     """ get date range from journal abbreviation
 
     :param abbrv:
@@ -126,10 +146,3 @@ def atodates(abbrv, cache=True):
     """
     data = get_dates(cache)
     return data.get(abbrv.lower())
-
-
-if __name__ == '__main__':
-    journals = fetch_journals()
-
-    with open(os.path.join(base_path, 'journals.json'), 'w') as f:
-        json.dump(journals, f)

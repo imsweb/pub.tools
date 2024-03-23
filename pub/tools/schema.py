@@ -6,7 +6,7 @@ logger = getLogger('pub.tools')
 
 
 @dataclasses.dataclass
-class Author:
+class Person:
     last_name: str
     first_name: str
     initial: str
@@ -71,16 +71,18 @@ class Section:
         return self.section_type
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class EntrezRecord:
     # type: str
     title: str
-    authors: list[Author]
+    authors: list[Person]
     pubdate: str
-    volume: str
-    pmid: str
-    medium: str
-    abstract: list[Abstract]
+    pagination: str = ''
+    volume: str = ''
+    pmid: str = ''
+    medium: str = ''
+    abstract: list[Abstract] = dataclasses.field(default_factory=list)
+    article_ids: dict[str, str] = dataclasses.field(default_factory=dict)
 
     def asdict(self):
         base = dataclasses.asdict(self)
@@ -97,6 +99,7 @@ class EntrezRecord:
         This should be called after instantiation. This removes the Biopython StringElement class and
         escapes
         """
+
         def munge(val, escape=False):
             if isinstance(val, list):
                 return [munge(v, escape) for v in val]
@@ -129,7 +132,6 @@ class JournalRecord(EntrezRecord):
     journal: str
     issue: str
     pubmodel: str
-    pagination: str
     pubstatus: str
     grants: list[Grant] = dataclasses.field(default_factory=list)
     mesh: list[str] = dataclasses.field(default_factory=list)
@@ -139,10 +141,11 @@ class JournalRecord(EntrezRecord):
     nlmuniqueid: str = ''
     medlinecountry: str = ''
     medlinestatus: str = ''
-    article_ids: dict[str, str] = dataclasses.field(default_factory=dict)
 
     # very specific publication dates, you probably don't need this
     pmpubdates: dict[str, str] = dataclasses.field(default_factory=dict)
+
+    pub_type = 'journal'
 
     def asdict(self):
         base = dataclasses.asdict(self)
@@ -190,18 +193,25 @@ class JournalRecord(EntrezRecord):
         return self.pmpubdates.get('pmpubdate_pmcrelease', None)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class BookRecord(EntrezRecord):
-    editors: list[Author]
-    booktitle: str
-    publisher: str
-    pubplace: str
-    volumetitle: str
-    edition: str
-    series: str
-    isbn: str
-    language: str
-    elocation: str
-    reportnum: str
-    sections: list[Section]
-    article_ids: dict[str, str] = dataclasses.field(default_factory=dict)
+    editors: list[Person] = dataclasses.field(default_factory=list)
+    publisher: str = ''
+    pubplace: str = ''
+    volumetitle: str = ''
+    edition: str = ''
+    series: str = ''
+    isbn: str = ''
+    language: str = ''
+    elocation: str = ''
+    reportnum: str = ''
+    sections: list[Section] = dataclasses.field(default_factory=list)
+
+    pub_type = 'book'
+
+
+@dataclasses.dataclass
+class ChapterRecord(BookRecord):
+    booktitle: str = ''
+
+    pub_type = 'chapter'

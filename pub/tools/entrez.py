@@ -12,9 +12,9 @@ from unidecode import unidecode
 from . import config
 from .cooking import cook_date_str
 from .schema import Abstract
-from .schema import Author
+from .schema import Person
 from .schema import BookRecord
-from .schema import EntrezRecord
+from .schema import ChapterRecord
 from .schema import Grant
 from .schema import JournalRecord
 from .schema import Section
@@ -46,12 +46,12 @@ class PubToolsError(Exception):
 IMSEntrezError = PubToolsError
 
 
-def _parse_author_name(author: dict, investigator: bool = False) -> Author:
+def _parse_author_name(author: dict, investigator: bool = False) -> Person:
     fname = author.get('ForeName', '')
     # strip excess spaces like in
     # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=22606070&retmode=xml
     fname = ' '.join([part for part in fname.split(' ') if part])
-    return Author(
+    return Person(
         last_name=author.get('LastName', ''),
         first_name=fname,
         initial=author.get('Initials', ''),
@@ -62,7 +62,7 @@ def _parse_author_name(author: dict, investigator: bool = False) -> Author:
     )
 
 
-def _parse_entrez_record(record: dict, escape: bool = True) -> JournalRecord | BookRecord | None:
+def _parse_entrez_record(record: dict, escape: bool = True) -> JournalRecord | BookRecord | ChapterRecord | None:
     """ convert this into our own data structure format
         Journal keys - MedlineCitation, PubmedData
         Book keys - BookDocument, PubmedBookData
@@ -113,7 +113,7 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
     articletitle = document.get('ArticleTitle', '')
 
     locationlabel = document.get('LocationLabel', '')
-    if locationlabel and locationlabel[0].attributes['Type'] == 'd':
+    if locationlabel and locationlabel[0].attributes['Type'] == 'chapter':
         _type = 'chapter'
         title = articletitle
         booktitle = book.get('BookTitle', '')
@@ -155,28 +155,32 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
             section_label = ''
         sections.append(Section(title=section_title, section_type=section_type, label=section_label))
 
-    return BookRecord(
-        title=title,
-        authors=authors,
-        pubdate=pubdate,
-        volume=volume,
-        pmid=pmid,
-        medium=medium,
-        abstract=abstract,
-        language=language,
-        editors=editors,
-        booktitle=booktitle,
-        publisher=publisher,
-        pubplace=pubplace,
-        volumetitle=volumetitle,
-        edition=edition,
-        series=series,
-        isbn=isbn,
-        elocation=elocation,
-        reportnum=reportnum,
-        sections=sections,
-        article_ids=article_ids
-    )
+    kwargs = {
+        'title': title,
+        'authors': authors,
+        'pubdate': pubdate,
+        'pmid': pmid,
+        'medium': medium,
+        'abstract': abstract,
+        'language': language,
+        'editors': editors,
+        'publisher': publisher,
+        'pubplace': pubplace,
+        'volumetitle': volumetitle,
+        'edition': edition,
+        'series': series,
+        'isbn': isbn,
+        'elocation': elocation,
+        'reportnum': reportnum,
+        'sections': sections,
+        'article_ids': article_ids
+    }
+    if _type == 'book':
+        klass = BookRecord
+    else:
+        klass = ChapterRecord
+        kwargs['booktitle'] = booktitle
+    return klass(**kwargs)
 
 
 def _parse_entrez_journal_record(record: dict) -> JournalRecord:
@@ -297,7 +301,7 @@ def _parse_entrez_journal_record(record: dict) -> JournalRecord:
     )
 
 
-def get_publication(pmid: str, escape: bool = True) -> JournalRecord | BookRecord:
+def get_publication(pmid: str | int, escape: bool = True) -> JournalRecord | BookRecord | ChapterRecord:
     """
     Get a single publication by ID. We don't use PubMed's convoluted data structure but instead return
     a dict with simple values. Most values are a string or list, but some like authors and grants are further
@@ -323,7 +327,7 @@ def get_publication(pmid: str, escape: bool = True) -> JournalRecord | BookRecor
         handle.close()
 
 
-def get_publication_by_doi(doi: str, escape: bool = True) -> JournalRecord | BookRecord:
+def get_publication_by_doi(doi: str, escape: bool = True) -> JournalRecord | BookRecord | ChapterRecord:
     """
     Shortcut for finding publication with DOI
 
@@ -409,7 +413,7 @@ def find_pmids(query):
         handle.close()
 
 
-def esearch_publications(query: str) -> JournalRecord | BookRecord:
+def esearch_publications(query: str) -> JournalRecord | BookRecord | ChapterRecord:
     """
     Perform an ESearch based on a term
 
@@ -490,15 +494,15 @@ def generate_search_string(all: str = None, authors: list[str] = None, title: st
     if ir:
         search_strings.append(f'{ir}[ir]')
     if mesh:
-        search_strings.append('+'.join(['{}[mesh]'.format(m) for m in mesh]))
+        search_strings.append('+'.join([f'{m}[mesh]' for m in mesh]))
     if doi:
-        search_strings.append('{}[doi]'.format(doi.replace('(', ' ').replace(')', ' ')))
+        search_strings.append(f'{doi.replace("(", " ").replace(")", " ")}[doi]')
 
     return '+'.join(search_strings)
 
 
 def get_searched_publications(web_env: str, query_key: str, ids: list[str] = None,
-                              escape: bool = True) -> list[JournalRecord|BookRecord]:
+                              escape: bool = True) -> list[JournalRecord | BookRecord | ChapterRecord]:
     """
     Get a bunch of publications from Entrez using WebEnv and query_key from EPost. Option to narrow
     down subset of ids

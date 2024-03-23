@@ -1,12 +1,15 @@
 from io import StringIO
 from bs4 import BeautifulSoup
-
+import dataclasses
 from lxml import etree as et
+from collections.abc import Callable
 
 punc_endings = ('.', '?', '!')
+from .schema import Author
+from .schema import EntrezRecord
 
 
-def cooked_citation(func):
+def cooked_citation(func: Callable):
     def wrapper(**kwargs):
         text = func(**kwargs)
         try:
@@ -71,49 +74,54 @@ def semi_colon_no_space(text):
 
 
 def cookauthor(author, suffix=True):
-    if isinstance(author, dict):
-        initial = author.get('iname') or author.get('fname') and author['fname'][0].upper() or ''
-        lname = author.get('cname') or author.get('lname')
-        parts = [lname, initial]
-        if suffix and author.get('suffix'):
-            parts.append(author['suffix'])
-        return ' '.join([p.rstrip() for p in parts if p])
-    return author
+    """ Deprecated"""
+    return citation_author(author, use_suffix=suffix)
+
+
+def citation_author(author: Author | dict, use_suffix: bool = True):
+    if not isinstance(author, Author):
+        # author = {
+        #     'last_name': author.get('lname') or author.get('last_name'),
+        #     'first_name': author.get('fname') or author.get('first_name'),
+        #     'collective_name': author.get('cname') or author.get('collective_name'),
+        #     'initial': author.get('iname') or author.get('initial'),
+        #     'suffix': author.get('suffix') or author.get('suffix'),
+        # }
+        return citation_author(Author(**author))
+    initial = author.iname if author.iname else author.fname[0].upper()
+    lname = author.cname or author.lname
+    parts = [lname, initial]
+    if use_suffix and author.suffix:
+        parts.append(author.suffix)
+    return ' '.join([p.rstrip() for p in parts if p])
 
 
 @cooked_citation
-def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
-                  edition='', series='', pubplace='', publisher='', html=False, **kwargs):
+def book_citation(authors: list[Author | dict] = (), editors: list[Author | dict] = (), title: str = '',
+                  pubdate: str = '',
+                  pagination: str = '', edition: str = '', series: str = '', pubplace: str = '', publisher: str = '',
+                  html: bool = False, publication: EntrezRecord = None, **kwargs):
     """ book citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param editors: same functionality as authors
-    :param title: str
-    :param pubdate: str formatted date
-    :param pagination: str
-    :param edition: str
-    :param series: str
-    :param pubplace: str
-    :param publisher: str
-    :param html: boolean
-    :param kwargs: additional params catchall
-    :return: str
+        You can pass each field separately, or pass an EntrezRecord object
     """
+    if publication:
+        return book_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write('<span>')
     if editors and not authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(period(
+            f"{', '.join([citation_author(e) for e in editors]).replace(',', ' ')}, editor{'s' if len(editors) > 1 else ''}"))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a) for a in authors])))
     if title:
         out.write(period(title))
     if edition:
         out.write(period(edition))
     if editors and authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(period(
+            f"{', '.join([citation_author(e) for e in editors]).replace(',', ' ')}, editor{'s' if len(editors) > 1 else ''}"))
     if pubplace:
         if publisher:
             out.write(colon(pubplace))
@@ -138,7 +146,8 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
 
 @cooked_citation
 def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination='',
-                     edition='', series='', pubplace='', booktitle='', publisher='', html=False, **kwargs):
+                     edition='', series='', pubplace='', booktitle='', publisher='', html=False,
+                     publication: EntrezRecord = None, **kwargs):
     """ book chapter citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -155,21 +164,23 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
     :param kwargs: additional params catchall
     :return: str
     """
+    if publication:
+        return chapter_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write('<span>')
     if editors and not authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+            ', '.join([citation_author(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if edition or editors or booktitle:
         out.write('In: ')
     if editors and authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+            ', '.join([citation_author(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
     if booktitle:
         out.write(period(booktitle))
     if edition:
@@ -198,7 +209,8 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
 
 @cooked_citation
 def conference_citation(authors=(), editors=(), title='', pubdate='', pagination='', pubplace='', place='',
-                        conferencename='', conferencedate='', publisher='', html=None, **kwargs):
+                        conferencename='', conferencedate='', publisher='', html=None, publication: EntrezRecord = None,
+                        **kwargs):
     """ conference citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -215,19 +227,21 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
     :param kwargs: additional params catchall
     :return: str (unicode in py2) if not not italicize, otherwise HTML
     """
+    if publication:
+        return conference_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write('<span>')
     if editors and not authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+            ', '.join([citation_author(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if editors and authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+            ', '.join([citation_author(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
     if conferencename and html:
         out.write(semi_colon('<i>Proceedings of {}</i>'.format(conferencename)))
     elif conferencename:
@@ -262,7 +276,7 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
 @cooked_citation
 def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
                      pubmodel='Print', edate='', doi='', use_abstract=False, html=False, link=False,
-                     pmid='', **kwargs):
+                     pmid='', journal_abbreviation: str = '', publication: EntrezRecord = None, **kwargs):
     """ journal citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -282,13 +296,17 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     :param kwargs: additional params catchall
     :return: str (unicode in py2) if not abstract and not italicize, otherwise HTML
     """
+    if publication:
+        return journal_citation(**publication.asdict(), html=html)
+    if journal_abbreviation:
+        journal = journal_abbreviation
     if not abstract:
         abstract = {}
     out = StringIO()
     if html:
         out.write('<span>')
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors if a])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors if a])))
     if title:
         if link and pmid:
             out.write(
@@ -363,7 +381,7 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
 
 @cooked_citation
 def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='', weburl='', reportnum='', publisher='',
-                       serieseditors=(), html=False, **kwargs):
+                       serieseditors=(), html=False, publication: EntrezRecord = None, **kwargs):
     """ book chapter citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -378,22 +396,24 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
     :param kwargs: additional params catchall
     :return: str
     """
+    if publication:
+        return book_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write('<span>')
     if serieseditors and not authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in serieseditors]),
+            ', '.join([citation_author(e).replace(',', ' ') for e in serieseditors]),
             len(serieseditors) > 1 and 's' or '')))
     if authors:
-        out.write(semi_colon(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(semi_colon(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if series:
         out.write(period(series))
     if serieseditors and authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in serieseditors]),
+            ', '.join([citation_author(e).replace(',', ' ') for e in serieseditors]),
             len(serieseditors) > 1 and 's' or '')))
     if pubplace:
         if publisher:
@@ -421,7 +441,7 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
 
 @cooked_citation
 def report_citation(authors=(), editors=(), title='', pubdate='', pagination='', series='', pubplace='', weburl='',
-                    reportnum='', publisher='', html=False, **kwargs):
+                    reportnum='', publisher='', html=False, publication: EntrezRecord = None, **kwargs):
     """ book chapter citation
 
     :param authors: iterable. Individual elements can be dict or plain text
@@ -437,21 +457,23 @@ def report_citation(authors=(), editors=(), title='', pubdate='', pagination='',
     :param kwargs: additional params catchall
     :return: str
     """
+    if publication:
+        return book_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write('<span>')
     if editors and not authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+            ', '.join([citation_author(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if series:
         out.write(period(series))
     if editors and authors:
         out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+            ', '.join([citation_author(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
     if pubplace:
         if publisher:
             out.write(colon(pubplace))
@@ -469,9 +491,9 @@ def report_citation(authors=(), editors=(), title='', pubdate='', pagination='',
     if reportnum:
         out.write(period(reportnum))
     if pagination:
-        out.write(period('p. {0}'.format(pagination)))
+        out.write(period(f'p. {pagination}'))
     if weburl:
-        out.write('Available at {0}.'.format(weburl))
+        out.write(f'Available at {weburl}.')
     out = out.getvalue().strip()
     if html:
         out += '</span>'

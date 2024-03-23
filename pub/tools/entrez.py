@@ -1,17 +1,23 @@
 import logging
 import re
 import time
-from html import unescape
 from http.client import IncompleteRead
-from io import StringIO
-from xml.dom import minidom
+import xml.etree.ElementTree as et
+from http.client import HTTPResponse
 
 from Bio import Entrez
-from Bio.Entrez import Parser
+from io import StringIO
 from unidecode import unidecode
 
 from . import config
 from .cooking import cook_date_str
+from .schema import Abstract
+from .schema import Author
+from .schema import BookRecord
+from .schema import EntrezRecord
+from .schema import Grant
+from .schema import JournalRecord
+from .schema import Section
 
 logger = logging.getLogger('pub.tools')
 
@@ -40,34 +46,23 @@ class PubToolsError(Exception):
 IMSEntrezError = PubToolsError
 
 
-def _unescape(val):
-    if isinstance(val, list):
-        return [_unescape(v) for v in val]
-    elif isinstance(val, dict):
-        return {k: _unescape(v) for k, v in val.items()}
-    elif isinstance(val, str):
-        return unescape(val)
-    else:
-        return val
-
-
-def _parse_author_name(author, investigator=False):
+def _parse_author_name(author: dict, investigator: bool = False) -> Author:
     fname = author.get('ForeName', '')
     # strip excess spaces like in
     # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=22606070&retmode=xml
     fname = ' '.join([part for part in fname.split(' ') if part])
-    return {
-        'lname': author.get('LastName', ''),
-        'fname': fname,
-        'iname': author.get('Initials', ''),
-        'cname': author.get('CollectiveName', ''),
-        'suffix': author.get('Suffix', ''),
-        'investigator': investigator,
-        'affiliations': author.get('affiliations', [])
-    }
+    return Author(
+        last_name=author.get('LastName', ''),
+        first_name=fname,
+        initial=author.get('Initials', ''),
+        collective_name=author.get('CollectiveName', ''),
+        suffix=author.get('Suffix', ''),
+        investigator=investigator,
+        affiliations=author.get('affiliations', [])
+    )
 
 
-def _parse_entrez_record(record, escape=True):
+def _parse_entrez_record(record: dict, escape: bool = True) -> JournalRecord | BookRecord | None:
     """ convert this into our own data structure format
         Journal keys - MedlineCitation, PubmedData
         Book keys - BookDocument, PubmedBookData
@@ -79,39 +74,22 @@ def _parse_entrez_record(record, escape=True):
     else:
         return
 
-    def parse_element(val):
-        # don't keep instances of StringElement. These are not pickle-able objects and will not work in ZODB.
-        # convert to str
-        if isinstance(val, Parser.StringElement):
-            return str(val)
-        elif isinstance(val, list):
-            return [parse_element(v) for v in val]
-        return val
-
-    for key in rec:
-        rec[key] = parse_element(rec[key])
-        if escape:
-            # unescape any fields that are not intended to be html
-            if key not in ['title', 'abstract']:
-                rec[key] = _unescape(rec[key])
+    rec.process(escape)
     return rec
 
 
-def _parse_entrez_book_record(record):
-    data = {'type': 'book'}
+def _parse_entrez_book_record(record: dict) -> BookRecord:
+    _type = 'book'
     document = record.pop('BookDocument')
     book = document.pop('Book')
-    # publicationtype = document.pop('PublicationType') - unsure what this is
-    # kwlist = document.pop('KeywordList') - unsure what this is
 
     authors = []
     if document.get('AuthorList', []) and document['AuthorList'][0].attributes['Type'] == 'authors':
         for author in document['AuthorList'][0]:
             author['affiliations'] = []
             for aff in author.get('AffiliationInfo', []):
-                author['affiliations'].append(['Affiliation'])
+                author['affiliations'].append(aff['Affiliation'])
             authors.append(_parse_author_name(author))
-    data['authors'] = authors
 
     editors = []
     if book.get('AuthorList', []) and book['AuthorList'][0].attributes['Type'] == 'editors':
@@ -120,96 +98,116 @@ def _parse_entrez_book_record(record):
             for aff in author.get('AffiliationInfo', []):
                 author['affiliations'].append(aff['Affiliation'])
             authors.append(_parse_author_name(author))
-    data['editors'] = editors
 
-    data['language'] = document.get('Language', '') and document['Language'][0]
+    language = document['Language'][0] if document.get('Language', '') else document['Language']
 
     articleids = document.pop('ArticleIdList')
+    article_ids = {}
     for aid in articleids:
-        data[aid.attributes['IdType']] = aid
+        article_ids[aid.attributes['IdType']] = aid
 
-    data['abstract'] = document.get('Abstract', {}).get('AbstractText', '')
-    if isinstance(data['abstract'], list):
-        data['abstract'] = data['abstract'][0]  # why does it do this?
+    abstract = document.get('Abstract', {}).get('AbstractText', '')
+    abstract = [Abstract(text=abstract[0] if isinstance(abstract, list) else abstract,
+                         nlmcategory='', label='')]
+
     articletitle = document.get('ArticleTitle', '')
 
     locationlabel = document.get('LocationLabel', '')
-    if locationlabel and locationlabel[0].attributes['Type'] == 'chapter':
-        data['type'] = 'chapter'
-        data['title'] = articletitle
-        data['booktitle'] = book.get('BookTitle', '')
+    if locationlabel and locationlabel[0].attributes['Type'] == 'd':
+        _type = 'chapter'
+        title = articletitle
+        booktitle = book.get('BookTitle', '')
     else:
-        data['title'] = book.get('BookTitle', '')
+        title = book.get('BookTitle', '')
+        booktitle = ''
 
+    publisher = ''
+    pubplace = ''
     if book.get('Publisher', ''):
-        data['publisher'] = book['Publisher'].get('PublisherName', '')
-        data['pubplace'] = book['Publisher'].get('PublisherLocation', '')
+        publisher = book['Publisher'].get('PublisherName', '')
+        pubplace = book['Publisher'].get('PublisherLocation', '')
 
-    pubdate = book.get('PubDate', '')
-    if pubdate:
-        data['pubdate'] = cook_date_str(' '.join([i for i in (
+    if pubdate := book.get('PubDate', ''):
+        pubdate = cook_date_str(' '.join([i for i in (
             pubdate.get('Year', ''), pubdate.get('Season', ''),
             pubdate.get('Month', ''), pubdate.get('Day', '')) if i]))
 
-    data['volume'] = book.get('Volume', '')
-    data['volumetitle'] = book.get('VolumeTitle', '')
-    data['edition'] = book.get('Edition', '')
-    data['series'] = book.get('CollectionTitle', '')
-    data['isbn'] = book.get('Isbn', '')
-    if isinstance(data['isbn'], list):
-        data['isbn'] = data['isbn'] and data['isbn'][0] or ''  # why does it do this?
-    data['elocation'] = book.get('ELocationID', '')
-    data['medium'] = book.get('Medium', '')
-    data['reportnum'] = book.get('ReportNumber', '')
+    volume = book.get('Volume', '')
+    volumetitle = book.get('VolumeTitle', '')
+    edition = book.get('Edition', '')
+    series = book.get('CollectionTitle', '')
+    isbn = book.get('Isbn', '')
+    isbn = isbn[0] if isinstance(isbn, list) else isbn
+    elocation = book.get('ELocationID', '')
+    medium = book.get('Medium', '')
+    reportnum = book.get('ReportNumber', '')
 
-    # itemlist = document.get('ItemList','') - no idea what this is
-
-    data['pmid'] = document['PMID']
+    pmid = document['PMID']
 
     sections = []
     for section in document.get('Sections', []):
-        sec = dict()
-        sec['title'] = section['SectionTitle']
+        section_title = section['SectionTitle']
         if section.get('LocationLabel', ''):
-            sec['type'] = section['LocationLabel'].attributes['Type']
-            sec['label'] = section['LocationLabel']
+            section_type = section['LocationLabel'].attributes['Type']
+            section_label = section['LocationLabel']
         else:
-            sec['type'] = ''
-            sec['label'] = ''
-    data['sections'] = sections
+            section_type = ''
+            section_label = ''
+        sections.append(Section(title=section_title, section_type=section_type, label=section_label))
 
-    return data
+    return BookRecord(
+        title=title,
+        authors=authors,
+        pubdate=pubdate,
+        volume=volume,
+        pmid=pmid,
+        medium=medium,
+        abstract=abstract,
+        language=language,
+        editors=editors,
+        booktitle=booktitle,
+        publisher=publisher,
+        pubplace=pubplace,
+        volumetitle=volumetitle,
+        edition=edition,
+        series=series,
+        isbn=isbn,
+        elocation=elocation,
+        reportnum=reportnum,
+        sections=sections,
+        article_ids=article_ids
+    )
 
 
-def _parse_entrez_journal_record(record):
-    data = {'type': 'journal'}
+def _parse_entrez_journal_record(record: dict) -> JournalRecord:
+    _type = 'journal'
     medline = record.pop('MedlineCitation')
     medlineinfo = medline.pop('MedlineJournalInfo')
     article = medline.pop('Article')
     journal = article.pop('Journal')
     pmdates = record['PubmedData'].pop('History')
     articleids = record['PubmedData'].pop('ArticleIdList')
-    data['pubmodel'] = article.attributes['PubModel']
+    pubmodel = article.attributes['PubModel']
     articledate = article.pop('ArticleDate')
 
-    data['journal'] = journal['Title']
+    journal_title = journal['Title']
     pubdate = journal['JournalIssue'].get('PubDate', {})
-    data['volume'] = journal['JournalIssue'].get('Volume', '')
-    data['issue'] = journal['JournalIssue'].get('Issue', '')
+    volume = journal['JournalIssue'].get('Volume', '')
+    issue = journal['JournalIssue'].get('Issue', '')
 
-    data['medium'] = journal['JournalIssue'].attributes['CitedMedium']
-    data['pagination'] = article.get('Pagination', {}).get('MedlinePgn', '')
-    data['affiliation'] = article.get('Affiliation')
-    data['pubdate'] = cook_date_str(' '.join([i for i in (
+    medium = journal['JournalIssue'].attributes['CitedMedium']
+    pagination = article.get('Pagination', {}).get('MedlinePgn', '')
+    pubdate = cook_date_str(' '.join([i for i in (
         pubdate.get('MedlineDate', ''), pubdate.get('Year', ''),
         pubdate.get('Season', ''), pubdate.get('Month', ''),
         pubdate.get('Day', '')) if i]))
-    data['title'] = article['ArticleTitle']
+    title = article['ArticleTitle']
 
+    pmpubdates = {}
     for pmdate in pmdates:
         pmdate_str = cook_date_str(
             ' '.join([i for i in (pmdate.get('Year', ''), pmdate.get('Month', ''), pmdate.get('Day', '')) if i]))
-        data['pmpubdate_' + pmdate.attributes['PubStatus'].replace('-', '')] = pmdate_str
+        pmpubdates['pmpubdate_' + pmdate.attributes['PubStatus'].replace('-', '')] = pmdate_str
 
     authors = []
     for author in article.get('AuthorList', []):
@@ -224,72 +222,91 @@ def _parse_entrez_journal_record(record):
     for investigator in investigators:
         if investigator.attributes['ValidYN'] == 'Y':
             authors.append(_parse_author_name(investigator, investigator=True))
-    data['authors'] = authors
-    data['pmid'] = medline['PMID']
+    authors = authors
+    pmid = medline['PMID']
 
+    article_ids = {}
     for aid in articleids:
-        data[aid.attributes['IdType']] = aid
+        article_ids[aid.attributes['IdType']] = aid
 
     grants = []
     for grant in article.get('GrantList', []):
-        grants.append({'grantid': grant.get('GrantID'),
-                       'acronym': grant.get('Acronym'),
-                       'agency': grant.get('Agency', '')})
-    data['grants'] = grants
+        grants.append(Grant(
+            grantid=grant.get('GrantID'),
+            acronym=grant.get('Acronym'),
+            agency=grant.get('Agency', ''))
+        )
     mesh = []
     for meshHeader in medline.get('MeshHeadingList', []):
-        mesh.append(str(meshHeader['DescriptorName']))
-        # Might be nice to return name and ID at some point.
-        # d = meshHeader['DescriptorName']
-        # mesh.append({
-        #    'name': unicode(d),
-        #    'id': d.attributes['UI'],
-        # })
-    data['mesh'] = mesh
-    data['pubtypelist'] = [ptl for ptl in article.get('PublicationTypeList', [])]
+        mesh.append(meshHeader['DescriptorName'])
+    pubtypelist = [ptl for ptl in article.get('PublicationTypeList', [])]
+    edate = ''
     for adate in articledate:
         if adate.attributes['DateType'] == 'Electronic':
-            data['edate'] = cook_date_str(' '.join([i for i in (
+            edate = cook_date_str(' '.join([i for i in (
                 adate.get('MedlineDate', ''), adate.get('Year', ''), adate.get('Season', ''),
                 adate.get('Month', ''), adate.get('Day', '')) if i]))
-    data['medlineta'] = medlineinfo.get('MedlineTA', '')
-    data['nlmuniqueid'] = medlineinfo.get('NlmUniqueID', '')
-    data['medlinecountry'] = medlineinfo.get('Country', '')
-    data['medlinestatus'] = medline.attributes['Status']
+    medlineta = medlineinfo.get('MedlineTA', '')
+    nlmuniqueid = medlineinfo.get('NlmUniqueID', '')
+    medlinecountry = medlineinfo.get('Country', '')
+    medlinestatus = medline.attributes['Status']
 
+    abstracts = []
     if article.get('Abstract'):
-        _abstracts = []
         for abst in article['Abstract']['AbstractText']:
-            text = str(abst)
+            text = abst
             if hasattr(abst, 'attributes'):
-                nlmcat = abst.attributes.get('NlmCategory')
-                label = abst.attributes.get('Label')
+                nlmcat = abst.attributes.get('NlmCategory', '')
+                label = abst.attributes.get('Label', '')
             else:
                 nlmcat = label = ''
-            _abstracts.append({'text': text, 'nlmcategory': nlmcat, 'label': label})
-        data['abstract'] = _abstracts
+            abstracts.append(Abstract(text=text, nlmcategory=nlmcat, label=label))
 
-    data['pubstatus'] = record['PubmedData'].get('PublicationStatus', '')
+    pubstatus = record['PubmedData'].get('PublicationStatus', '')
 
     # dates
+    pmpubdates = {}
     for pmdate in record['PubmedData'].get('History', []):
         dtype = pmdate.attributes.get('PubStatus')
         _pmdate = ' '.join([d for d in (pmdate.get('Year'), pmdate.get('Month'), pmdate.get('Day')) if d])
-        data['pmpubdate_{}'.format(dtype)] = _pmdate
+        pmpubdates['pmpubdate_{}'.format(dtype)] = _pmdate
 
-    return data
+    return JournalRecord(
+        title=title,
+        abstract=abstracts,
+        pmid=pmid,
+        pubstatus=pubstatus,
+        article_ids=article_ids,
+        authors=authors,
+        edate=edate,
+        grants=grants,
+        issue=issue,
+        volume=volume,
+        journal=journal_title,
+        medium=medium,
+        medlinecountry=medlinecountry,
+        medlinestatus=medlinestatus,
+        journal_abbreviation=medlineta,
+        mesh=mesh,
+        nlmuniqueid=nlmuniqueid,
+        pagination=pagination,
+        pmpubdates=pmpubdates,
+        pubdate=pubdate,
+        pubmodel=pubmodel,
+        pubtypelist=pubtypelist
+    )
 
 
-def get_publication(pmid, escape=True):
+def get_publication(pmid: str, escape: bool = True) -> JournalRecord | BookRecord:
     """
     Get a single publication by ID. We don't use PubMed's convoluted data structure but instead return
     a dict with simple values. Most values are a string or list, but some like authors and grants are further
     dicts containing more components.
 
-    PubMed contains both books and journals and we parse both, with some difference in available keys.
+    PubMed contains both books and journals, and we parse both, with some difference in available keys.
 
     :param pmid: PubMed ID
-    :param escape: used by Entrez.parse and .read. If true, will return as html for title and abstract fields
+    :param escape: used by `Entrez.parse` and `.read`. If true, will return as html for title and abstract fields
     :return: parsed publication in dict format
     """
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
@@ -306,12 +323,12 @@ def get_publication(pmid, escape=True):
         handle.close()
 
 
-def get_publication_by_doi(doi, escape=True):
+def get_publication_by_doi(doi: str, escape: bool = True) -> JournalRecord | BookRecord:
     """
     Shortcut for finding publication with DOI
 
     :param doi: DOI value
-    :param escape: used by Entrez.parse and .read. If true, will return as html
+    :param escape: used by `Entrez.parse` and `.read`. If true, will return as html
     :return: parsed publication in dict format
     """
     ids = find_publications(doi=doi)
@@ -319,15 +336,12 @@ def get_publication_by_doi(doi, escape=True):
         return get_publication(ids['IdList'][0], escape)
 
 
-def get_pmid_by_pmc(pmcid):
+def get_pmid_by_pmc(pmcid: str) -> str:
     """
     We can't search by PMC in PubMed, but we can get the PMID from the PMC database
 
     Unfortunately, BioPython does not appear able to parse this XML file so we have to do so manually.
     A full DOM parser is probably fine for a file of this size.
-
-    :param pmcid: The PMC id of the record
-    :return: PMID. You can get the publication from this
     """
     if pmcid.startswith('PMC'):
         pmcid = pmcid[3:]
@@ -336,20 +350,18 @@ def get_pmid_by_pmc(pmcid):
         data = handle.read()
         if isinstance(data, bytes):
             data = data.decode('utf-8')
-        data = minidom.parse(StringIO(data))
-        for node in data.getElementsByTagName('article-id'):
-            if node.getAttribute('pub-id-type') == 'pmid':
-                for child in node.childNodes:
-                    if child.nodeType == child.TEXT_NODE:
-                        return child.nodeValue
-        # we found an article but it has no PMID given
+        root = et.fromstring(data)
+        for el in root.findall('.//article-id'):
+            if el.attrib.get('pub-id-type') == 'pmid':
+                return el.text.strip()
+        # we found an article, but it has no PMID given
         # try to search PubMed with PMC as a general term
         search = find_publications(all="PMC{}".format(pmcid))
         if search['Count'] == '1':
             return search['IdList'][0]
 
 
-def get_publications(pmids, escape=True):
+def get_publications(pmids: list, escape: bool = True):
     """
     We let Biopython do most of the heavy lifting, including building the request POST. Publications are
     fetched in chunks of config.MAX_PUBS as there does seem to be a limit imposed by NCBI. There is also
@@ -397,7 +409,7 @@ def find_pmids(query):
         handle.close()
 
 
-def esearch_publications(query):
+def esearch_publications(query: str) -> JournalRecord | BookRecord:
     """
     Perform an ESearch based on a term
 
@@ -409,13 +421,14 @@ def esearch_publications(query):
     return process_handle(handle)
 
 
-def find_publications(all=None, authors=None, title=None, journal=None, start=None, end=None, pmid=None, mesh=None,
-                      gr=None,
-                      ir=None, affl=None, doi='', inclusive=False):
+def find_publications(all: str = None, authors: list[str] = None, title: str = None, journal: str = None,
+                      start: str = None, end: str = None, pmid: str = None, mesh: str = None, gr: str = None,
+                      ir: bool = None, affl=None, doi='', inclusive=False):
     """
     You can use the resulting WebEnv and QueryKey values to call get_searched_publications
     https://www.ncbi.nlm.nih.gov/books/NBK3827/#_pubmedhelp_Search_Field_Descriptions_and_
 
+    :param all: appends
     :param authors: a list of strings
     :param title: article title str. Stop words and punctuation will be removed
     :param journal: article journal str
@@ -441,23 +454,11 @@ def find_publications(all=None, authors=None, title=None, journal=None, start=No
     return process_handle(handle)
 
 
-def generate_search_string(all=None, authors=None, title=None, journal=None, pmid=None, mesh=None, gr=None, ir=None,
-                           affl=None,
-                           doi=None, inclusive=False):
+def generate_search_string(all: str = None, authors: list[str] = None, title: str = None, journal: str = None,
+                           pmid: str = None, mesh: str = None, gr: str = None, ir: str = None, affl: str = None,
+                           doi: str = None, inclusive: bool = False) -> str:
     """
     Generate the search string that will be passed to ESearch based on these criteria
-
-    :param authors: a list of strings
-    :param title: article title str. Stop words and punctuation will be removed
-    :param journal: article journal str
-    :param pmid: article pubmed id
-    :param mesh: mesh keywords
-    :param gr: grant number
-    :param ir: investigator
-    :param affl: author affiliation
-    :param doi: doi id
-    :param inclusive: if "OR", Authors are or'd. Default is and'd
-    :return: valid PubMed query string
     """
     search_strings = []
     if all:
@@ -476,18 +477,18 @@ def generate_search_string(all=None, authors=None, title=None, journal=None, pmi
         titlevals = [elem.strip() for elem in title.split('*')]
         search_strings.append(titlevals and '+'.join(['{}[ti]'.format(unidecode(t)) for t in titlevals if t]) or '')
     if journal:
-        search_strings.append('"{}"[jour]'.format(unidecode(journal)))
+        search_strings.append(f'"{unidecode(journal)}"[jour]')
     if pmid:
         if isinstance(pmid, list) or isinstance(pmid, tuple):
             search_strings.append(" OR ".join(['{}[pmid]'.format(unidecode(pid)) for pid in pmid if pid]))
         else:
-            search_strings.append('{}[pmid]'.format(pmid))
+            search_strings.append(f'{pmid}[pmid]')
     if gr:
-        search_strings.append('{}[gr]'.format(gr))
+        search_strings.append(f'{gr}[gr]')
     if affl:
-        search_strings.append('{}[ad]'.format(affl))
+        search_strings.append(f'{affl}[ad]')
     if ir:
-        search_strings.append('{}[ir]'.format(ir))
+        search_strings.append(f'{ir}[ir]')
     if mesh:
         search_strings.append('+'.join(['{}[mesh]'.format(m) for m in mesh]))
     if doi:
@@ -496,23 +497,19 @@ def generate_search_string(all=None, authors=None, title=None, journal=None, pmi
     return '+'.join(search_strings)
 
 
-def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
+def get_searched_publications(web_env: str, query_key: str, ids: list[str] = None,
+                              escape: bool = True) -> list[JournalRecord|BookRecord]:
     """
     Get a bunch of publications from Entrez using WebEnv and query_key from EPost. Option to narrow
     down subset of ids
-
-    :param WebEnv: web environment from an ESearch
-    :param QueryKey: query key from an ESearch
-    :param ids: subset of ids if you don't want the full results of the search
-    :return: parsed publications from the search
     """
     if isinstance(ids, str):
         ids = [ids]
     records = []
     query = {
         'db': 'pubmed',
-        'webenv': WebEnv,
-        'query_key': QueryKey,
+        'webenv': web_env,
+        'query_key': query_key,
         'retmode': 'xml'
     }
     if ids:
@@ -534,7 +531,7 @@ def get_searched_publications(WebEnv, QueryKey, ids=None, escape=True):
     return records
 
 
-def process_handle(handle, escape=True):
+def process_handle(handle: HTTPResponse, escape=True):
     """
     Use EPost to store our PMID results to the Entrez History server and get back the WebEnv and QueryKey values
 
@@ -558,7 +555,7 @@ def process_handle(handle, escape=True):
     return record
 
 
-def read_response(handle):
+def read_response(handle: HTTPResponse) -> str:
     """
     Fully reads an http stream from Entrez, taking into account IncompleteRead exceptions. Potentially useful for
     debugging

@@ -3,11 +3,18 @@ import unittest
 from datetime import datetime
 
 from .. import cooking
-from ..citations import (
-    book_citation, chapter_citation, conference_citation, journal_citation, monograph_citation, period, punctuate,
-    report_citation)
+from ..citations import     book_citation
+from ..citations import chapter_citation
+from ..citations import conference_citation
+from ..citations import journal_citation
+from ..citations import monograph_citation
+from ..citations import period
+from ..citations import punctuate
+from ..citations import report_citation
 from ..config import NO_VALUE
 
+from ..schema import Author
+from ..schema import JournalRecord
 
 class TestCooking(unittest.TestCase):
     def test_citation_basics(self):
@@ -28,36 +35,42 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(period(start), expected)
 
     def test_journal_citation(self):
-        record = {
-            'title': 'My title',
-            'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
-            'journal': 'Sample Journal',
-            'pubdate': 'Jan 2007',
-            'volume': '4',
-            'issue': '5',
-            'pagination': '345-7',
-            'pubmodel': 'Print',
-            'italicize': True,
-        }
+        record = JournalRecord(
+            title='My title',
+            authors=[
+                Author(last_name='Wohnlich', first_name='', initial='E'),
+                Author(last_name='Carter', first_name='', initial='G')
+            ],
+            journal='Sample Journal',
+            pubdate='Jan 2007',
+            volume='4',
+            issue='5',
+            pagination='345-7',
+            pubmodel='Print',
+            abstract=[],
+            pubstatus='print',
+            medium='',
+            pmid=''
+        )
         citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</span>'
-        self.assertEqual(citation, journal_citation(html=True, **record))
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
 
-        record['issue'] = ''
+        record.issue = ''
         citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4:345-7.</span>'
-        self.assertEqual(citation, journal_citation(html=True, **record))
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
 
-        record['issue'] = '5'
-        record['volume'] = ''
+        record.issue = '5'
+        record.volume = ''
         citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;(5):345-7.</span>'
-        self.assertEqual(citation, journal_citation(html=True, **record))
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
 
-        record['pagination'] = ''
+        record.pagination = ''
         citation = '<span>Wohnlich E, Carter G. My title. <i>Sample Journal</i> Jan 2007;(5).</span>'
-        self.assertEqual(citation, journal_citation(html=True, **record))
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
 
-        record['journal'] = ''
+        record.journal = ''
         citation = '<span>Wohnlich E, Carter G. My title. Jan 2007;(5).</span>'
-        self.assertEqual(citation, journal_citation(html=True, **record))
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
 
     def test_journal_link_citation(self):
         record = {
@@ -98,7 +111,8 @@ class TestCooking(unittest.TestCase):
     def test_book_citation(self):
         record = {
             'title': 'My title',
-            'authors': ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'},),
+            'authors': [Author]
+                {'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'},),
             'editors': ({'lname': 'Van Halen', 'iname': 'E'},),
             'edition': 'First Edition',
             'pubdate': '2007 Dec',

@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from lxml import etree as et
 from collections.abc import Callable
 import dataclasses
+import deprecation
 from .schema import Person
 from .schema import JournalRecord
 from .schema import BookRecord
@@ -38,7 +39,10 @@ def cooked_citation(func: Callable):
     return wrapper
 
 
-def punctuate(text, punctuation, space=''):
+def punctuate(text: str, punctuation: str, space: str = '') -> str:
+    """ Applies a punctuation mark to the text, with `space` used for certain punctuation
+
+    """
     soup = BeautifulSoup(text, 'html.parser')
     element = soup.find('a')
     if not text:
@@ -53,32 +57,32 @@ def punctuate(text, punctuation, space=''):
         return text + punctuation + space
 
 
-def period(text):
+def period(text: str) -> str:
     return punctuate(text, '.', ' ')
 
 
-def comma(text):
+def comma(text: str) -> str:
     return punctuate(text, ',', ' ')
 
 
-def colon(text):
+def colon(text: str) -> str:
     return punctuate(text, ':', ' ')
 
 
-def colon_no_space(text):
+def colon_no_space(text: str) -> str:
     return punctuate(text, ':', '')
 
 
-def semi_colon(text):
+def semi_colon(text: str) -> str:
     return punctuate(text, ';', ' ')
 
 
-def semi_colon_no_space(text):
+def semi_colon_no_space(text: str) -> str:
     return punctuate(text, ';', '')
 
 
-def cookauthor(author, suffix=True):
-    """ Deprecated"""
+@deprecation.deprecated(deprecated_in='5.0', removed_in='6.0', details="Use `citation_author` instead.")
+def cookauthor(author: Person | dict, suffix: bool = True):
     return citation_author(author, use_suffix=suffix)
 
 

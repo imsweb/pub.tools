@@ -23,7 +23,8 @@ dependencies = [
     "requests",
     "lxml",
     "unidecode",
-    "beautifulsoup4"
+    "beautifulsoup4",
+    "deprecation"
 ]
 
 [project.urls]

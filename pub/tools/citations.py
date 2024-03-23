@@ -96,8 +96,8 @@ def citation_author(author: Person | dict, use_suffix: bool = True):
             'suffix': author.get('suffix') or author.get('suffix'),
         }
         return citation_author(Person(**author))
-    initial = author.iname if author.iname else author.fname[0].upper()
-    lname = author.cname or author.lname
+    initial = author.initial if author.initial else (author.first_name[0].upper() if author.first_name else '')
+    lname = author.collective_name or author.last_name
     parts = [lname, initial]
     if use_suffix and author.suffix:
         parts.append(author.suffix)
@@ -459,8 +459,8 @@ def citation(publication: JournalRecord | BookRecord | ChapterRecord, html: bool
         Example usage:
         >>> from pub.tools import entrez
         >>> from pub.tools import citations
-        >>> pub = entrez.get_publication(pmid=12345678)
-        >>> citations.citation(pub)
+        >>> if pub := entrez.get_publication(pmid=12345678):
+        >>>     citations.citation(publication=pub)
 
     """
     pub_types = {

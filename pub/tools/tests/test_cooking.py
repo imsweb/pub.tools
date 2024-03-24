@@ -228,6 +228,54 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, conference_citation(html=True, **record))
 
     def test_monograph_citation(self):
+        record = MonographRecord(
+            title='My title',
+            authors=[
+                Person(last_name='Wohnlich', first_name='', initial='E'),
+                Person(last_name='Battle', first_name='', initial='J')
+            ],
+            serieseditors=['Hawking S', 'Wheeler J'],
+            series='Series name',
+            reportnum='5',
+            weburl='http://plone.org',
+            pubdate='2010 Feb',
+            publisher='Doubleday',
+            pubplace='Baltimore'
+        )
+        citation = '<cite>Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
+                   'Doubleday; 2010 Feb. 5. Available at http://plone.org.</cite>'
+        self.assertEqual(citation, monograph_citation(html=True, publication=record))
+
+        record.weburl = ''
+        citation = '<cite>Wohnlich E, Battle J; My title. Series name. Hawking S, Wheeler J, editors. Baltimore: ' \
+                   'Doubleday; 2010 Feb. 5.</cite>'
+        self.assertEqual(citation, monograph_citation(html=True, publication=record))
+
+        record.authors = []
+        citation = '<cite>Hawking S, Wheeler J, editors. My title. Series name. Baltimore: Doubleday; 2010 Feb. ' \
+                   '5.</cite>'
+        self.assertEqual(citation, monograph_citation(html=True, publication=record))
+
+        record.authors = [
+                Person(last_name='Wohnlich', first_name='', initial='E'),
+                Person(last_name='Battle', first_name='', initial='J')
+            ]
+        record.title = ''
+        citation = '<cite>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
+                   '2010 Feb. 5.</cite>'
+        self.assertEqual(citation, monograph_citation(html=True, publication=record))
+
+        record.pubplace = ''
+        citation = '<cite>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Doubleday; ' \
+                   '2010 Feb. 5.</cite>'
+        self.assertEqual(citation, monograph_citation(html=True, publication=record))
+
+        record.publisher= ''
+        citation = '<cite>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.</cite>'
+        self.assertEqual(citation, monograph_citation(html=True, publication=record))
+
+    def test_monograph_citation_compatible(self):
+        """ uses dict instead of MonographRecord, for backwards compatibility """
         record = {'title': 'My title',
                   'booktitle': 'My Book',
                   'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'}],
@@ -300,9 +348,9 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, report_citation(html=True, publication=record))
 
         record.authors = [
-                Person(last_name='Wohnlich', first_name='', initial='E'),
-                Person(last_name='Battle', first_name='', initial='J')
-            ]
+            Person(last_name='Wohnlich', first_name='', initial='E'),
+            Person(last_name='Battle', first_name='', initial='J')
+        ]
         record.title = ''
         citation = '<cite>Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
                    '2010 Feb. 5.</cite>'

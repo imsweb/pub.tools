@@ -231,6 +231,7 @@ class MonographRecord(EntrezRecord):
     reportnum: str = ''
     publisher: str = ''
     pubplace: str = ''
+    weburl: str = ''
     series: str = ''
     serieseditors: list[str] = dataclasses.field(default_factory=list)
 

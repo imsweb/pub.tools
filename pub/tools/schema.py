@@ -215,3 +215,31 @@ class ChapterRecord(BookRecord):
     booktitle: str = ''
 
     pub_type = 'chapter'
+
+
+@dataclasses.dataclass
+class ConferenceRecord(EntrezRecord):
+    place: str = ''
+    conferencename: str = ''
+    conferencedate: str = ''
+    publisher: str = ''
+    pubplace: str = ''
+
+
+@dataclasses.dataclass
+class MonographRecord(EntrezRecord):
+    reportnum: str = ''
+    publisher: str = ''
+    pubplace: str = ''
+    series: str = ''
+    serieseditors: list[str] = dataclasses.field(default_factory=list)
+
+
+@dataclasses.dataclass
+class ReportRecord(EntrezRecord):
+    editors: list[Person] = dataclasses.field(default_factory=list)
+    reportnum: str = ''
+    publisher: str = ''
+    pubplace: str = ''
+    series: str = ''
+    weburl: str = ''

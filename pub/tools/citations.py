@@ -371,7 +371,7 @@ def monograph_citation(authors: list[Person | dict] = (), title: str = '', pubda
 
     """
     if publication:
-        return book_citation(**publication.asdict(), html=html)
+        return monograph_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write(f'<{WRAPPER_TAG}>')
@@ -422,7 +422,7 @@ def report_citation(authors: list[Person | dict] = (), editors: list[Person | di
 
     """
     if publication:
-        return book_citation(**publication.asdict(), html=html)
+        return report_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
         out.write(f'<{WRAPPER_TAG}>')

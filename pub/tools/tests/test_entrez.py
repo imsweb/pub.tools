@@ -467,6 +467,5 @@ class TestCase(unittest.TestCase):
         self.check_pub_data(record[0])
 
 
-
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -188,6 +188,50 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, chapter_citation(html=True, **record))
 
     def test_conference_citation(self):
+        record = ConferenceRecord(
+            title='My title',
+            authors=[
+                Person(last_name='Wohnlich', first_name='', initial='E'),
+                Person(last_name='Battle', first_name='', initial='J')
+            ],
+            editors=[
+                Person(last_name='Sagan', first_name='', initial='C'),
+                Person(last_name='Thorne', first_name='', initial='K')
+            ],
+            conferencename='Conference name',
+            conferencedate='2007 Dec',
+            place='New York',
+            pubdate='2008 Jan',
+            publisher='Doubleday',
+            pubplace='Boston',
+            pagination='345',
+        )
+        citation = '<cite>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan. p. 345.</cite>'
+        self.assertEqual(citation, conference_citation(html=True, publication=record))
+
+        record.authors = []
+        citation = '<cite>Sagan C, Thorne K, editors. My title. <i>Proceedings of Conference name</i>; 2007 Dec; New ' \
+                   'York. Boston: Doubleday; 2008 Jan. p. 345.</cite>'
+        self.assertEqual(citation, conference_citation(html=True, publication=record))
+
+        record.authors = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
+        record.pagination = ''
+        citation = '<cite>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan.</cite>'
+        self.assertEqual(citation, conference_citation(html=True, publication=record))
+
+        record.publisher = ''
+        citation = '<cite>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. Boston: 2008 Jan.</cite>'
+        self.assertEqual(citation, conference_citation(html=True, publication=record))
+
+        record.pubplace = ''
+        citation = '<cite>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
+                   'name</i>; 2007 Dec; New York. 2008 Jan.</cite>'
+        self.assertEqual(citation, conference_citation(html=True, publication=record))
+
+    def test_conference_citation_compatibility(self):
         record = {
             'title': 'My title',
             'booktitle': 'My Book',
@@ -257,9 +301,9 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, monograph_citation(html=True, publication=record))
 
         record.authors = [
-                Person(last_name='Wohnlich', first_name='', initial='E'),
-                Person(last_name='Battle', first_name='', initial='J')
-            ]
+            Person(last_name='Wohnlich', first_name='', initial='E'),
+            Person(last_name='Battle', first_name='', initial='J')
+        ]
         record.title = ''
         citation = '<cite>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. Baltimore: Doubleday; ' \
                    '2010 Feb. 5.</cite>'
@@ -270,7 +314,7 @@ class TestCooking(unittest.TestCase):
                    '2010 Feb. 5.</cite>'
         self.assertEqual(citation, monograph_citation(html=True, publication=record))
 
-        record.publisher= ''
+        record.publisher = ''
         citation = '<cite>Wohnlich E, Battle J; Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.</cite>'
         self.assertEqual(citation, monograph_citation(html=True, publication=record))
 
@@ -641,8 +685,7 @@ class TestCooking(unittest.TestCase):
                     last_name='Wohnliché',
                     initial='E',
                     first_name=''
-                )
-                ,
+                ),
                 Person(
                     last_name='Carter',
                     initial='G',

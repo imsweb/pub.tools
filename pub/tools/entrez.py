@@ -117,8 +117,6 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
         title = articletitle
         booktitle = book.get('BookTitle', '')
     else:
-        import pdb;
-        pdb.set_trace()
         title = book.get('BookTitle', '')
         booktitle = ''
 

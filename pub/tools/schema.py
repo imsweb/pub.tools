@@ -220,6 +220,7 @@ class ChapterRecord(BookRecord):
 @dataclasses.dataclass
 class ConferenceRecord(EntrezRecord):
     place: str = ''
+    editors: list[Person] = dataclasses.field(default_factory=list)
     conferencename: str = ''
     conferencedate: str = ''
     publisher: str = ''

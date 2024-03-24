@@ -14,7 +14,7 @@ from ..citations import period
 from ..citations import punctuate
 from ..citations import report_citation
 from ..config import NO_VALUE
-from ..schema import Abstract
+from ..schema import Abstract, ChapterRecord
 from ..schema import BookRecord
 from ..schema import JournalRecord
 from ..schema import Person
@@ -571,6 +571,43 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, journal_citation(html=True, **record))
 
     def test_html_chapter(self):
+        record = ChapterRecord(
+            title='Chapter 19. Estimating the Natural History of Breast Cancer from Bivariate Data on Age and '
+                  'Tumor Size at Diagnosis',
+            authors=[
+                Person(
+                    last_name='Zorin', first_name='', initial='AV'
+                ),
+                Person(
+                    last_name='Edler', first_name='', initial='L',
+                ),
+                Person(
+                    last_name='Hanin', first_name='', initial='LG',
+                ),
+                Person(
+                    last_name='Yakovlev', first_name='', initial='AY',
+                )
+            ],
+            editors=[
+                Person(last_name='Edler', initial='L', first_name=''),
+                Person(last_name='Kitsos', initial='CP', first_name='')
+            ],
+            pubdate='2006 Mar 17',
+            pagination='317-27',
+            edition='',
+            series='Wiley Series in Probability and Statistics',
+            pubplace='New York',
+            booktitle='Recent Advances in Quantitative Methods for Cancer and Human Health Risk Assessment',
+            publisher='John Wiley & Sons, Ltd'
+        )
+        citation = '<cite>Zorin AV, Edler L, Hanin LG, Yakovlev AY. Chapter 19. Estimating the Natural History ' \
+                   'of Breast Cancer from Bivariate Data on Age and Tumor Size at Diagnosis. In: Edler L, ' \
+                   'Kitsos CP, editors. Recent Advances in Quantitative Methods for Cancer and Human Health Risk ' \
+                   'Assessment. New York: John Wiley &amp; Sons, Ltd; 2006 Mar 17. p. 317-27. (Wiley Series in ' \
+                   'Probability and Statistics)</cite>'
+        self.assertEqual(citation, chapter_citation(html=True, publication=record))
+
+    def test_html_chapter_compatible(self):
         record = {
             'title': 'Chapter 19. Estimating the Natural History of Breast Cancer from Bivariate Data on Age and '
                      'Tumor Size at Diagnosis',

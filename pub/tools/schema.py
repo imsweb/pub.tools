@@ -86,7 +86,7 @@ class EntrezRecord:
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base.update(**{name: val for name, val in self.article_ids})
+        base.update(**{name: val for name, val in self.article_ids.items()})
         return base
 
     def __getitem__(self, item):
@@ -132,7 +132,7 @@ class JournalRecord(EntrezRecord):
     journal: str
     issue: str
     pubmodel: str
-    pubstatus: str
+    pubstatus: str = ''
     grants: list[Grant] = dataclasses.field(default_factory=list)
     mesh: list[str] = dataclasses.field(default_factory=list)
     pubtypelist: list[str] = dataclasses.field(default_factory=list)

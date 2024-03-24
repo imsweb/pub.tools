@@ -3,8 +3,10 @@ import unittest
 from datetime import datetime
 
 from .. import cooking
+from .. import entrez
 from ..citations import book_citation
 from ..citations import chapter_citation
+from ..citations import publication_citation
 from ..citations import conference_citation
 from ..citations import journal_citation
 from ..citations import monograph_citation
@@ -12,13 +14,15 @@ from ..citations import period
 from ..citations import punctuate
 from ..citations import report_citation
 from ..config import NO_VALUE
-
-from ..schema import Person
-from ..schema import JournalRecord
+from ..schema import Abstract
 from ..schema import BookRecord
+from ..schema import JournalRecord
+from ..schema import Person
 
 
 class TestCooking(unittest.TestCase):
+    maxDiff = None
+
     def test_citation_basics(self):
         start = ''
         expected = ''
@@ -568,6 +572,37 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(citation, chapter_citation(html=True, **record))
 
     def test_linked_journal_citation(self):
+        record = JournalRecord(
+            title='My title.',
+            authors=[
+                Person(
+                    last_name='Wohnlich',
+                    initial='E',
+                    first_name=''
+                ),
+                Person(
+                    last_name='Carter',
+                    initial='G',
+                    first_name=''
+                ),
+            ],
+            journal='Sample Journal',
+            pubdate='Jan 2007',
+            volume='4',
+            issue='5',
+            pagination='345-7',
+            pubmodel='Print',
+            abstract=[Abstract(label='INTRO', text='my findings', nlmcategory='')],
+            pmid='12345678',
+        )
+        citation = '<cite>Wohnlich E, Carter G. <a class="citation-pubmed-link" href="https://pubmed.ncbi.nlm.nih.gov' \
+                   '/12345678/">My title.</a> <i>Sample Journal</i> Jan 2007;4(5):345-7. <br/>' \
+                   '<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p><p>INTRO: ' \
+                   'my findings</p></div></cite>'
+        self.assertEqual(citation, journal_citation(html=True, link=True, use_abstract=True, publication=record))
+
+    def test_linked_journal_citation_compatibility(self):
+        """ uses dict instead of JournalRecord, for backwards compatibility """
         record = {
             'title': 'My title.',
             'authors': [{'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],
@@ -586,6 +621,24 @@ class TestCooking(unittest.TestCase):
                    '<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p><p>INTRO: ' \
                    'my findings</p></div></cite>'
         self.assertEqual(citation, journal_citation(html=True, link=True, **record))
+
+    def test_citation_from_journal_dataclass(self):
+        cit = publication_citation(publication=entrez.get_publication(pmid=12345678), html=True)
+        self.assertEqual(cit, '<cite>Ministerial Meeting on Population of the Non-Aligned Movement (1993: '
+                              'Bali). Denpasar Declaration on Population and Development. <i>Integration</i> 1994 '
+                              'Jun;(40):27-9.</cite>')
+
+    def test_citation_from_chapter_dataclass(self):
+        cit = publication_citation(publication=entrez.get_publication(pmid=22593940), html=True)
+        self.assertEqual(cit, '<cite>Kaefer CM, Milner JA, Benzie IFF, Wachtel-Galor S. Herbs and Spices in '
+                              'Cancer Prevention and Treatment. In: Herbal Medicine: Biomolecular and Clinical '
+                              'Aspects. 2nd. Boca Raton (FL): CRC Press/Taylor &amp; Francis; 2011.</cite>')
+
+    def test_citation_from_book_dataclass(self):
+        cit = publication_citation(publication=entrez.get_publication(pmid=12345678), html=True)
+        self.assertEqual(cit, '<cite>Ministerial Meeting on Population of the Non-Aligned Movement (1993: '
+                              'Bali). Denpasar Declaration on Population and Development. <i>Integration</i> 1994 '
+                              'Jun;(40):27-9.</cite>')
 
 
 def test_suite():

@@ -120,7 +120,7 @@ def cook_date_str(value):
     """
     try:
         for suffix in ('th', 'nd', 'st', 'rd'):  # ordinals
-            value = re.sub(r'(\d){}(\b)'.format(suffix), r'\1\2', value)
+            value = re.sub(rf'(\d){suffix}(\b)', r'\1\2', value)
         value = re.sub(r'\s*-\s*', '-', value)
         if ' ' not in value:
             value = value.replace('-', ' ')
@@ -175,7 +175,7 @@ def cook_date_ris(value):
             other = vals[1]
     if len(vals) > 2:
         try:
-            day = '{:02}'.format(int(vals[2]))
+            day = f'{int(vals[2]):02}'
         except ValueError:
             day = vals[2]
     year = year.split('-')[0]

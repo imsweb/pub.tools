@@ -1,22 +1,21 @@
 import logging
 import re
 import time
-from http.client import IncompleteRead
 import xml.etree.ElementTree as et
 from http.client import HTTPResponse
+from http.client import IncompleteRead
 
 from Bio import Entrez
-from io import StringIO
 from unidecode import unidecode
 
 from . import config
 from .cooking import cook_date_str
 from .schema import Abstract
-from .schema import Person
 from .schema import BookRecord
 from .schema import ChapterRecord
 from .schema import Grant
 from .schema import JournalRecord
+from .schema import Person
 from .schema import Section
 
 logger = logging.getLogger('pub.tools')
@@ -118,6 +117,8 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
         title = articletitle
         booktitle = book.get('BookTitle', '')
     else:
+        import pdb;
+        pdb.set_trace()
         title = book.get('BookTitle', '')
         booktitle = ''
 
@@ -158,6 +159,7 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
     kwargs = {
         'title': title,
         'authors': authors,
+        'volume': volume,
         'pubdate': pubdate,
         'pmid': pmid,
         'medium': medium,
@@ -184,7 +186,6 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
 
 
 def _parse_entrez_journal_record(record: dict) -> JournalRecord:
-    _type = 'journal'
     medline = record.pop('MedlineCitation')
     medlineinfo = medline.pop('MedlineJournalInfo')
     article = medline.pop('Article')
@@ -273,7 +274,7 @@ def _parse_entrez_journal_record(record: dict) -> JournalRecord:
     for pmdate in record['PubmedData'].get('History', []):
         dtype = pmdate.attributes.get('PubStatus')
         _pmdate = ' '.join([d for d in (pmdate.get('Year'), pmdate.get('Month'), pmdate.get('Day')) if d])
-        pmpubdates['pmpubdate_{}'.format(dtype)] = _pmdate
+        pmpubdates[f'pmpubdate_{dtype}'] = _pmdate
 
     return JournalRecord(
         title=title,
@@ -360,7 +361,7 @@ def get_pmid_by_pmc(pmcid: str) -> str:
                 return el.text.strip()
         # we found an article, but it has no PMID given
         # try to search PubMed with PMC as a general term
-        search = find_publications(all="PMC{}".format(pmcid))
+        search = find_publications(all=f"PMC{pmcid}")
         if search['Count'] == '1':
             return search['IdList'][0]
 
@@ -386,17 +387,17 @@ def get_publications(pmids: list, escape: bool = True):
         try:
             timer = time.time()
             logger.info(
-                'Fetching publications {} through {}...'.format(start, min(len(pmids), start + config.MAX_PUBS)))
+                f'Fetching publications {start} through {min(len(pmids), start + config.MAX_PUBS)}...')
             handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
             data = Entrez.read(handle, escape=escape)
-            logger.info('Fetched and read after {:.02f}s'.format(time.time() - timer))
+            logger.info(f'Fetched and read after {time.time() - timer:02}s')
             for record in data['PubmedArticle'] + data['PubmedBookArticle']:
                 yield _parse_entrez_record(record, escape)
             start += config.MAX_PUBS
         except Exception as e:
             logger.info(f'efetch failed: "{e}"')
             raise PubToolsError(f"Something is wrong with Entrez or these PMIDs: {','.join(pmid_slice)}")
-    logger.info('Total publications retrieved in {:.02f} seconds'.format(time.time() - total_time))
+    logger.info(f'Total publications retrieved in {time.time() - total_time:.02} seconds')
 
 
 def find_pmids(query):
@@ -469,22 +470,22 @@ def generate_search_string(all: str = None, authors: list[str] = None, title: st
         search_strings.append(all)
     if authors:
         auth_join = " OR " if inclusive == "OR" else " "
-        search_strings.append(auth_join.join(['{}[au]'.format(unidecode(a)) for a in authors if a]))
+        search_strings.append(auth_join.join([f'{unidecode(a)}[au]' for a in authors if a]))
 
     if title:
         for stop in STOPWORDS:
-            comp = re.compile(r'(\s)?\b{}\b(\s)?'.format(stop), re.IGNORECASE)
+            comp = re.compile(rf'(\s)?\b{stop}\b(\s)?', re.IGNORECASE)
             title = comp.sub('*', title)
         for stop in PUNC_STOPWORDS:
-            comp = re.compile(r'(\s)?(\b)?{}(\b)?(\s)?'.format(stop), re.IGNORECASE)
+            comp = re.compile(rf'(\s)?(\b)?{stop}(\b)?(\s)?', re.IGNORECASE)
             title = comp.sub('*', title)
         titlevals = [elem.strip() for elem in title.split('*')]
-        search_strings.append(titlevals and '+'.join(['{}[ti]'.format(unidecode(t)) for t in titlevals if t]) or '')
+        search_strings.append(titlevals and '+'.join([f'{unidecode(t)}[ti]' for t in titlevals if t]) or '')
     if journal:
         search_strings.append(f'"{unidecode(journal)}"[jour]')
     if pmid:
         if isinstance(pmid, list) or isinstance(pmid, tuple):
-            search_strings.append(" OR ".join(['{}[pmid]'.format(unidecode(pid)) for pid in pmid if pid]))
+            search_strings.append(" OR ".join([f'{unidecode(pid)}[pmid]' for pid in pmid if pid]))
         else:
             search_strings.append(f'{pmid}[pmid]')
     if gr:

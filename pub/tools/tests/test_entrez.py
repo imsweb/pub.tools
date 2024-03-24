@@ -4,7 +4,7 @@ import unittest
 from Bio import Entrez
 
 from .. import entrez
-from ..citations import journal_citation
+from .. import citations
 from ..schema import Abstract
 from ..schema import Grant
 from ..schema import JournalRecord
@@ -293,11 +293,7 @@ class TestCase(unittest.TestCase):
                  'observed.'
         )]
         for r, e in zip(pub.abstract, expected):
-            try:
-                self.assertEqual(r, e)
-            except:
-                import pdb;
-                pdb.set_trace()
+            self.assertEqual(r, e)
         self.assertEqual(pub.grants, [])
         self.assertEqual(pub.pubstatus, 'ppublish')
 
@@ -360,14 +356,14 @@ class TestCase(unittest.TestCase):
     def test_print_electronic_pubmodel(self):
         """ Both dates should be stored and the citation reflect it """
         record = entrez.get_publication(pmid='10854512')
-        self.assertEqual(journal_citation(html=True, publication=record),
+        self.assertEqual(citations.journal_citation(html=True, publication=record),
                          '<cite>Soon MS, Lin OS. Inflammatory fibroid polyp of the duodenum. <i>Surg Endosc</i> 2000 '
                          'Jan;14(1):86. Epub 1999 Nov 25.</cite>')
 
     def test_electronic_print_pubmodel(self):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='14729922')
-        self.assertEqual(journal_citation(html=True, publication=record),
+        self.assertEqual(citations.journal_citation(html=True, publication=record),
                          '<cite>Edgar RC. Local homology recognition and distance measures in linear time using '
                          'compressed '
                          'amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.</cite>')
@@ -375,7 +371,7 @@ class TestCase(unittest.TestCase):
     def test_electronic_ecollection_pubmodel(self):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='23372575')
-        self.assertEqual(journal_citation(html=True, publication=record),
+        self.assertEqual(citations.journal_citation(html=True, publication=record),
                          '<cite>Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 '
                          'Jan 25;3:330. doi: '
                          '10.3389/fgene.2012.00330. eCollection 2012.</cite>')
@@ -469,6 +465,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(len(record['IdList']), 1)
         record = entrez.get_searched_publications(record['WebEnv'], record['QueryKey'])
         self.check_pub_data(record[0])
+
 
 
 def test_suite():

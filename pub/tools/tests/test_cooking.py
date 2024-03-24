@@ -531,6 +531,31 @@ class TestCooking(unittest.TestCase):
         self.assertEqual(d, expected)
 
     def test_non_latin1(self):
+        record = JournalRecord(
+            title='My title',
+            authors=[
+                Person(
+                    last_name='Wohnliché',
+                    initial='E',
+                    first_name=''
+                )
+                ,
+                Person(
+                    last_name='Carter',
+                    initial='G',
+                    first_name=''
+                )],
+            journal='Sample Journal',
+            pubdate='Jan 2007',
+            volume='4',
+            issue='5',
+            pagination='345-7',
+            pubmodel='Print',
+        )
+        citation = '<cite>Wohnliché E, Carter G. My title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</cite>'
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
+
+    def test_non_latin1_compatible(self):
         record = {
             'title': 'My title',
             'authors': [{'lname': 'Wohnliché', 'iname': 'E'}, {'lname': 'Carter', 'iname': 'G'}],

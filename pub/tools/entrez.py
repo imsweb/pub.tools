@@ -9,7 +9,7 @@ from Bio import Entrez
 from unidecode import unidecode
 
 from . import config
-from .cooking import cook_date_str
+from .formatting import format_date_str
 from .schema import Abstract
 from .schema import BookRecord
 from .schema import ChapterRecord
@@ -127,7 +127,7 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
         pubplace = book['Publisher'].get('PublisherLocation', '')
 
     if pubdate := book.get('PubDate', ''):
-        pubdate = cook_date_str(' '.join([i for i in (
+        pubdate = format_date_str(' '.join([i for i in (
             pubdate.get('Year', ''), pubdate.get('Season', ''),
             pubdate.get('Month', ''), pubdate.get('Day', '')) if i]))
 
@@ -200,7 +200,7 @@ def _parse_entrez_journal_record(record: dict) -> JournalRecord:
 
     medium = journal['JournalIssue'].attributes['CitedMedium']
     pagination = article.get('Pagination', {}).get('MedlinePgn', '')
-    pubdate = cook_date_str(' '.join([i for i in (
+    pubdate = format_date_str(' '.join([i for i in (
         pubdate.get('MedlineDate', ''), pubdate.get('Year', ''),
         pubdate.get('Season', ''), pubdate.get('Month', ''),
         pubdate.get('Day', '')) if i]))
@@ -208,7 +208,7 @@ def _parse_entrez_journal_record(record: dict) -> JournalRecord:
 
     pmpubdates = {}
     for pmdate in pmdates:
-        pmdate_str = cook_date_str(
+        pmdate_str = format_date_str(
             ' '.join([i for i in (pmdate.get('Year', ''), pmdate.get('Month', ''), pmdate.get('Day', '')) if i]))
         pmpubdates['pmpubdate_' + pmdate.attributes['PubStatus'].replace('-', '')] = pmdate_str
 
@@ -246,7 +246,7 @@ def _parse_entrez_journal_record(record: dict) -> JournalRecord:
     edate = ''
     for adate in articledate:
         if adate.attributes['DateType'] == 'Electronic':
-            edate = cook_date_str(' '.join([i for i in (
+            edate = format_date_str(' '.join([i for i in (
                 adate.get('MedlineDate', ''), adate.get('Year', ''), adate.get('Season', ''),
                 adate.get('Month', ''), adate.get('Day', '')) if i]))
     medlineta = medlineinfo.get('MedlineTA', '')

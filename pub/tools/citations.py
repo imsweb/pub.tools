@@ -17,7 +17,7 @@ from .schema import Person
 
 WRAPPER_TAG = 'cite'
 PUNC_ENDINGS = ('.', '?', '!')
-VERSION = importlib.metadata.version('pub.tools')
+from .config import VERSION
 
 
 def cooked_citation(func: Callable):

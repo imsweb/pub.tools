@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 from lxml import etree as et
 
-from .cooking import alphanum, cook_date_str
+from .formatting import alphanum, cook_date_str
 import dataclasses
 
 

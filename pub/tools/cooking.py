@@ -1,10 +1,6 @@
 import deprecation
 
-import re
-from datetime import datetime
-
 from . import config
-
 from . import formatting
 
 preferred_date_format = formatting.preferred_date_format

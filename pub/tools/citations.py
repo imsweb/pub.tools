@@ -1,4 +1,3 @@
-import importlib.metadata
 import warnings
 from collections.abc import Callable
 from io import StringIO
@@ -8,6 +7,7 @@ from bs4 import BeautifulSoup
 from bs4 import MarkupResemblesLocatorWarning
 from lxml import etree as et
 
+from .config import VERSION
 from .schema import Abstract
 from .schema import BookRecord
 from .schema import ChapterRecord
@@ -17,7 +17,6 @@ from .schema import Person
 
 WRAPPER_TAG = 'cite'
 PUNC_ENDINGS = ('.', '?', '!')
-from .config import VERSION
 
 
 def cooked_citation(func: Callable):

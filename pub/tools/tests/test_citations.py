@@ -1,26 +1,23 @@
 import unittest
-from datetime import datetime
 
-from .. import formatting
 from .. import entrez
 from ..citations import book_citation
 from ..citations import chapter_citation
-from ..citations import publication_citation
 from ..citations import conference_citation
 from ..citations import journal_citation
 from ..citations import monograph_citation
 from ..citations import period
+from ..citations import publication_citation
 from ..citations import punctuate
 from ..citations import report_citation
-from ..config import NO_VALUE
 from ..schema import Abstract
 from ..schema import BookRecord
-from ..schema import JournalRecord
-from ..schema import ReportRecord
-from ..schema import ConferenceRecord
 from ..schema import ChapterRecord
+from ..schema import ConferenceRecord
+from ..schema import JournalRecord
 from ..schema import MonographRecord
 from ..schema import Person
+from ..schema import ReportRecord
 
 
 class TestCitations(unittest.TestCase):

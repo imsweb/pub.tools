@@ -1,26 +1,11 @@
 import unittest
-from datetime import datetime
 
-from .. import formatting
-from .. import entrez
 from ..citations import book_citation
 from ..citations import chapter_citation
-from ..citations import publication_citation
 from ..citations import conference_citation
 from ..citations import journal_citation
 from ..citations import monograph_citation
-from ..citations import period
-from ..citations import punctuate
 from ..citations import report_citation
-from ..config import NO_VALUE
-from ..schema import Abstract
-from ..schema import BookRecord
-from ..schema import JournalRecord
-from ..schema import ReportRecord
-from ..schema import ConferenceRecord
-from ..schema import ChapterRecord
-from ..schema import MonographRecord
-from ..schema import Person
 
 
 class TestCitationsBackwardsCompatibility(unittest.TestCase):
@@ -277,7 +262,6 @@ class TestCitationsBackwardsCompatibility(unittest.TestCase):
         record['publisher'] = ''
         citation = '<cite>Wohnlich E, Battle J. Series name. Hawking S, Wheeler J, editors. 2010 Feb. 5.</cite>'
         self.assertEqual(citation, report_citation(html=True, **record))
-
 
     def test_non_latin1(self):
         record = {

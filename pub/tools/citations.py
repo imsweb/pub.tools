@@ -102,7 +102,7 @@ def citation_author(author: Person | dict, use_suffix: bool = True) -> str:
             'initial': author.get('iname') or author.get('initial'),
             'suffix': author.get('suffix') or author.get('suffix'),
         }
-        return citation_author(Person(**author))
+        return citation_author(Person(**author), use_suffix=use_suffix)
     initial = author.initial if author.initial else (author.first_name[0].upper() if author.first_name else '')
     lname = author.collective_name or author.last_name
     parts = [lname, initial]

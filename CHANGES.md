@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0] - 22 Mar 2024
+- breaking change: python >= 3.11
+- breaking change: affiliations are no longer a property of a publication. Instead they are on each author.
+- adds type hints where appropriate
+- adds dataclass for EntrezRecord
+
 ## [4.3] - 31 Jan 2024
 - fixes an issue with InvestigatorList where it is now wrapped in a list
 - update pin to biopython 1.83

@@ -5,18 +5,22 @@ from io import BytesIO
 import requests
 from lxml import etree as et
 
-from .cooking import alphanum, cook_date_str
+from .formatting import alphanum, cook_date_str
+import dataclasses
 
 
-class IsbnData(object):
-    book_title = ''
-    language = ''
-    publisher = ''
-    authors = []
-    editors = []
-    abstract = ''
-    pubdate = ''
-    google_books_link = ''
+# DISCLAIMER: the authors do not use any of this anymore. Use at own risk, bug reports welcome
+
+@dataclasses.dataclass
+class IsbnData:
+    book_title: str = ''
+    language: str = ''
+    publisher: str = ''
+    authors: list = dataclasses.field(default_factory=list)
+    editors: list = dataclasses.field(default_factory=list)
+    abstract: str = ''
+    pubdate: str = ''
+    google_books_link: str = ''
 
     def get(self, key):  # dict like
         if hasattr(self, key):
@@ -29,15 +33,14 @@ class IsbnData(object):
         return setattr(self, key, value)
 
 
-class IsbnOpener(object):
-    root_url = ''  # for construction
-    url = ''  # for displays
-    name = 'Default opener'
+@dataclasses.dataclass
+class IsbnOpener:
+    api_key: str = ''
+    root_url: str = ''  # for construction
+    url: str = ''  # for displays
+    name: str = 'Default opener'
 
-    def __init__(self, api_key=None):
-        self.api_key = api_key
-
-    def get_publication(self, isbn):
+    def get_publication(self, isbn: str) -> IsbnData:
         """ Should always return an IsbnData object """
         return IsbnData()
 
@@ -52,7 +55,9 @@ class IsbnDbOpener(IsbnOpener):
 
     def get_url(self, endpoint, term):
         url = self.root_url.format(endpoint=endpoint, term=term)
-        headers = {'X-API-KEY': self.api_key}
+        headers = {
+            'X-API-KEY': self.api_key
+        }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return json.loads(response.text)
@@ -123,9 +128,9 @@ class WorldCatOpener(IsbnOpener):
             authors = []
             editors = []
             root = tree.getroot()
-            _authors = root.find('{{{}}}authors'.format(ns))
+            _authors = root.find(f'{{{ns}}}authors')
             if _authors and _authors is not None:
-                for author in _authors.findall('{{{}}}author'.format(ns)):
+                for author in _authors.findall(f'{{{ns}}}author'):
                     author = author.text
                     brkt_pattern = r'\[(.*?)\]'
                     brkt = re.search(brkt_pattern, author)
@@ -144,5 +149,5 @@ class WorldCatOpener(IsbnOpener):
                 data['authors'] = authors
                 data['editors'] = editors
                 data['title'] = ''
-                data['title'] = root.find('{{{}}}work'.format(ns)).attrib['title']
+                data['title'] = root.find(f'{{{ns}}}work').attrib['title']
                 return data

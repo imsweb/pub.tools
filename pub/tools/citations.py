@@ -1,12 +1,25 @@
+import warnings
+from collections.abc import Callable
 from io import StringIO
-from bs4 import BeautifulSoup
 
+import deprecation
+from bs4 import BeautifulSoup
+from bs4 import MarkupResemblesLocatorWarning
 from lxml import etree as et
 
-punc_endings = ('.', '?', '!')
+from .config import VERSION
+from .schema import Abstract
+from .schema import BookRecord
+from .schema import ChapterRecord
+from .schema import EntrezRecord
+from .schema import JournalRecord
+from .schema import Person
+
+WRAPPER_TAG = 'cite'
+PUNC_ENDINGS = ('.', '?', '!')
 
 
-def cooked_citation(func):
+def cooked_citation(func: Callable):
     def wrapper(**kwargs):
         text = func(**kwargs)
         try:
@@ -30,15 +43,18 @@ def cooked_citation(func):
     return wrapper
 
 
-def punctuate(text, punctuation, space=''):
-    soup = BeautifulSoup(text, 'html.parser')
-    element = soup.find('a')
+def punctuate(text: str, punctuation: str, space: str = '') -> str:
+    """ Applies a punctuation mark to the text, with `space` used for certain punctuation
+
+    """
+    with warnings.catch_warnings(action='ignore', category=MarkupResemblesLocatorWarning):
+        soup = BeautifulSoup(text, 'html.parser')
+        element = soup.find('a')  # the inside of a link may end in a period
     if not text:
         return text
-    if punctuation in punc_endings and text[-1] in punc_endings or \
-            (element and element.get_text()[-1] in punc_endings):
+    if punctuation in PUNC_ENDINGS and text[-1] in PUNC_ENDINGS or (element and element.get_text()[-1] in PUNC_ENDINGS):
         return text + space
-    elif punctuation not in punc_endings and text[-1] == punctuation:
+    elif punctuation not in PUNC_ENDINGS and text[-1] == punctuation:
         return text + space
     elif text[-1] == ' ':
         return punctuate(text.strip(), punctuation, space)
@@ -46,74 +62,86 @@ def punctuate(text, punctuation, space=''):
         return text + punctuation + space
 
 
-def period(text):
+def period(text: str) -> str:
     return punctuate(text, '.', ' ')
 
 
-def comma(text):
+def comma(text: str) -> str:
     return punctuate(text, ',', ' ')
 
 
-def colon(text):
+def colon(text: str) -> str:
     return punctuate(text, ':', ' ')
 
 
-def colon_no_space(text):
+def colon_no_space(text: str) -> str:
     return punctuate(text, ':', '')
 
 
-def semi_colon(text):
+def semi_colon(text: str) -> str:
     return punctuate(text, ';', ' ')
 
 
-def semi_colon_no_space(text):
+def semi_colon_no_space(text: str) -> str:
     return punctuate(text, ';', '')
 
 
-def cookauthor(author, suffix=True):
-    if isinstance(author, dict):
-        initial = author.get('iname') or author.get('fname') and author['fname'][0].upper() or ''
-        lname = author.get('cname') or author.get('lname')
-        parts = [lname, initial]
-        if suffix and author.get('suffix'):
-            parts.append(author['suffix'])
-        return ' '.join([p.rstrip() for p in parts if p])
-    return author
+@deprecation.deprecated(deprecated_in='5.0', removed_in='6.0', current_version=VERSION,
+                        details="Use `citation_author` instead.")
+def cookauthor(author: Person | dict, suffix: bool = True):
+    return citation_author(author, use_suffix=suffix)
+
+
+def citation_author(author: Person | dict, use_suffix: bool = True) -> str:
+    """ combine authors into one string """
+    if not isinstance(author, Person):
+        author = {
+            'last_name': author.get('lname') or author.get('last_name'),
+            'first_name': author.get('fname') or author.get('first_name'),
+            'collective_name': author.get('cname') or author.get('collective_name'),
+            'initial': author.get('iname') or author.get('initial'),
+            'suffix': author.get('suffix') or author.get('suffix'),
+        }
+        return citation_author(Person(**author))
+    initial = author.initial if author.initial else (author.first_name[0].upper() if author.first_name else '')
+    lname = author.collective_name or author.last_name
+    parts = [lname, initial]
+    if use_suffix and author.suffix:
+        parts.append(author.suffix)
+    return ' '.join([p.rstrip() for p in parts if p])
+
+
+def citation_editors(editors: list[Person]) -> str:
+    """ combine editors into one string and pluralize if appropriate """
+    plural = 's' if len(editors) > 1 else ''
+    editors = ', '.join([citation_author(e).replace(',', ' ') for e in editors])
+    return period(f"{editors}, editor{plural}")
 
 
 @cooked_citation
-def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
-                  edition='', series='', pubplace='', publisher='', html=False, **kwargs):
+def book_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
+                  pubdate: str = '',
+                  pagination: str = '', edition: str = '', series: str = '', pubplace: str = '', publisher: str = '',
+                  html: bool = False, publication: BookRecord = None, **kwargs) -> str:
     """ book citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param editors: same functionality as authors
-    :param title: str
-    :param pubdate: str formatted date
-    :param pagination: str
-    :param edition: str
-    :param series: str
-    :param pubplace: str
-    :param publisher: str
-    :param html: boolean
-    :param kwargs: additional params catchall
-    :return: str
+        You can pass each field separately, or pass an EntrezRecord object
     """
+    if publication:
+        return book_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write('<span>')
+        out.write(f'<{WRAPPER_TAG}>')
     if editors and not authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a) for a in authors])))
     if title:
         out.write(period(title))
     if edition:
         out.write(period(edition))
     if editors and authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if pubplace:
         if publisher:
             out.write(colon(pubplace))
@@ -127,49 +155,40 @@ def book_citation(authors=(), editors=(), title='', pubdate='', pagination='',
     if pubdate:
         out.write(period(pubdate))
     if pagination:
-        out.write('p. {0}'.format(period(pagination)))
+        out.write(f'p. {period(pagination)}')
     if series:
-        out.write('({})'.format(series))
+        out.write(f'({series})')
     out = out.getvalue().strip()
     if html:
-        out += '</span>'
+        out += f'</{WRAPPER_TAG}>'
     return out
 
 
 @cooked_citation
-def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination='',
-                     edition='', series='', pubplace='', booktitle='', publisher='', html=False, **kwargs):
+def chapter_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
+                     pubdate: str = '',
+                     pagination: str = '', edition: str = '', series: str = '', pubplace: str = '', publisher: str = '',
+                     booktitle: str = '', html: bool = False, publication: ChapterRecord = None, **kwargs) -> str:
     """ book chapter citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param editors: same functionality as authors
-    :param title: str (chapter title)
-    :param pubdate: str formatted date
-    :param pagination: str
-    :param edition: str
-    :param series: str
-    :param pubplace: str
-    :param booktitle: str
-    :param publisher: str
-    :param html: boolean
-    :param kwargs: additional params catchall
-    :return: str
+
+        You can pass each field separately, or pass an EntrezRecord object
     """
+    if publication:
+        return chapter_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write('<span>')
+        out.write(f'<{WRAPPER_TAG}>')
     if editors and not authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if edition or editors or booktitle:
         out.write('In: ')
     if editors and authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if booktitle:
         out.write(period(booktitle))
     if edition:
@@ -187,51 +206,41 @@ def chapter_citation(authors=(), editors=(), title='', pubdate='', pagination=''
     if pubdate:
         out.write(period(pubdate))
     if pagination:
-        out.write('p. {}'.format(period(pagination)))
+        out.write(f'p. {period(pagination)}')
     if series:
-        out.write('({})'.format(series))
+        out.write(f'({series})')
     out = out.getvalue().strip()
     if html:
-        out += '</span>'
+        out += f'</{WRAPPER_TAG}>'
     return out
 
 
 @cooked_citation
-def conference_citation(authors=(), editors=(), title='', pubdate='', pagination='', pubplace='', place='',
-                        conferencename='', conferencedate='', publisher='', html=None, **kwargs):
+def conference_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
+                        pubdate: str = '', pagination: str = '', pubplace: str = '', place: str = '',
+                        conferencename: str = '', conferencedate: str = '', publisher: str = '', html: bool = False,
+                        publication: EntrezRecord = None, **kwargs) -> str:
     """ conference citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param editors: same functionality as authors
-    :param title: str
-    :param pubdate: str formatted date
-    :param pagination: str
-    :param pubplace: str (location of publication)
-    :param place: str (location of conference event)
-    :param conferencename: str
-    :param conferencedate: str formatted
-    :param publisher: str
-    :param html: boolean
-    :param kwargs: additional params catchall
-    :return: str (unicode in py2) if not not italicize, otherwise HTML
+        You can pass each field separately, or pass an EntrezRecord object
     """
+    if publication:
+        return conference_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write('<span>')
+        out.write(f'<{WRAPPER_TAG}>')
     if editors and not authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if editors and authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if conferencename and html:
-        out.write(semi_colon('<i>Proceedings of {}</i>'.format(conferencename)))
+        out.write(semi_colon(f'<i>Proceedings of {conferencename}</i>'))
     elif conferencename:
-        out.write(semi_colon('Proceedings of {}'.format(conferencename)))
+        out.write(semi_colon(f'Proceedings of {conferencename}'))
     if conferencedate:
         if place or pubdate or publisher:
             out.write(semi_colon(conferencedate))
@@ -252,43 +261,33 @@ def conference_citation(authors=(), editors=(), title='', pubdate='', pagination
     if pubdate:
         out.write(period(pubdate))
     if pagination:
-        out.write('p. {}'.format(period(pagination)))
+        out.write(f'p. {period(pagination)}')
     out = out.getvalue().strip()
     if html:
-        out += '</span>'
+        out += f'</{WRAPPER_TAG}>'
     return out
 
 
 @cooked_citation
-def journal_citation(authors=(), title='', journal='', pubdate='', volume='', issue='', pagination='', abstract=None,
-                     pubmodel='Print', edate='', doi='', use_abstract=False, html=False, link=False,
-                     pmid='', **kwargs):
+def journal_citation(authors: list[Person | dict] = (), title: str = '', journal: str = '', pubdate: str = '',
+                     volume: str = '', issue: str = '', pagination: str = '',
+                     abstract: list[Abstract] = None, pubmodel: str = 'Print', edate: str = '', doi: str = '',
+                     pmid: str = '', journal_abbreviation: str = '', use_abstract: bool = False,
+                     html: bool = False, link: bool = False, publication: JournalRecord = None, **kwargs) -> str:
     """ journal citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param title: str
-    :param journal: str
-    :param pubdate: str formatted date
-    :param volume: str
-    :param issue: str
-    :param pagination: str
-    :param abstract: iterable. Individual elements can be dict or plain text
-    :param pubmodel: determines which date types to use
-    :param edate: str formatted date
-    :param doi: str
-    :param use_abstract: boolean. If using abstract, result will be HTML
-    :param html: boolean
-    :param link: boolean. Puts an anchor tag around the title, linking to PubMed
-    :param kwargs: additional params catchall
-    :return: str (unicode in py2) if not abstract and not italicize, otherwise HTML
     """
+    if publication:
+        return journal_citation(**publication.asdict(), html=html, use_abstract=use_abstract, link=link)
+    if journal_abbreviation:
+        journal = journal_abbreviation
     if not abstract:
         abstract = {}
     out = StringIO()
     if html:
-        out.write('<span>')
+        out.write(f'<{WRAPPER_TAG}>')
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors if a])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors if a])))
     if title:
         if link and pmid:
             out.write(
@@ -296,7 +295,7 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
         else:
             out.write(period(title))
     if journal and html:
-        out.write('<i>{}</i> '.format(journal.strip()))
+        out.write(f'<i>{journal.strip()}</i> ')
     elif journal:
         out.write(period(journal.strip()))
 
@@ -323,9 +322,9 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
             out.write(period(volume))
     if issue:
         if pagination:
-            out.write(colon_no_space('({})'.format(issue)))
+            out.write(colon_no_space(f'({issue})'))
         else:
-            out.write(period('({})'.format(issue)))
+            out.write(period(f'({issue})'))
     if pagination:
         out.write(period(pagination))
     if pubmodel in ('Print-Electronic',):
@@ -337,9 +336,9 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
     if pubmodel in ('Electronic-eCollection',):
         if pubdate:
             if doi:
-                out.write('doi: {}. eCollection {}'.format(doi, period(pubdate)))
+                out.write(f'doi: {doi}. eCollection {period(pubdate)}')
             else:
-                out.write('eCollection {}'.format(period(pubdate)))
+                out.write(f'eCollection {period(pubdate)}')
 
     if use_abstract:
         out.write('<br/>')
@@ -349,52 +348,46 @@ def journal_citation(authors=(), title='', journal='', pubdate='', volume='', is
             abst += abst and ': ' or ''
             abst += seg.get('text') or ''
             if abst:
-                abstracts.append('<p>{}</p>'.format(abst))
+                abstracts.append(f'<p>{abst}</p>')
         abstract = ' '.join(abstracts)
         if abstract:
             out.write(
-                '<div class="citationAbstract"><p class="abstractHeader"><strong>Abstract</strong></p>{}</div>'.format(
-                    abstract))
+                f'<div class="citationAbstract"><p class="abstractHeader">'
+                f'<strong>Abstract</strong></p>{abstract}</div>'
+            )
     out = out.getvalue().strip()
     if html:
-        out += '</span>'
+        out += f'</{WRAPPER_TAG}>'
     return out
 
 
 @cooked_citation
-def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='', weburl='', reportnum='', publisher='',
-                       serieseditors=(), html=False, **kwargs):
+def monograph_citation(authors: list[Person | dict] = (), title: str = '', pubdate: str = '', series: str = '',
+                       pubplace: str = '', weburl: str = '', reportnum: str = '', publisher: str = '',
+                       serieseditors: list[str] = (), html: bool = False, publication: EntrezRecord = None,
+                       **kwargs) -> str:
     """ book chapter citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param serieseditors: same functionality as authors
-    :param title: str
-    :param pubdate: str formatted date
-    :param series: str
-    :param pubplace: str
-    :param publisher: str
-    :param weburl: str
-    :param reportnum: str
-    :param kwargs: additional params catchall
-    :return: str
     """
+    if publication:
+        return monograph_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write('<span>')
+        out.write(f'<{WRAPPER_TAG}>')
     if serieseditors and not authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in serieseditors]),
-            len(serieseditors) > 1 and 's' or '')))
+        out.write(period(
+            f"{', '.join([e.replace(',', ' ') for e in serieseditors])}, "
+            f"editor{'s' if len(serieseditors) > 1 else ''}"))
     if authors:
-        out.write(semi_colon(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(semi_colon(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if series:
         out.write(period(series))
     if serieseditors and authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in serieseditors]),
-            len(serieseditors) > 1 and 's' or '')))
+        out.write(period(
+            f"{', '.join([e.replace(',', ' ') for e in serieseditors])}, "
+            f"editor{'s' if len(serieseditors) > 1 else ''}"))
     if pubplace:
         if publisher:
             out.write(colon(pubplace))
@@ -412,46 +405,36 @@ def monograph_citation(authors=(), title='', pubdate='', series='', pubplace='',
     if reportnum:
         out.write(period(reportnum))
     if weburl:
-        out.write('Available at {0}.'.format(weburl))
+        out.write(f'Available at {weburl}.')
     out = out.getvalue().strip()
     if html:
-        out += '</span>'
+        out += f'</{WRAPPER_TAG}>'
     return out
 
 
 @cooked_citation
-def report_citation(authors=(), editors=(), title='', pubdate='', pagination='', series='', pubplace='', weburl='',
-                    reportnum='', publisher='', html=False, **kwargs):
+def report_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
+                    pubdate: str = '', pagination: str = '', series: str = '', pubplace: str = '', weburl: str = '',
+                    reportnum: str = '', publisher: str = '', html: bool = False, publication: EntrezRecord = None,
+                    **kwargs) -> str:
     """ book chapter citation
 
-    :param authors: iterable. Individual elements can be dict or plain text
-    :param editors: same functionality as authors
-    :param title: str
-    :param pubdate: str formatted date
-    :param pagination: str
-    :param series: str
-    :param pubplace: str
-    :param publisher: str
-    :param weburl: str
-    :param reportnum: str
-    :param kwargs: additional params catchall
-    :return: str
     """
+    if publication:
+        return report_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write('<span>')
+        out.write(f'<{WRAPPER_TAG}>')
     if editors and not authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if authors:
-        out.write(period(', '.join([cookauthor(a).replace(',', ' ') for a in authors])))
+        out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors])))
     if title:
         out.write(period(title))
     if series:
         out.write(period(series))
     if editors and authors:
-        out.write(period('{}, editor{}'.format(
-            ', '.join([cookauthor(e).replace(',', ' ') for e in editors]), len(editors) > 1 and 's' or '')))
+        out.write(citation_editors(editors))
     if pubplace:
         if publisher:
             out.write(colon(pubplace))
@@ -469,10 +452,33 @@ def report_citation(authors=(), editors=(), title='', pubdate='', pagination='',
     if reportnum:
         out.write(period(reportnum))
     if pagination:
-        out.write(period('p. {0}'.format(pagination)))
+        out.write(period(f'p. {pagination}'))
     if weburl:
-        out.write('Available at {0}.'.format(weburl))
+        out.write(f'Available at {weburl}.')
     out = out.getvalue().strip()
     if html:
-        out += '</span>'
+        out += f'</{WRAPPER_TAG}>'
     return out
+
+
+@cooked_citation
+def publication_citation(publication: JournalRecord | BookRecord | ChapterRecord, html: bool = False,
+                         use_abstract: bool = False, link: bool = False) -> str:
+    """ Undefined publication type. Only usable with pub types that can be retrieved from Pubmed.
+        Example usage:
+        >>> from pub.tools import entrez
+        >>> from pub.tools import citations
+        >>> if pub := entrez.get_publication(pmid=12345678):
+        >>>     citations.publication_citation(publication=pub)
+
+    Optional parameters:
+        html = will render the citation with html tags
+        use_abstract = will include the abstract after the citation (requires html=True)
+        link = will include PubMed link (requires html=True and pmid)
+    """
+    pub_types = {
+        'journal': journal_citation,
+        'book': book_citation,
+        'chapter': chapter_citation
+    }
+    return pub_types[publication.pub_type](publication=publication, html=html, use_abstract=use_abstract, link=link)

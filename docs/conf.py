@@ -38,5 +38,5 @@ if venv:
 with open(os.path.join('..', 'VERSION.txt')) as fopen:
     version = fopen.read().strip()
 
-html_theme ='sphinx_rtd_theme'
+html_theme = 'sphinx_rtd_theme'
 html_domain_indices = True

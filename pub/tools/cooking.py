@@ -26,13 +26,13 @@ def cook_date(year='', month='', day='', medlinedate='', end=False):
 @deprecation.deprecated(deprecated_in='5.0', removed_in='6.0', current_version=config.VERSION,
                         details="Import from `formatting` instead.")
 def cook_date_str(value):
-    return formatting.format_date(formatting.format_date_str(value))
+    return formatting.format_date_str(value)
 
 
 @deprecation.deprecated(deprecated_in='5.0', removed_in='6.0', current_version=config.VERSION,
                         details="Import from `formatting` instead.")
 def cook_date_ris(value):
-    return formatting.format_date(formatting.format_date_ris(value))
+    return formatting.format_date_ris(value)
 
 
 @deprecation.deprecated(deprecated_in='5.0', removed_in='6.0', current_version=config.VERSION,

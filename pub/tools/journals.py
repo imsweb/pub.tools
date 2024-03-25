@@ -76,8 +76,13 @@ try:
     os.makedirs(JOURNAL_DATA_DIR)
 except FileExistsError:
     pass
-with open(JOURNAL_DATA_FILE, 'w') as f:
-    json.dump(dataclasses.asdict(journals), f)
+if journals:
+    with open(JOURNAL_DATA_FILE, 'w') as f:
+        json.dump(dataclasses.asdict(journals), f)
+else:
+    with open('journals.json', 'r') as rf:
+        with open(JOURNAL_DATA_FILE, 'w') as wf:
+            json.dump(rf, wf)
 
 
 def get_source(cache: bool = False) -> AllJournalData:

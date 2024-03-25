@@ -73,7 +73,6 @@ class Section:
 
 @dataclasses.dataclass(kw_only=True)
 class EntrezRecord:
-    # type: str
     title: str
     authors: list[Person]
     pubdate: str
@@ -81,11 +80,14 @@ class EntrezRecord:
     volume: str = ''
     pmid: str = ''
     medium: str = ''
+    pubplace: str = ''
     abstract: list[Abstract] = dataclasses.field(default_factory=list)
     article_ids: dict[str, str] = dataclasses.field(default_factory=dict)
 
     def asdict(self):
         base = dataclasses.asdict(self)
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base.update(**{name: val for name, val in self.article_ids.items()})
         return base
 
@@ -129,9 +131,9 @@ class EntrezRecord:
 
 @dataclasses.dataclass
 class JournalRecord(EntrezRecord):
-    journal: str
-    issue: str
-    pubmodel: str
+    journal: str = ''
+    issue: str = ''
+    pubmodel: str = ''
     pubstatus: str = ''
     grants: list[Grant] = dataclasses.field(default_factory=list)
     mesh: list[str] = dataclasses.field(default_factory=list)
@@ -152,6 +154,9 @@ class JournalRecord(EntrezRecord):
         base['medlineta'] = self.medlineta
         base['doi'] = self.doi
         base['pmc'] = self.pmc
+        base['pub_type'] = self.pub_type
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base.update(**{name: val for name, val in self.pmpubdates})
         return base
 
@@ -197,7 +202,6 @@ class JournalRecord(EntrezRecord):
 class BookRecord(EntrezRecord):
     editors: list[Person] = dataclasses.field(default_factory=list)
     publisher: str = ''
-    pubplace: str = ''
     volumetitle: str = ''
     edition: str = ''
     series: str = ''
@@ -209,12 +213,27 @@ class BookRecord(EntrezRecord):
 
     pub_type = 'book'
 
+    def asdict(self):
+        base = dataclasses.asdict(self)
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['editors'] = [a.asdict() for a in self.editors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
+        base['pub_type'] = self.pub_type
+        return base
+
 
 @dataclasses.dataclass
 class ChapterRecord(BookRecord):
     booktitle: str = ''
 
     pub_type = 'chapter'
+
+    def asdict(self):
+        base = dataclasses.asdict(self)
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
+        base['pub_type'] = self.pub_type
+        return base
 
 
 @dataclasses.dataclass
@@ -224,17 +243,34 @@ class ConferenceRecord(EntrezRecord):
     conferencename: str = ''
     conferencedate: str = ''
     publisher: str = ''
-    pubplace: str = ''
+
+    pub_type = 'conference'
+
+    def asdict(self):
+        base = dataclasses.asdict(self)
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['editors'] = [a.asdict() for a in self.editors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
+        base['pub_type'] = self.pub_type
+        return base
 
 
 @dataclasses.dataclass
 class MonographRecord(EntrezRecord):
     reportnum: str = ''
     publisher: str = ''
-    pubplace: str = ''
     weburl: str = ''
     series: str = ''
     serieseditors: list[str] = dataclasses.field(default_factory=list)
+
+    pub_type = 'monograph'
+
+    def asdict(self):
+        base = dataclasses.asdict(self)
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
+        base['pub_type'] = self.pub_type
+        return base
 
 
 @dataclasses.dataclass
@@ -242,6 +278,14 @@ class ReportRecord(EntrezRecord):
     editors: list[Person] = dataclasses.field(default_factory=list)
     reportnum: str = ''
     publisher: str = ''
-    pubplace: str = ''
     series: str = ''
     weburl: str = ''
+
+    pub_type = 'report'
+
+    def asdict(self):
+        base = dataclasses.asdict(self)
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
+        base['pub_type'] = self.pub_type
+        return base

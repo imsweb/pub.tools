@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 from lxml import etree as et
 
-from .formatting import alphanum, cook_date_str
+from .formatting import alphanum, format_date_str
 import dataclasses
 
 
@@ -99,7 +99,7 @@ class GoogleBooksAPIOpener(IsbnOpener):
             data['publisher'] = book.get('publisher')
             data['abstract'] = book.get('description')
             if book.get('publishedDate'):
-                data['pubdate'] = cook_date_str(book['publishedDate'])
+                data['pubdate'] = format_date_str(book['publishedDate'])
             data['google_books_link'] = book['previewLink']
             return data
 

@@ -248,10 +248,7 @@ class ConferenceRecord(EntrezRecord):
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        try:
-            base['authors'] = [a.asdict() for a in self.authors if a]
-        except:
-            import pdb; pdb.set_trace()
+        base['authors'] = [a.asdict() for a in self.authors if a]
         base['editors'] = [a.asdict() for a in self.editors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base['pub_type'] = self.pub_type

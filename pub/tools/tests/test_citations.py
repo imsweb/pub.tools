@@ -217,7 +217,18 @@ class TestCitations(unittest.TestCase):
                    'York. Boston: Doubleday; 2008 Jan. p. 345.</cite>'
         self.assertEqual(citation, conference_citation(html=True, publication=record))
 
-        record.authors = ({'lname': 'Wohnlich', 'iname': 'E'}, {'lname': 'Battle', 'iname': 'J'},)
+        record.authors = [
+            Person(
+                last_name='Wohnlich',
+                first_name='',
+                initial='E',
+            ),
+            Person(
+                last_name='Battle',
+                first_name='',
+                initial='J'
+            )
+        ]
         record.pagination = ''
         citation = '<cite>Wohnlich E, Battle J. My title. Sagan C, Thorne K, editors. <i>Proceedings of Conference ' \
                    'name</i>; 2007 Dec; New York. Boston: Doubleday; 2008 Jan.</cite>'

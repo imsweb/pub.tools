@@ -86,7 +86,7 @@ class EntrezRecord:
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base['authors'] = [a.asdict() for a in self.authors]
+        base['authors'] = [a.asdict() for a in self.authors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base.update(**{name: val for name, val in self.article_ids.items()})
         return base
@@ -155,7 +155,7 @@ class JournalRecord(EntrezRecord):
         base['doi'] = self.doi
         base['pmc'] = self.pmc
         base['pub_type'] = self.pub_type
-        base['authors'] = [a.asdict() for a in self.authors]
+        base['authors'] = [a.asdict() for a in self.authors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base.update(**{name: val for name, val in self.pmpubdates})
         return base
@@ -215,8 +215,8 @@ class BookRecord(EntrezRecord):
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base['authors'] = [a.asdict() for a in self.authors]
-        base['editors'] = [a.asdict() for a in self.editors]
+        base['authors'] = [a.asdict() for a in self.authors if a]
+        base['editors'] = [a.asdict() for a in self.editors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base['pub_type'] = self.pub_type
         return base
@@ -230,7 +230,7 @@ class ChapterRecord(BookRecord):
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base['authors'] = [a.asdict() for a in self.authors]
+        base['authors'] = [a.asdict() for a in self.authors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base['pub_type'] = self.pub_type
         return base
@@ -248,7 +248,11 @@ class ConferenceRecord(EntrezRecord):
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base['authors'] = [a.asdict() for a in self.authors]
+        try:
+            base['authors'] = [a.asdict() for a in self.authors if a]
+        except:
+            import pdb; pdb.set_trace()
+        base['editors'] = [a.asdict() for a in self.editors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base['pub_type'] = self.pub_type
         return base
@@ -266,7 +270,7 @@ class MonographRecord(EntrezRecord):
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base['authors'] = [a.asdict() for a in self.authors]
+        base['authors'] = [a.asdict() for a in self.authors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base['pub_type'] = self.pub_type
         return base
@@ -284,7 +288,7 @@ class ReportRecord(EntrezRecord):
 
     def asdict(self):
         base = dataclasses.asdict(self)
-        base['authors'] = [a.asdict() for a in self.authors]
+        base['authors'] = [a.asdict() for a in self.authors if a]
         base['abstract'] = [dataclasses.asdict(a) for a in self.abstract]
         base['pub_type'] = self.pub_type
         return base

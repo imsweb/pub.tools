@@ -377,7 +377,7 @@ def get_publications(pmids: list, escape: bool = True):
     """
     # Make sure pmids is a list, since that's what Entrez expects (and sets, for example, are not sliceable).
     total_time = time.time()
-    if not isinstance(pmids, list):
+    if isinstance(pmids, set):
         pmids = list(pmids)
     start = 0
     while start < len(pmids):
@@ -393,7 +393,7 @@ def get_publications(pmids: list, escape: bool = True):
                 yield _parse_entrez_record(record, escape)
             start += config.MAX_PUBS
         except Exception as e:
-            logger.info(f'efetch failed: "{e}"')
+            logger.error(f'efetch failed: "{e}"')
             raise PubToolsError(f"Something is wrong with Entrez or these PMIDs: {','.join(pmid_slice)}")
     logger.info(f'Total publications retrieved in {time.time() - total_time:.02} seconds')
 

@@ -18,4 +18,3 @@ source_suffix = {
 version = meta_version('pub.tools')
 
 html_theme = 'sphinx_rtd_theme'
-html_domain_indices = True

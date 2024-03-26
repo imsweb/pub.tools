@@ -7,6 +7,8 @@ import dataclasses
 JOURNAL_DATA_DIR = os.path.join(os.path.expanduser('~'), '.pubmed')
 JOURNAL_DATA_FILE = os.path.join(JOURNAL_DATA_DIR, 'journals.json')
 
+base_path = os.path.dirname(os.path.realpath(__file__))
+
 
 @dataclasses.dataclass(frozen=True)
 class JournalData:
@@ -80,7 +82,7 @@ if journals:
     with open(JOURNAL_DATA_FILE, 'w') as f:
         json.dump(dataclasses.asdict(journals), f)
 else:
-    with open('journals.json', 'r') as rf:
+    with open(os.path.join(base_path, 'journals.json'), 'r') as rf:
         with open(JOURNAL_DATA_FILE, 'w') as wf:
             json.dump(rf, wf)
 

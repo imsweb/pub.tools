@@ -1,7 +1,7 @@
 import os
 import sys
 
-from importlib_metadata import version as meta_version
+from importlib.metadata import version as meta_version
 
 project = 'pub.tools'
 copyright = '2022, Eric Wohnlich'

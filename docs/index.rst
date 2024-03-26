@@ -9,15 +9,5 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   modules
-
-Test coverage:
-
-   `<coverage>`_
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   entrez
+   citations

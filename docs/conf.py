@@ -1,6 +1,8 @@
 import os
 import sys
 
+from importlib_metadata import version as meta_version
+
 project = 'pub.tools'
 copyright = '2022, Eric Wohnlich'
 author = 'Eric Wohnlich'
@@ -35,8 +37,7 @@ if venv:
 # html_logo = 'images/plone.png'
 # html_favicon = 'images/favicon.ico'
 
-with open(os.path.join('..', 'VERSION.txt')) as fopen:
-    version = fopen.read().strip()
+version = meta_version('pub.tools')
 
 html_theme = 'sphinx_rtd_theme'
 html_domain_indices = True

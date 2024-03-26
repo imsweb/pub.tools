@@ -310,7 +310,7 @@ def get_publication(pmid: str | int, escape: bool = True) -> JournalRecord | Boo
 
     :param pmid: PubMed ID
     :param escape: used by `Entrez.parse` and `.read`. If true, will return as html for title and abstract fields
-    :return: parsed publication in dict format
+    :return: publication record
     """
     handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
     try:
@@ -332,7 +332,7 @@ def get_publication_by_doi(doi: str, escape: bool = True) -> JournalRecord | Boo
 
     :param doi: DOI value
     :param escape: used by `Entrez.parse` and `.read`. If true, will return as html
-    :return: parsed publication in dict format
+    :return publicatin record
     """
     ids = find_publications(doi=doi)
     if int(ids['Count']) == 1:

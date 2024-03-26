@@ -7,6 +7,7 @@ logger = getLogger('pub.tools')
 
 @dataclasses.dataclass
 class Person:
+    """ Author or editor metadata """
     last_name: str
     first_name: str
     initial: str
@@ -48,6 +49,7 @@ class Person:
 
 @dataclasses.dataclass
 class Abstract:
+    """ Abstract metadata for a publication """
     text: str
     nlmcategory: str
     label: str
@@ -55,6 +57,7 @@ class Abstract:
 
 @dataclasses.dataclass
 class Grant:
+    """ Grant metadata for a publication """
     grantid: str
     acronym: str
     agency: str
@@ -62,6 +65,7 @@ class Grant:
 
 @dataclasses.dataclass
 class Section:
+    """ Primarily used by books or chapters"""
     title: str
     section_type: str
     label: str
@@ -73,6 +77,7 @@ class Section:
 
 @dataclasses.dataclass(kw_only=True)
 class EntrezRecord:
+    """ Record base, for undefined publication type """
     title: str
     authors: list[Person]
     pubdate: str
@@ -99,7 +104,7 @@ class EntrezRecord:
     def process(self, escape=False):
         """
         This should be called after instantiation. This removes the Biopython StringElement class and
-        escapes
+        escapes HTML where appropriate
         """
 
         def munge(val, escape=False):

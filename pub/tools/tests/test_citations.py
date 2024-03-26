@@ -449,3 +449,66 @@ class TestCitations(unittest.TestCase):
         self.assertEqual(cit, '<cite>Ministerial Meeting on Population of the Non-Aligned Movement (1993: '
                               'Bali). Denpasar Declaration on Population and Development. <i>Integration</i> 1994 '
                               'Jun;(40):27-9.</cite>')
+
+    def test_citation_html_title(self):
+        record = JournalRecord(
+            title='My &lt;title&gt;',
+            authors=[
+                Person(last_name='Wohnlich', first_name='', initial='E'),
+                Person(last_name='Carter', first_name='', initial='G')
+            ],
+            journal='Sample Journal',
+            pubdate='Jan 2007',
+            volume='4',
+            issue='5',
+            pagination='345-7',
+            pubmodel='Print',
+            abstract=[],
+            pubstatus='print',
+            medium='',
+            pmid=''
+        )
+        citation = '<cite>Wohnlich E, Carter G. My &lt;title&gt;. <i>Sample Journal</i> Jan 2007;4(5):345-7.</cite>'
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
+
+    def test_unescapted_journal_title(self):
+        record = JournalRecord(
+            title='My & title',
+            authors=[
+                Person(last_name='Wohnlich', first_name='', initial='E'),
+                Person(last_name='Carter', first_name='', initial='G')
+            ],
+            journal='Sample Journal',
+            pubdate='Jan 2007',
+            volume='4',
+            issue='5',
+            pagination='345-7',
+            pubmodel='Print',
+            abstract=[],
+            pubstatus='print',
+            medium='',
+            pmid=''
+        )
+        citation = '<cite>Wohnlich E, Carter G. My &amp; title. <i>Sample Journal</i> Jan 2007;4(5):345-7.</cite>'
+        self.assertEqual(citation, journal_citation(html=True, publication=record))
+
+    def test_bad_format_title(self):
+        record = JournalRecord(
+            title='My & &lt;title&gt;',
+            authors=[
+                Person(last_name='Wohnlich', first_name='', initial='E'),
+                Person(last_name='Carter', first_name='', initial='G')
+            ],
+            journal='Sample Journal',
+            pubdate='Jan 2007',
+            volume='4',
+            issue='5',
+            pagination='345-7',
+            pubmodel='Print',
+            abstract=[],
+            pubstatus='print',
+            medium='',
+            pmid=''
+        )
+        citation = '<cite>Wohnlich E, Carter G. My &amp; &lt;title&gt;. <i>Sample Journal</i> Jan 2007;4(5):345-7.</cite>'
+        self.assertEqual(citation, journal_citation(html=True, publication=record))

@@ -1,5 +1,6 @@
 import warnings
 from collections.abc import Callable
+from functools import wraps
 from io import StringIO
 
 import deprecation
@@ -19,22 +20,30 @@ WRAPPER_TAG = 'cite'
 PUNC_ENDINGS = ('.', '?', '!')
 
 
-def cooked_citation(func: Callable):
+def formatted_citation(func: Callable):
+    """ The purpose here is to fix bad HTML tags from PubMed (or just Biopython?) where there are escaped
+        HTML entities and unescaped ampersands
+    """
+
+    @wraps(func)
     def wrapper(**kwargs):
         text = func(**kwargs)
         try:
             et.XML(text)
         except et.XMLSyntaxError:
             # try to escape ampersands, prevent double escape
-            text = text.replace("&amp;", "$$_pubtools_amp;")
-            text = text.replace("&lt;", "$$_pubtools_lt;")
-            text = text.replace("&gt;", "$$_pubtools_gt;")
-            text = text.replace("&quot;", "$$_pubtools_quot;")
+            _marker = '$$_pubtools_'
+            escape_vals = ['amp', 'lt', 'gt', 'quot']
+
+            # set these aside so we can replace &
+            for val in escape_vals:
+                text = text.replace(f'&{val};', f'{_marker}{val};')
+
             text = text.replace("&", "&amp;")
-            text = text.replace("$$_pubtools_amp;", "&amp;")
-            text = text.replace("$$_pubtools_lt;", "&lt;")
-            text = text.replace("$$_pubtools_gt;", "&gt;")
-            text = text.replace("$$_pubtools_quot;", "&quot;")
+
+            # put them back
+            for val in escape_vals:
+                text = text.replace(f'{_marker}{val};', f'&{val};')
         if kwargs.get('use_abstract'):
             return text.replace('\n', '').strip()
         else:
@@ -118,7 +127,7 @@ def citation_editors(editors: list[Person]) -> str:
     return period(f"{editors}, editor{plural}")
 
 
-@cooked_citation
+@formatted_citation
 def book_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
                   pubdate: str = '',
                   pagination: str = '', edition: str = '', series: str = '', pubplace: str = '', publisher: str = '',
@@ -164,7 +173,7 @@ def book_citation(authors: list[Person | dict] = (), editors: list[Person | dict
     return out
 
 
-@cooked_citation
+@formatted_citation
 def chapter_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
                      pubdate: str = '',
                      pagination: str = '', edition: str = '', series: str = '', pubplace: str = '', publisher: str = '',
@@ -215,7 +224,7 @@ def chapter_citation(authors: list[Person | dict] = (), editors: list[Person | d
     return out
 
 
-@cooked_citation
+@formatted_citation
 def conference_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
                         pubdate: str = '', pagination: str = '', pubplace: str = '', place: str = '',
                         conferencename: str = '', conferencedate: str = '', publisher: str = '', html: bool = False,
@@ -268,7 +277,7 @@ def conference_citation(authors: list[Person | dict] = (), editors: list[Person 
     return out
 
 
-@cooked_citation
+@formatted_citation
 def journal_citation(authors: list[Person | dict] = (), title: str = '', journal: str = '', pubdate: str = '',
                      volume: str = '', issue: str = '', pagination: str = '',
                      abstract: list[Abstract] = None, pubmodel: str = 'Print', edate: str = '', doi: str = '',
@@ -361,7 +370,7 @@ def journal_citation(authors: list[Person | dict] = (), title: str = '', journal
     return out
 
 
-@cooked_citation
+@formatted_citation
 def monograph_citation(authors: list[Person | dict] = (), title: str = '', pubdate: str = '', series: str = '',
                        pubplace: str = '', weburl: str = '', reportnum: str = '', publisher: str = '',
                        serieseditors: list[str] = (), html: bool = False, publication: EntrezRecord = None,
@@ -412,7 +421,7 @@ def monograph_citation(authors: list[Person | dict] = (), title: str = '', pubda
     return out
 
 
-@cooked_citation
+@formatted_citation
 def report_citation(authors: list[Person | dict] = (), editors: list[Person | dict] = (), title: str = '',
                     pubdate: str = '', pagination: str = '', series: str = '', pubplace: str = '', weburl: str = '',
                     reportnum: str = '', publisher: str = '', html: bool = False, publication: EntrezRecord = None,
@@ -461,15 +470,18 @@ def report_citation(authors: list[Person | dict] = (), editors: list[Person | di
     return out
 
 
-@cooked_citation
+@formatted_citation
 def publication_citation(publication: JournalRecord | BookRecord | ChapterRecord, html: bool = False,
                          use_abstract: bool = False, link: bool = False) -> str:
     """ Undefined publication type. Only usable with pub types that can be retrieved from Pubmed.
         Example usage:
-        >>> from pub.tools import entrez
-        >>> from pub.tools import citations
-        >>> if pub := entrez.get_publication(pmid=12345678):
-        >>>     citations.publication_citation(publication=pub)
+
+        .. code-block:: python
+
+            from pub.tools import entrez
+            from pub.tools import citations
+            if pub := entrez.get_publication(pmid=12345678):
+                 citations.publication_citation(publication=pub)
 
     Optional parameters:
         html = will render the citation with html tags

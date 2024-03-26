@@ -2,7 +2,11 @@
 pub.tools
 ===================================
 
-pub.tools is an abstraction layer for interacting with NCBI's Entrez Utilities (including PubMed) and date transpiling
+pub.tools provides a few useful functions, namely interacting with NCBI's PubMed APIs to get publication
+information, and building citations out of publication metadata. We use dataclasses
+to express the valid parameters for generating these publication citations, see the
+`schema` section for details.
+
 
 Contents:
 
@@ -11,3 +15,5 @@ Contents:
 
    entrez
    citations
+   schema
+   formatting

@@ -8,7 +8,7 @@ to express the valid parameters for generating these publication citations, see 
 `schema` section for details.
 
 
-Contents:
+View the source code at `<https://github.com/imsweb/pub.tools>`_
 
 .. toctree::
    :maxdepth: 2

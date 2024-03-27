@@ -510,5 +510,6 @@ class TestCitations(unittest.TestCase):
             medium='',
             pmid=''
         )
-        citation = '<cite>Wohnlich E, Carter G. My &amp; &lt;title&gt;. <i>Sample Journal</i> Jan 2007;4(5):345-7.</cite>'
+        citation = ('<cite>Wohnlich E, Carter G. My &amp; &lt;title&gt;. <i>Sample Journal</i> Jan 2007;4(5):345-7.'
+                    '</cite>')
         self.assertEqual(citation, journal_citation(html=True, publication=record))

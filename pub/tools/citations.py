@@ -187,7 +187,7 @@ def chapter_citation(authors: list[Person | dict] = (), editors: list[Person | d
         return chapter_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write(f'<{WRAPPER_TAG}>')
+        out.write(f'<{WRAPPER_TAG} class="citation">')
     if editors and not authors:
         out.write(citation_editors(editors))
     if authors:
@@ -237,7 +237,7 @@ def conference_citation(authors: list[Person | dict] = (), editors: list[Person 
         return conference_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write(f'<{WRAPPER_TAG}>')
+        out.write(f'<{WRAPPER_TAG} class="citation">')
     if editors and not authors:
         out.write(citation_editors(editors))
     if authors:
@@ -294,7 +294,7 @@ def journal_citation(authors: list[Person | dict] = (), title: str = '', journal
         abstract = {}
     out = StringIO()
     if html:
-        out.write(f'<{WRAPPER_TAG}>')
+        out.write(f'<{WRAPPER_TAG} class="citation">')
     if authors:
         out.write(period(', '.join([citation_author(a).replace(',', ' ') for a in authors if a])))
     if title:
@@ -382,7 +382,7 @@ def monograph_citation(authors: list[Person | dict] = (), title: str = '', pubda
         return monograph_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write(f'<{WRAPPER_TAG}>')
+        out.write(f'<{WRAPPER_TAG} class="citation">')
     if serieseditors and not authors:
         out.write(period(
             f"{', '.join([e.replace(',', ' ') for e in serieseditors])}, "
@@ -433,7 +433,7 @@ def report_citation(authors: list[Person | dict] = (), editors: list[Person | di
         return report_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write(f'<{WRAPPER_TAG}>')
+        out.write(f'<{WRAPPER_TAG} class="citation">')
     if editors and not authors:
         out.write(citation_editors(editors))
     if authors:

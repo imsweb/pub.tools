@@ -1,8 +1,12 @@
 import csv
-import json
-import os
-import requests
 import dataclasses
+import json
+import logging
+import os
+
+import requests
+
+logger = logging.getLogger('pub.tools')
 
 JOURNAL_DATA_DIR = os.path.join(os.path.expanduser('~'), '.pubmed')
 JOURNAL_DATA_FILE = os.path.join(JOURNAL_DATA_DIR, 'journals.json')
@@ -82,9 +86,10 @@ if journals:
     with open(JOURNAL_DATA_FILE, 'w') as f:
         json.dump(dataclasses.asdict(journals), f)
 else:
+    logger.warning('Falling back to static file for journal/abbreviation information.')
     with open(os.path.join(base_path, 'journals.json'), 'r') as rf:
         with open(JOURNAL_DATA_FILE, 'w') as wf:
-            json.dump(rf, wf)
+            json.dump(rf.read(), wf)
 
 
 def get_source(cache: bool = False) -> AllJournalData:

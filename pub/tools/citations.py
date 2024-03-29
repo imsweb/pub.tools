@@ -16,7 +16,7 @@ from .schema import EntrezRecord
 from .schema import JournalRecord
 from .schema import Person
 
-WRAPPER_TAG = 'cite'
+WRAPPER_TAG = 'span'
 PUNC_ENDINGS = ('.', '?', '!')
 
 
@@ -140,7 +140,7 @@ def book_citation(authors: list[Person | dict] = (), editors: list[Person | dict
         return book_citation(**publication.asdict(), html=html)
     out = StringIO()
     if html:
-        out.write(f'<{WRAPPER_TAG}>')
+        out.write(f'<{WRAPPER_TAG} class="citation">')
     if editors and not authors:
         out.write(citation_editors(editors))
     if authors:

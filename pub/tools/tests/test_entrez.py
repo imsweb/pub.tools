@@ -357,24 +357,24 @@ class TestCase(unittest.TestCase):
         """ Both dates should be stored and the citation reflect it """
         record = entrez.get_publication(pmid='10854512')
         self.assertEqual(citations.journal_citation(html=True, publication=record),
-                         '<cite>Soon MS, Lin OS. Inflammatory fibroid polyp of the duodenum. <i>Surg Endosc</i> 2000 '
-                         'Jan;14(1):86. Epub 1999 Nov 25.</cite>')
+                         '<span class="citation">Soon MS, Lin OS. Inflammatory fibroid polyp of the duodenum. <i>Surg Endosc</i> 2000 '
+                         'Jan;14(1):86. Epub 1999 Nov 25.</span>')
 
     def test_electronic_print_pubmodel(self):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='14729922')
         self.assertEqual(citations.journal_citation(html=True, publication=record),
-                         '<cite>Edgar RC. Local homology recognition and distance measures in linear time using '
+                         '<span class="citation">Edgar RC. Local homology recognition and distance measures in linear time using '
                          'compressed '
-                         'amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.</cite>')
+                         'amino acid alphabets. <i>Nucleic Acids Res</i> 2004 Jan 16;32(1):380-5. Print 2004.</span>')
 
     def test_electronic_ecollection_pubmodel(self):
         """ Both dates should be stored but use electronic date for citation """
         record = entrez.get_publication(pmid='23372575')
         self.assertEqual(citations.journal_citation(html=True, publication=record),
-                         '<cite>Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 '
+                         '<span class="citation">Wangari-Talbot J, Chen S. Genetics of melanoma. <i>Front Genet</i> 2013 '
                          'Jan 25;3:330. doi: '
-                         '10.3389/fgene.2012.00330. eCollection 2012.</cite>')
+                         '10.3389/fgene.2012.00330. eCollection 2012.</span>')
 
     def test_book_parse(self):
         """ Be able to parse a book """

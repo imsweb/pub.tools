@@ -121,6 +121,8 @@ class EntrezRecord:
                     return unescape(str(val))  # this removes the BioPython StringElement class
                 else:
                     return str(val)
+            elif isinstance(val, bool):
+                return val
             else:
                 logger.info(f'Unknown type from Biopython: {type(val)}')
                 return val

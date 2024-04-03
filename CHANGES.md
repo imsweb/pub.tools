@@ -1,4 +1,9 @@
 # Changelog
+## [5.0.2] - 3 Apr 2024
+- minor bug fixes
+
+## [5.0.1] - 29 Mar 2024
+- minor bug fixes
 
 ## [5.0] - 22 Mar 2024
 - breaking change: python >= 3.11

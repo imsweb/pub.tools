@@ -136,7 +136,7 @@ def _parse_entrez_book_record(record: dict) -> BookRecord:
     edition = book.get('Edition', '')
     series = book.get('CollectionTitle', '')
     isbn = book.get('Isbn', '')
-    isbn = isbn[0] if isinstance(isbn, list) else isbn
+    isbn = isbn[0] if isbn and isinstance(isbn, list) else isbn
     elocation = book.get('ELocationID', '')
     medium = book.get('Medium', '')
     reportnum = book.get('ReportNumber', '')
@@ -382,19 +382,15 @@ def get_publications(pmids: list, escape: bool = True):
     start = 0
     while start < len(pmids):
         pmid_slice = pmids[start:start + config.MAX_PUBS]
-        try:
-            timer = time.time()
-            logger.info(
-                f'Fetching publications {start} through {min(len(pmids), start + config.MAX_PUBS)}...')
-            handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
-            data = Entrez.read(handle, escape=escape)
-            logger.info(f'Fetched and read after {time.time() - timer:02}s')
-            for record in data['PubmedArticle'] + data['PubmedBookArticle']:
-                yield _parse_entrez_record(record, escape)
-            start += config.MAX_PUBS
-        except Exception as e:
-            logger.error(f'efetch failed: "{e}"')
-            raise PubToolsError(f"Something is wrong with Entrez or these PMIDs: {','.join(pmid_slice)}")
+        timer = time.time()
+        logger.info(
+            f'Fetching publications {start} through {min(len(pmids), start + config.MAX_PUBS)}...')
+        handle = Entrez.efetch(db="pubmed", id=pmid_slice, retmode="xml")
+        data = Entrez.read(handle, escape=escape)
+        logger.info(f'Fetched and read after {time.time() - timer:02}s')
+        for record in data['PubmedArticle'] + data['PubmedBookArticle']:
+            yield _parse_entrez_record(record, escape)
+        start += config.MAX_PUBS
     logger.info(f'Total publications retrieved in {time.time() - total_time:.02} seconds')
 
 

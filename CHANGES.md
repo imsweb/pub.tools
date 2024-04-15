@@ -1,4 +1,7 @@
 # Changelog
+## [5.0.3] - 15 Apr 2024
+- minor bug fixes
+
 ## [5.0.2] - 3 Apr 2024
 - minor bug fixes
 

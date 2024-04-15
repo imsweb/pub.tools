@@ -108,6 +108,8 @@ class EntrezRecord:
         """
 
         def munge(val, escape=False):
+            if val is None:
+                return None
             if isinstance(val, list):
                 return [munge(v, escape) for v in val]
             elif isinstance(val, dict):

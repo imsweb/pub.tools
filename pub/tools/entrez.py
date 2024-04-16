@@ -235,8 +235,8 @@ def _parse_entrez_journal_record(record: dict) -> JournalRecord:
     grants = []
     for grant in article.get('GrantList', []):
         grants.append(Grant(
-            grantid=grant.get('GrantID'),
-            acronym=grant.get('Acronym'),
+            grantid=grant.get('GrantID', ''),
+            acronym=grant.get('Acronym', ''),
             agency=grant.get('Agency', ''))
         )
     mesh = []

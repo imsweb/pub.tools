@@ -1,4 +1,9 @@
 # Changelog
+## [5.0.5] - 18 Oct 2024
+- change journal info source to https://cdn.ncbi.nlm.nih.gov/pmc/home/jlist.csv
+
+## [5.0.4]
+
 ## [5.0.3] - 15 Apr 2024
 - minor bug fixes
 

@@ -45,7 +45,7 @@ def fetch_journals() -> AllJournalData:
 
     :return: dict
     """
-    url = 'https://www.ncbi.nlm.nih.gov/pmc/journals/?format=csv'
+    url = 'https://cdn.ncbi.nlm.nih.gov/pmc/home/jlist.csv'
     response = requests.get(url, timeout=5.0)
     if response.status_code == 200:
 

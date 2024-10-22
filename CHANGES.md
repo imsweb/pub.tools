@@ -1,6 +1,6 @@
 # Changelog
 
-## [5.0.6] - 18 Oct 2024
+## [5.0.6.1] - 2 Oct 2024
 - extra fallback handling for journal source fetching
 
 ## [5.0.5] - 18 Oct 2024

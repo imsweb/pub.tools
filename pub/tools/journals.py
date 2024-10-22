@@ -80,8 +80,6 @@ def fetch_journals() -> AllJournalData:
         )
 
     response = requests.get(url, timeout=5.0)
-    import pdb;
-    pdb.set_trace()
     if response.status_code == 200:
         _text = response.text
         with open(JOURNAL_DATA_FILE, 'wb') as f:

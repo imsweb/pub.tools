@@ -1,15 +1,19 @@
 import csv
 import dataclasses
-import json
 import logging
 import os
+import smtplib
+from email.mime.text import MIMEText
 
 import requests
+from Bio import Entrez
+
+from .config import JOURNAL_FAILURE_WARNING
 
 logger = logging.getLogger('pub.tools')
 
 JOURNAL_DATA_DIR = os.path.join(os.path.expanduser('~'), '.pubmed')
-JOURNAL_DATA_FILE = os.path.join(JOURNAL_DATA_DIR, 'journals.json')
+JOURNAL_DATA_FILE = os.path.join(JOURNAL_DATA_DIR, 'journals.csv')
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -46,14 +50,13 @@ def fetch_journals() -> AllJournalData:
     :return: dict
     """
     url = 'https://cdn.ncbi.nlm.nih.gov/pmc/home/jlist.csv'
-    response = requests.get(url, timeout=5.0)
-    if response.status_code == 200:
 
+    def _parse_journals(text):
         _atoj = {}
         _jtoa = {}
         dates = {}
         full = {}
-        reader = csv.reader(response.text.split('\n'))
+        reader = csv.reader(text.split('\n'))
         header = False
 
         for row in reader:
@@ -76,20 +79,35 @@ def fetch_journals() -> AllJournalData:
             full=full
         )
 
+    response = requests.get(url, timeout=5.0)
+    import pdb;
+    pdb.set_trace()
+    if response.status_code == 200:
+        _text = response.text
+        with open(JOURNAL_DATA_FILE, 'wb') as f:
+            f.write(_text.encode('utf-8'))
+        return _parse_journals(_text)
+    else:
+        logger.warning('Could not retrieve journal source, falling back to cache')
+        if Entrez.email and JOURNAL_FAILURE_WARNING:
+            mailer = smtplib.SMTP('smtp.imsweb.com')
+            msg = MIMEText(f'pub.tools could not retrieve journal data from {url}. Check if this source '
+                           f'is valid.')
+            msg['Subject'] = '[pub.tools] unable to get journal data'
+            msg['From'] = 'noreply@imsweb.com'
+            msg['To'] = 'wohnlice@imsweb.com'
+            mailer.sendmail(msg['From'], msg['To'], msg.as_string())
+            mailer.quit()
+        with open(JOURNAL_DATA_FILE, 'rb') as f:
+            _text = f.read()
+        return _parse_journals(_text.decode('utf-8'))
 
-journals = fetch_journals()
+
 try:
     os.makedirs(JOURNAL_DATA_DIR)
 except FileExistsError:
     pass
-if journals:
-    with open(JOURNAL_DATA_FILE, 'w') as f:
-        json.dump(dataclasses.asdict(journals), f)
-else:
-    logger.warning('Falling back to static file for journal/abbreviation information.')
-    with open(os.path.join(base_path, 'journals.json'), 'r') as rf:
-        with open(JOURNAL_DATA_FILE, 'w') as wf:
-            json.dump(rf.read(), wf)
+journals = fetch_journals()
 
 
 def get_source(cache: bool = False) -> AllJournalData:

@@ -22,7 +22,7 @@ license = { text = "GPL" }
 dependencies = [
     "biopython>=1.83",
     "requests",
-    "defusedxml",
+    "lxml",
     "unidecode",
     "beautifulsoup4",
     "deprecation"

@@ -9,4 +9,4 @@ MAX_PUBS = 9000
 # this will email to Entrez.email
 JOURNAL_FAILURE_WARNING = False
 
-VERSION = importlib.metadata.version('pub.tools')
+VERSION = importlib.metadata.version("pub.tools")

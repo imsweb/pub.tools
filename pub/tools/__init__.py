@@ -1,1 +1,5 @@
-from . import journals  # NOQA we want this to execute
+from . import journals
+
+__all__ = [journals]
+
+__version__ = "5.1"

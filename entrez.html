@@ -1,0 +1,185 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>entrez &mdash; pub.tools  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="citations" href="citations.html" />
+    <link rel="prev" title="pub.tools" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pub.tools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">entrez</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#get-publication">get_publication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.entrez.get_publication"><code class="docutils literal notranslate"><span class="pre">get_publication()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#get-publication-by-doi">get_publication_by_doi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-pmid-by-pmc">get_pmid_by_pmc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-publications">get_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-pmids">find_pmids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#esearch-publications">esearch_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-publications">find_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-search-string">generate_search_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-searched-publications">get_searched_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#process-handle">process_handle</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="formatting.html">formatting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pub.tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">entrez</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/entrez.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="entrez">
+<h1>entrez<a class="headerlink" href="#entrez" title="Link to this heading"></a></h1>
+<section id="get-publication">
+<h2>get_publication<a class="headerlink" href="#get-publication" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pub.tools.entrez.get_publication">
+<span class="sig-prename descclassname"><span class="pre">pub.tools.entrez.</span></span><span class="sig-name descname"><span class="pre">get_publication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pmid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="schema.html#pub.tools.schema.JournalRecord" title="pub.tools.schema.JournalRecord"><span class="pre">JournalRecord</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="schema.html#pub.tools.schema.BookRecord" title="pub.tools.schema.BookRecord"><span class="pre">BookRecord</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="schema.html#pub.tools.schema.ChapterRecord" title="pub.tools.schema.ChapterRecord"><span class="pre">ChapterRecord</span></a></span></span><a class="headerlink" href="#pub.tools.entrez.get_publication" title="Link to this definition"></a></dt>
+<dd><p>Get a single publication by ID. We don’t use PubMed’s convoluted data structure but instead return
+a dict with simple values. Most values are a string or list, but some like authors and grants are further
+dicts containing more components.</p>
+<p>PubMed contains both books and journals, and we parse both, with some difference in available keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pmid</strong> – PubMed ID</p></li>
+<li><p><strong>escape</strong> – used by <cite>Entrez.parse</cite> and <cite>.read</cite>. If true, will return as html for title and abstract fields</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>publication record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="get-publication-by-doi">
+<h2>get_publication_by_doi<a class="headerlink" href="#get-publication-by-doi" title="Link to this heading"></a></h2>
+<p>..autofunction:: get_publication_by_doi</p>
+</section>
+<section id="get-pmid-by-pmc">
+<h2>get_pmid_by_pmc<a class="headerlink" href="#get-pmid-by-pmc" title="Link to this heading"></a></h2>
+<p>..autofunction:: get_pmid_by_pmc</p>
+</section>
+<section id="get-publications">
+<h2>get_publications<a class="headerlink" href="#get-publications" title="Link to this heading"></a></h2>
+<p>..autofunction:: get_publications</p>
+</section>
+<section id="find-pmids">
+<h2>find_pmids<a class="headerlink" href="#find-pmids" title="Link to this heading"></a></h2>
+<p>..autofunction:: find_pmids</p>
+</section>
+<section id="esearch-publications">
+<h2>esearch_publications<a class="headerlink" href="#esearch-publications" title="Link to this heading"></a></h2>
+<p>..autofunction:: esearch_publications</p>
+</section>
+<section id="find-publications">
+<h2>find_publications<a class="headerlink" href="#find-publications" title="Link to this heading"></a></h2>
+<p>..autofunction:: find_publications</p>
+</section>
+<section id="generate-search-string">
+<h2>generate_search_string<a class="headerlink" href="#generate-search-string" title="Link to this heading"></a></h2>
+<p>..autofunction:: generate_search_string</p>
+</section>
+<section id="get-searched-publications">
+<h2>get_searched_publications<a class="headerlink" href="#get-searched-publications" title="Link to this heading"></a></h2>
+<p>..autofunction:: get_searched_publications</p>
+</section>
+<section id="process-handle">
+<h2>process_handle<a class="headerlink" href="#process-handle" title="Link to this heading"></a></h2>
+<p>..autofunction:: process_handle</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="pub.tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citations.html" class="btn btn-neutral float-right" title="citations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Eric Wohnlich.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

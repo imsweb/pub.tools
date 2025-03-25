@@ -1,0 +1,182 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>formatting &mdash; pub.tools  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="schema" href="schema.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pub.tools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="entrez.html">entrez</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">schema</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">formatting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#format-date">format_date</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.formatting.format_date"><code class="docutils literal notranslate"><span class="pre">format_date()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#format-date-str">format_date_str</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pub.tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">formatting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/formatting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="formatting">
+<h1>formatting<a class="headerlink" href="#formatting" title="Link to this heading"></a></h1>
+<p>Helper functions. <cite>format_date</cite> will take year/month/day values or a <cite>medlinedate</cite> value
+and represent it as a datetime object. The <cite>medlinedate</cite> value is particularly useful for representing
+odd date ranges like <cite>Spring 2007</cite> as a datetime object, so that you can sort on that value without changing the
+date in the citation. <cite>format_date_str</cite> interprets a string representing a date in several possible formats and
+returns a standardized format. See examples below on using these two functions together.</p>
+<section id="format-date">
+<h2>format_date<a class="headerlink" href="#format-date" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pub.tools.formatting.format_date">
+<span class="sig-prename descclassname"><span class="pre">pub.tools.formatting.</span></span><span class="sig-name descname"><span class="pre">format_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">medlinedate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">datetime</span></span></span><a class="headerlink" href="#pub.tools.formatting.format_date" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>medlinedate</dt><dd><ul class="simple">
+<li><p>string containing the full date</p></li>
+<li><p>used by PubMed (medline) to represent atypical dates, like Spring 2008</p></li>
+<li><p>takes precedence over year/month/day values</p></li>
+</ul>
+</dd>
+<dt>end</dt><dd><ul class="simple">
+<li><p>if the result represents a date range we return the start unless this variable is true</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>year</strong></p></li>
+<li><p><strong>month</strong></p></li>
+<li><p><strong>day</strong></p></li>
+<li><p><strong>medlinedate</strong></p></li>
+<li><p><strong>end</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns a datetime object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date</span><span class="p">(</span><span class="n">medlinedate</span><span class="o">=</span><span class="s1">&#39;Spring 2008&#39;</span><span class="p">)</span>
+<span class="go">datetime.datetime(2008, 4, 1, 0, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date</span><span class="p">(</span><span class="n">medlinedate</span><span class="o">=</span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date_str</span><span class="p">(</span><span class="s1">&#39;11-02-2007&#39;</span><span class="p">))</span>
+<span class="go">datetime.datetime(2007, 11, 2, 0, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date</span><span class="p">(</span><span class="n">medlinedate</span><span class="o">=</span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date_str</span><span class="p">(</span><span class="s1">&#39;Nov 2 2007&#39;</span><span class="p">))</span>
+<span class="go">datetime.datetime(2007, 11, 2, 0, 0)</span>
+</pre></div>
+</div>
+</section>
+<section id="format-date-str">
+<h2>format_date_str<a class="headerlink" href="#format-date-str" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">pub.tools.formatting.</span></span><span class="sig-name descname"><span class="pre">format_date_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span></dt>
+<dd><p>takes a string and reformats it to ‘%Y %b %-d’. e.g. ‘8-11-2009’ becomes ‘2009 Aug 11’</p>
+</dd></dl>
+
+<p>examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date_str</span><span class="p">(</span><span class="s1">&#39;Spring 2008&#39;</span><span class="p">)</span>
+<span class="go">&#39;2008 Spring&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date_str</span><span class="p">(</span><span class="s1">&#39;11-02-2007&#39;</span><span class="p">)</span>
+<span class="go">&#39;2007 Nov 2&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formatting</span><span class="o">.</span><span class="n">format_date_str</span><span class="p">(</span><span class="s1">&#39;Nov 2 2007&#39;</span><span class="p">)</span>
+<span class="go">&#39;2007 Nov 2&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="schema.html" class="btn btn-neutral float-left" title="schema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Eric Wohnlich.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

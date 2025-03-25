@@ -28,6 +28,9 @@ dependencies = [
     "deprecation"
 ]
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [project.urls]
 homepage = "https://github.com/imsweb/pub.tools"
 documentation = "https://imsweb.github.io/pub.tools"

@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.2] - 16 May 2025
+- add search by author_ids
+
 ## [5.0.6.1] - 2 Oct 2024
 - extra fallback handling for journal source fetching
 

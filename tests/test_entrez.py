@@ -446,3 +446,7 @@ class TestEntrez:
         assert len(record["IdList"]) == 1
         record = entrez.get_searched_publications(record["WebEnv"], record["QueryKey"])
         self.check_pub_data(record[0])
+
+    def test_orcid(self):
+        record = entrez.find_publications(author_ids=["0000-0002-8953-3940"])
+        assert int(record["Count"]) > 0

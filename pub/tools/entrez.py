@@ -570,6 +570,7 @@ def esearch_publications(query: str) -> JournalRecord | BookRecord | ChapterReco
 
 def find_publications(
     all: str | None = None,  # noqa: A002
+    author_ids: list[str] | None = None,
     authors: list[str] | None = None,
     title: str | None = None,
     journal: str | None = None,
@@ -588,6 +589,7 @@ def find_publications(
     https://www.ncbi.nlm.nih.gov/books/NBK3827/#_pubmedhelp_Search_Field_Descriptions_and_
 
     :param all: appends
+    :param author_ids: a list of strings
     :param authors: a list of strings
     :param title: article title str. Stop words and punctuation will be removed
     :param journal: article journal str
@@ -603,7 +605,7 @@ def find_publications(
     :return: ESearch record. The useful values here are going to be the WebEnv and QueryKey which you can pass
              to get_searched_publications
     """
-    term = generate_search_string(all, authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
+    term = generate_search_string(all, author_ids, authors, title, journal, pmid, mesh, gr, ir, affl, doi, inclusive)
     if not start:
         start = "1500/01/01"
     if not end:
@@ -616,6 +618,7 @@ def find_publications(
 
 def generate_search_string(
     all: str | None = None,  # noqa: A002
+    author_ids: list[str] | None = None,
     authors: list[str] | None = None,
     title: str | None = None,
     journal: str | None = None,
@@ -633,6 +636,9 @@ def generate_search_string(
     search_strings = []
     if all:
         search_strings.append(all)
+    if author_ids:
+        auth_join = " OR " if inclusive == "OR" else " "
+        search_strings.append(auth_join.join([f"{unidecode(a)}[auid]" for a in author_ids if a]))
     if authors:
         auth_join = " OR " if inclusive == "OR" else " "
         search_strings.append(auth_join.join([f"{unidecode(a)}[au]" for a in authors if a]))

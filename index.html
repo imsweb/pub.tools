@@ -1,0 +1,162 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pub.tools &mdash; pub.tools  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="entrez" href="entrez.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            pub.tools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="entrez.html">entrez</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="formatting.html">formatting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pub.tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pub.tools</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pub-tools">
+<h1>pub.tools<a class="headerlink" href="#pub-tools" title="Link to this heading"></a></h1>
+<p>pub.tools provides a few useful functions, namely interacting with NCBI’s PubMed APIs to get publication
+information, and building citations out of publication metadata. We use dataclasses
+to express the valid parameters for generating these publication citations, see the
+<cite>schema</cite> section for details.</p>
+<p>View the source code at <a class="reference external" href="https://github.com/imsweb/pub.tools">https://github.com/imsweb/pub.tools</a></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="entrez.html">entrez</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#get-publication">get_publication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#get-publication-by-doi">get_publication_by_doi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#get-pmid-by-pmc">get_pmid_by_pmc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#get-publications">get_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#find-pmids">find_pmids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#esearch-publications">esearch_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#find-publications">find_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#generate-search-string">generate_search_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#get-searched-publications">get_searched_publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entrez.html#process-handle">process_handle</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">citations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#citation-author">citation_author</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#citation-editors">citation_editors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#publication-citation">publication_citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#book-citation">book_citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#chapter-citation">chapter_citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#conference-citation">conference_citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#journal-citation">journal_citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#monograph-citation">monograph_citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citations.html#report-citation">report_citation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">schema</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.Abstract"><code class="docutils literal notranslate"><span class="pre">Abstract</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.BookRecord"><code class="docutils literal notranslate"><span class="pre">BookRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.ChapterRecord"><code class="docutils literal notranslate"><span class="pre">ChapterRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.ConferenceRecord"><code class="docutils literal notranslate"><span class="pre">ConferenceRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.EntrezRecord"><code class="docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.Grant"><code class="docutils literal notranslate"><span class="pre">Grant</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.JournalRecord"><code class="docutils literal notranslate"><span class="pre">JournalRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.MonographRecord"><code class="docutils literal notranslate"><span class="pre">MonographRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.Person"><code class="docutils literal notranslate"><span class="pre">Person</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.ReportRecord"><code class="docutils literal notranslate"><span class="pre">ReportRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html#pub.tools.schema.Section"><code class="docutils literal notranslate"><span class="pre">Section</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="formatting.html">formatting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="formatting.html#format-date">format_date</a></li>
+<li class="toctree-l2"><a class="reference internal" href="formatting.html#format-date-str">format_date_str</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="entrez.html" class="btn btn-neutral float-right" title="entrez" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Eric Wohnlich.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

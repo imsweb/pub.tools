@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>schema &mdash; pub.tools  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="formatting" href="formatting.html" />
+    <link rel="prev" title="citations" href="citations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pub.tools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="entrez.html">entrez</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">citations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">schema</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.Abstract"><code class="docutils literal notranslate"><span class="pre">Abstract</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.BookRecord"><code class="docutils literal notranslate"><span class="pre">BookRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.ChapterRecord"><code class="docutils literal notranslate"><span class="pre">ChapterRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.ConferenceRecord"><code class="docutils literal notranslate"><span class="pre">ConferenceRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.EntrezRecord"><code class="docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.schema.EntrezRecord.process"><code class="docutils literal notranslate"><span class="pre">EntrezRecord.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.Grant"><code class="docutils literal notranslate"><span class="pre">Grant</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.JournalRecord"><code class="docutils literal notranslate"><span class="pre">JournalRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.MonographRecord"><code class="docutils literal notranslate"><span class="pre">MonographRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.Person"><code class="docutils literal notranslate"><span class="pre">Person</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.schema.Person.cname"><code class="docutils literal notranslate"><span class="pre">Person.cname</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.schema.Person.fname"><code class="docutils literal notranslate"><span class="pre">Person.fname</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.schema.Person.iname"><code class="docutils literal notranslate"><span class="pre">Person.iname</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pub.tools.schema.Person.lname"><code class="docutils literal notranslate"><span class="pre">Person.lname</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.ReportRecord"><code class="docutils literal notranslate"><span class="pre">ReportRecord</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pub.tools.schema.Section"><code class="docutils literal notranslate"><span class="pre">Section</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="formatting.html">formatting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pub.tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">schema</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/schema.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="schema">
+<h1>schema<a class="headerlink" href="#schema" title="Link to this heading"></a></h1>
+<p>These schemas represent the data structure for publication metadata used to interact with
+PubMed and generate citations. You do not need to use these to generate citations, but may
+use native python dicts with the same keys. However these dataclasses are useful to document
+the expected properties.</p>
+<dl class="py class" id="module-pub.tools.schema">
+<dt class="sig sig-object py" id="pub.tools.schema.Abstract">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">Abstract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlmcategory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.Abstract" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract metadata for a publication</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.BookRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">BookRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">editors:</span> <span class="pre">list[pub.tools.schema.Person]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">publisher:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volumetitle:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">edition:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">series:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">isbn:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">language:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">elocation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">reportnum:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">sections:</span> <span class="pre">list[pub.tools.schema.Section]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.BookRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pub.tools.schema.EntrezRecord" title="pub.tools.schema.EntrezRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.ChapterRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">ChapterRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">booktitle:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">editors:</span> <span class="pre">list[pub.tools.schema.Person]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">publisher:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volumetitle:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">edition:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">series:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">isbn:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">language:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">elocation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">reportnum:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">sections:</span> <span class="pre">list[pub.tools.schema.Section]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.ChapterRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pub.tools.schema.BookRecord" title="pub.tools.schema.BookRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">BookRecord</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.ConferenceRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">ConferenceRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">place:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">editors:</span> <span class="pre">list[pub.tools.schema.Person]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">conferencename:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">conferencedate:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">publisher:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.ConferenceRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pub.tools.schema.EntrezRecord" title="pub.tools.schema.EntrezRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.EntrezRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">EntrezRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[~pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[~pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.EntrezRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Record base, for undefined publication type</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pub.tools.schema.EntrezRecord.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.EntrezRecord.process" title="Link to this definition"></a></dt>
+<dd><p>This should be called after instantiation. This removes the Biopython StringElement class and
+escapes HTML where appropriate</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.Grant">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">Grant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grantid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acronym</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.Grant" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Grant metadata for a publication</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.JournalRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">JournalRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">journal:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">issue:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubmodel:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubstatus:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">grants:</span> <span class="pre">list[pub.tools.schema.Grant]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">mesh:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">pubtypelist:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">edate:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">journal_abbreviation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">nlmuniqueid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medlinecountry:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medlinestatus:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmpubdates:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.JournalRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pub.tools.schema.EntrezRecord" title="pub.tools.schema.EntrezRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.MonographRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">MonographRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">reportnum:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">publisher:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">weburl:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">series:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">serieseditors:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.MonographRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pub.tools.schema.EntrezRecord" title="pub.tools.schema.EntrezRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.Person">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">Person</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collective_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">investigator:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">affiliations:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.Person" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Author or editor metadata</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pub.tools.schema.Person.cname">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cname</span></span><a class="headerlink" href="#pub.tools.schema.Person.cname" title="Link to this definition"></a></dt>
+<dd><p>backwards compatibility</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pub.tools.schema.Person.fname">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fname</span></span><a class="headerlink" href="#pub.tools.schema.Person.fname" title="Link to this definition"></a></dt>
+<dd><p>backwards compatibility</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pub.tools.schema.Person.iname">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iname</span></span><a class="headerlink" href="#pub.tools.schema.Person.iname" title="Link to this definition"></a></dt>
+<dd><p>backwards compatibility</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pub.tools.schema.Person.lname">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lname</span></span><a class="headerlink" href="#pub.tools.schema.Person.lname" title="Link to this definition"></a></dt>
+<dd><p>backwards compatibility</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.ReportRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">ReportRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">editors:</span> <span class="pre">list[pub.tools.schema.Person]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">reportnum:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">publisher:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">series:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">weburl:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">*,</span> <span class="pre">title:</span> <span class="pre">str,</span> <span class="pre">authors:</span> <span class="pre">list[pub.tools.schema.Person],</span> <span class="pre">pubdate:</span> <span class="pre">str,</span> <span class="pre">pagination:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">volume:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pmid:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">medium:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">pubplace:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">abstract:</span> <span class="pre">list[pub.tools.schema.Abstract]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">article_ids:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.ReportRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pub.tools.schema.EntrezRecord" title="pub.tools.schema.EntrezRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntrezRecord</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pub.tools.schema.Section">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pub.tools.schema.</span></span><span class="sig-name descname"><span class="pre">Section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pub.tools.schema.Section" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Primarily used by books or chapters</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citations.html" class="btn btn-neutral float-left" title="citations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="formatting.html" class="btn btn-neutral float-right" title="formatting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Eric Wohnlich.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

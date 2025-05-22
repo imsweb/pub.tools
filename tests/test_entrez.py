@@ -4,6 +4,7 @@ from Bio import Entrez
 
 from pub.tools import citations
 from pub.tools import entrez
+from pub.tools import orcid
 from pub.tools.schema import Abstract
 from pub.tools.schema import Grant
 from pub.tools.schema import JournalRecord
@@ -447,6 +448,15 @@ class TestEntrez:
         record = entrez.get_searched_publications(record["WebEnv"], record["QueryKey"])
         self.check_pub_data(record[0])
 
-    def test_orcid(self):
+    def test_orcid_search(self):
         record = entrez.find_publications(author_ids=["0000-0002-8953-3940"])
         assert int(record["Count"]) > 0
+
+    def test_pubmed_orcid_author(self):
+        record = entrez.get_publication(pmid="32570285")
+        assert record.authors[0].identifiers == {"ORCID": "0000-0002-1771-9287"}
+
+    def test_get_orcid(self):
+        record = orcid.get_author(orcid="0000-0002-1771-9287")
+        assert record["given_name"] == "Rachel"
+        assert record["family_name"] == "Altshuler"

@@ -13,6 +13,7 @@ from .formatting import format_date_str
 from .schema import Abstract
 from .schema import BookRecord
 from .schema import ChapterRecord
+from .schema import EntrezRecord
 from .schema import Grant
 from .schema import JournalRecord
 from .schema import Person
@@ -180,6 +181,7 @@ def _parse_author_name(author: dict, investigator: bool = False) -> Person:
         collective_name=author.get("CollectiveName", ""),
         suffix=author.get("Suffix", ""),
         investigator=investigator,
+        identifiers={source.attributes["Source"]: str(source) for source in author.get("Identifier", {})},
         affiliations=author.get("affiliations", []),
     )
 
@@ -583,7 +585,7 @@ def find_publications(
     affl=None,
     doi="",
     inclusive=False,
-):
+) -> list[EntrezRecord]:
     """
     You can use the resulting WebEnv and QueryKey values to call get_searched_publications
     https://www.ncbi.nlm.nih.gov/books/NBK3827/#_pubmedhelp_Search_Field_Descriptions_and_

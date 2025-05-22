@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.3a0] - 21 May 2025
+- add API to get name from ORCID
+- add identifiers to Person
+
 ## [5.2] - 16 May 2025
 - add search by author_ids
 

@@ -1,4 +1,0 @@
-biopython
-unidecode
-lxml
-requests

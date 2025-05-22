@@ -174,6 +174,8 @@ def _parse_author_name(author: dict, investigator: bool = False) -> Person:
     # strip excess spaces like in
     # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=22606070&retmode=xml
     fname = " ".join([part for part in fname.split(" ") if part])
+    orcid = [i for i in author.get("Identifier", []) if i.attributes.get("Source", "") == "ORCID"]
+    orcid = str(orcid[0]) if orcid else ""
     return Person(
         last_name=author.get("LastName", ""),
         first_name=fname,
@@ -181,7 +183,7 @@ def _parse_author_name(author: dict, investigator: bool = False) -> Person:
         collective_name=author.get("CollectiveName", ""),
         suffix=author.get("Suffix", ""),
         investigator=investigator,
-        identifiers={source.attributes["Source"]: str(source) for source in author.get("Identifier", {})},
+        orcid=orcid,
         affiliations=author.get("affiliations", []),
     )
 

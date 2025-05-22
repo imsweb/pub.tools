@@ -454,7 +454,7 @@ class TestEntrez:
 
     def test_pubmed_orcid_author(self):
         record = entrez.get_publication(pmid="32570285")
-        assert record.authors[0].identifiers == {"ORCID": "0000-0002-1771-9287"}
+        assert record.authors[0].orcid == "0000-0002-1771-9287"
 
     def test_get_orcid(self):
         record = orcid.get_author(orcid="0000-0002-1771-9287")

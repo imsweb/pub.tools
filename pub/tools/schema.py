@@ -16,7 +16,7 @@ class Person:
     suffix: str = ""
     investigator: bool = False
     affiliations: list[str] = dataclasses.field(default_factory=list)
-    identifiers: dict[str, str] = dataclasses.field(default_factory=dict)
+    orcid: str = ""
 
     def asdict(self):
         base = dataclasses.asdict(self)

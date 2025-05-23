@@ -16,7 +16,7 @@ class Person:
     suffix: str = ""
     investigator: bool = False
     affiliations: list[str] = dataclasses.field(default_factory=list)
-    orcid: str = ""
+    identifiers: dict[str, str] = dataclasses.field(default_factory=dict)
 
     def asdict(self):
         base = dataclasses.asdict(self)
@@ -25,6 +25,7 @@ class Person:
             "fname": self.fname,
             "cname": self.cname,
             "iname": self.iname,
+            "orcid": self.orcid,
         })
         return base
 
@@ -47,6 +48,11 @@ class Person:
     def cname(self):
         """backwards compatibility"""
         return self.collective_name
+
+    @property
+    def orcid(self):
+        """Derivative from identifiers"""
+        return self.identifiers.get("ORCID", "")
 
 
 @dataclasses.dataclass

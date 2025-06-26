@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.3.0] - 26 June 2025
+- update format expected for jlist.csv dates
+
 ## [5.3a0] - 21 May 2025
 - add API to get name from ORCID
 - add ORCID Person

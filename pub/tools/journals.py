@@ -79,8 +79,8 @@ def fetch_journals() -> AllJournalData:
                     deposit,
                     url,
                 ) = row
-                latest = latest.split(";")[-1]
-                earliest = earliest.split(";")[-1]
+                latest = latest.split(" ")[-1]
+                earliest = earliest.split(" ")[-1]
                 _atoj[abbr.lower()] = title
                 _jtoa[title.lower()] = abbr
                 dates[abbr.lower()] = (earliest, latest)

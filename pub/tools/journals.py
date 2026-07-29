@@ -67,17 +67,17 @@ def fetch_journals() -> AllJournalData:
                 (
                     title,
                     abbr,
-                    pissn,
-                    eissn,
-                    publisher,
-                    locator,
+                    _pissn,
+                    _eissn,
+                    _publisher,
+                    _locator,
                     latest,
                     earliest,
-                    freeaccess,
-                    openaccess,
-                    participation,
-                    deposit,
-                    url,
+                    _freeaccess,
+                    _openaccess,
+                    _participation,
+                    _deposit,
+                    _url,
                 ) = row
                 latest = latest.split(" ")[-1]
                 earliest = earliest.split(" ")[-1]

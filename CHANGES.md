@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.3.1] - 29 July 2026
+- minor formatting with ruff 0.16
+
 ## [5.3.0] - 26 June 2025
 - update format expected for jlist.csv dates
 

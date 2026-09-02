@@ -90,7 +90,6 @@ preview = true
 path = "pub/tools/__init__.py"
 
 [tool.hatch.build]
-strict-naming = false
 packages = ["pub"]
 
 [tool.hatch.envs.default.scripts]
@@ -101,10 +100,6 @@ cov = [
     "test-cov",
     "cov-report",
 ]
-
-# remove after switching to ruff
-[tool.flake8]
-max-line-length = 120
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
